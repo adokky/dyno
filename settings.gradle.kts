@@ -10,3 +10,4 @@ plugins {
 
 include(":core")
 include(":classmap")
+include(":schema")
