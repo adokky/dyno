@@ -1,6 +1,7 @@
 package dyno
 
 import dyno.DynoMapBase.Unsafe
+import karamel.utils.unsafeCast
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.jvm.JvmName
@@ -10,23 +11,33 @@ import kotlin.reflect.KClass
  * Mutable version of [TypedClassMap] that allows adding, removing, and updating class-instance mappings
  * where the instance type is a subtype of [Base].
  */
-@Serializable(MutableClassMapSerializer::class)
-class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapBase {
+@Serializable(MutableTypedClassMapSerializer::class)
+open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapBase {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
     constructor(other: TypedClassMap<Base>): super(other)
+    internal constructor(other: ClassMap): super(other)
     internal constructor(data: MutableMap<Any, Any>?, json: Json?): super(data, json)
 
     override fun copy(): MutableTypedClassMap<Base> = MutableTypedClassMap(this)
 
     /**
      * Associates the specified [value] with its class in the map.
-     * @param value The value to put.
      * @return The previous value associated with the key, or null if the key was not present.
      */
     @JvmName("putClassInstance")
     inline fun <reified T: Base> put(value: T): T? =
         Unsafe.put(dynoKey<T>(), value)
+
+    /**
+     * Associates the specified [value] with its class in the map.
+     * @return The previous value associated with the key, or null if the key was not present.
+     */
+    @JvmName("setClassInstance")
+    operator fun <T: Base> set(key: KClass<in T>, value: T) {
+        // onAssign and onDecode default implementation does not care about type variance
+        Unsafe.set(dynoKey(key.unsafeCast<KClass<T>>()), value)
+    }
 
     /**
      * Removes the entry for the class of type [T] from the map.
@@ -48,7 +59,6 @@ class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapBase {
      * Returns the value for the class of type [T] if present, otherwise calls [defaultValue],
      * puts the result into the map, and returns it.
      * @param defaultValue The function to compute a default value.
-     * @return The existing or newly computed value.
      */
     @JvmName("getOrPutClassInstance")
     inline fun <reified T: Base> getOrPut(defaultValue: () -> T): T {

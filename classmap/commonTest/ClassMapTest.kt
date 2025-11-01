@@ -1,16 +1,14 @@
 package dyno
 
-import karamel.utils.unsafeCast
 import kotlin.test.*
 
 class ClassMapTest: AbstractClassMapTest() {
-    private val mcm = buildMutableTypedClassMap<Any> {
+    private val ucm = buildClassMap {
         put(a)
         put(b)
     }
 
-    private val ucm = mcm.unsafeCast<ClassMap>()
-    private val cm = mcm as TypedClassMap<Base>
+    private val cm = ucm.asTypedClassMap()
 
     @Test
     fun simple_get() {

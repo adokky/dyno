@@ -80,18 +80,35 @@ fun <T: Any> DynoRequiredKey(name: String, serializer: KSerializer<T>): DynoRequ
     SimpleDynoRequiredKey(name, serializer)
 
 /**
- * Creates a new [DynoKey] with [serializer] for the type [T] the given [name].
+ * Creates a new [DynoKey] with [serializer] for the type [T] with the given [name].
  */
 inline fun <reified T: Any> DynoKey(name: String): DynoKey<T> =
     DynoKey(name, serializer<T>())
 
 /**
- * Creates a new [DynoRequiredKey] with [serializer] for the type [T] the given [name].
+ * Creates a new [DynoRequiredKey] with [serializer] for the type [T] with the given [name].
  */
 inline fun <reified T: Any> DynoRequiredKey(name: String): DynoRequiredKey<T> =
     DynoRequiredKey(name, serializer<T>())
 
-// default implementations
+// todo DynoKey() -> DynoTypeKey()
+//  also DynoClassKey()
+
+/**
+ * Creates a new [DynoKey] for serializable type [T] with its serial name as the key name.
+ */
+inline fun <reified T: Any> DynoKey(): DynoKey<T> {
+    val serializer = serializer<T>()
+    return DynoKey(serializer.descriptor.serialName, serializer)
+}
+
+/**
+ * Creates a new [DynoKey] for serializable type [T] with its serial name as the key name.
+ */
+inline fun <reified T: Any> DynoRequiredKey(): DynoRequiredKey<T> {
+    val serializer = serializer<T>()
+    return DynoRequiredKey(serializer.descriptor.serialName, serializer)
+}
 
 /**
  * A basic implementation of [DynoKey].

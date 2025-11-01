@@ -55,7 +55,7 @@ interface DynamicObject: DynoMap<DynoKey<*>> {
 
     companion object {
         @JvmStatic
-        val Empty: DynamicObject = DynamicObjectImpl()
+        val Empty: DynamicObject get() = EmptyDynamicObject
     }
 }
 

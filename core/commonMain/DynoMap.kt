@@ -3,6 +3,7 @@ package dyno
 import dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmName
 
 /**
  * Type-safe, serializable, heterogeneous map where each key is associated with a specific value type.
@@ -26,18 +27,31 @@ import kotlinx.serialization.Serializable
 interface DynoMap<in K: DynoKey<*>>: DynoMapBase
 
 
-/** Gets the value associated with the specified [key] or `null` if it is not present */
+/** Gets the value associated with the specified [key] or `null` if not found */
 operator fun <K: DynoKey<T>, T: Any> DynoMap<K>.get(key: K): T? =
     Unsafe.get(key)
 
 /**
- * Gets the value associated with the specified [key] or throws an exception if not found.
+ * Gets the value associated with the specified [key] or throws [NoSuchDynoKeyException] if not found.
  * @throws NoSuchDynoKeyException if the [key] is not present.
  */
 operator fun <K: DynoRequiredKey<T>, T: Any> DynoMap<K>.get(key: K): T = getOrFail(key)
 
 /**
- * Gets the value associated with the specified [key] or throws an exception if not found.
+ * Gets the value associated with the serial name of [T] or `null` if not found.
+ */
+inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstance(): T? =
+    get(DynoKey<T>())
+
+/**
+ * Retrieves a value of type [T] by its serial name or throws [NoSuchDynoKeyException] if not found.
+ * @throws NoSuchDynoKeyException if key with serial name of [T] is not found.
+ */
+inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstanceOrFail(): T =
+    getOrFail(DynoKey<T>())
+
+/**
+ * Gets the value associated with the specified [key] or throws [NoSuchDynoKeyException] if not found.
  * @throws NoSuchDynoKeyException if the [key] is not present.
  */
 fun <K: DynoKey<T>, T: Any> DynoMap<K>.getOrFail(key: K): T =

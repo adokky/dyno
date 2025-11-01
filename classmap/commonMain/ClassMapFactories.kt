@@ -2,9 +2,9 @@ package dyno
 
 // Empty
 
-fun emptyClassMap(): ClassMap = TypedClassMap.empty()
+fun emptyClassMap(): ClassMap = ClassMap.Empty
 
-fun <Base: Any> emptyTypedClassMap(): TypedClassMap<Base> = TypedClassMap.empty()
+fun <Base: Any> emptyTypedClassMap(): TypedClassMap<Base> = TypedClassMap.Empty()
 
 
 // Read-only

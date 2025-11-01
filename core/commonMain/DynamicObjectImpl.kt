@@ -6,7 +6,7 @@ import dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.json.Json
 
-internal class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
+internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
     constructor(entries: Collection<DynoEntry<*, *>>): super(entries)

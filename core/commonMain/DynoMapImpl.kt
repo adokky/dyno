@@ -273,6 +273,13 @@ abstract class DynoMapImpl(
         }
     }
 
+    @Suppress("UnusedReceiverParameter")
+    val DynoMapBase.Unsafe.data: MutableMap<Any, Any>? get() = this@DynoMapImpl.data
+
+    @Suppress("UnusedReceiverParameter")
+    val DynoMapBase.Unsafe.json: Json? get() = this@DynoMapImpl.json
+
+
     internal companion object {
         private const val HASH_CODE_MULT = 31
 

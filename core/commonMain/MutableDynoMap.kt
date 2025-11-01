@@ -55,17 +55,22 @@ interface MutableDynoMap<in K: DynoKey<*>>: MutableDynoMapBase, DynoMap<K> {
  * Sets the [value] for the given [key] in the map.
  *
  * If [value] is `null`, the entry associated with [key] is removed from the map.
- * The [value] must conform exactly to the type expected by [key] due to the `@Exact` annotation.
  */
 operator fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.set(key: K, value: T?) {
     if (value == null) Unsafe.remove(key) else Unsafe.set(key, value)
 }
 
 /**
+ * Sets the [value] for the serial name of [T] in the map.
+ */
+inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.setInstance(value: T) {
+    Unsafe.set(DynoKey<T>(), value)
+}
+
+/**
  * Associates the specified [value] with the specified [key] in the map.
  *
- * Returns the previous value associated with [key], or `null` if the key was not present.
- * The [value] must conform exactly to the type expected by [key].
+ * Returns the previous value associated with [key], or `null` if the [key] was not present.
  */
 fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(key: K, value: @Exact T): T? =
     Unsafe.put(key, value)
@@ -73,10 +78,19 @@ fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(key: K, value: @Exact T): T? =
 /**
  * Removes the entry for the specified [key] from the map.
  *
- * Returns the previous value associated with [key], or `null` if the key was not present.
+ * Returns the previous value associated with [key], or `null` if the [key] was not present.
  */
 fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.remove(key: K): T? =
     Unsafe.removeAndGet(key)
+
+/**
+ * Removes the entry for the serial name of specified type [T] from the map.
+ *
+ * Returns the previous value associated with [T] serial name,
+ * or `null` if it was not present.
+ */
+inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.removeInstance(): T? =
+    Unsafe.removeAndGet(DynoKey<T>())
 
 /**
  * Sets the entry defined by [entry] in the map.
@@ -94,6 +108,14 @@ fun <K: DynoKey<*>> MutableDynoMap<K>.set(entry: DynoEntry<K, *>) {
  */
 fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(entry: DynoEntry<K, T?>): T? =
     Unsafe.put(entry)
+
+/**
+ * Associates the specified [value] with the serial name of [T] in the map.
+ *
+ * Returns the previous value associated with [T] serial name, or `null` if the key was not present.
+ */
+inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.putInstance(value: T): T? =
+    put(DynoKey<T>(), value)
 
 /**
  * Adds all [entries] to the map.
@@ -125,8 +147,7 @@ infix fun <K: DynoKey<T>, T : Any> K.set(value: @Exact T) {
 }
 
 /**
- * Adds the specified [entry] to the map using the `+=` operator.
- *
+ * Adds the specified [entry] to the map.
  * Equivalent to calling [set] with the entry.
  */
 operator fun <K: DynoKey<*>> MutableDynoMap<K>.plusAssign(entry: DynoEntry<K, *>) {
@@ -134,8 +155,7 @@ operator fun <K: DynoKey<*>> MutableDynoMap<K>.plusAssign(entry: DynoEntry<K, *>
 }
 
 /**
- * Removes the entry for the specified [key] from the map using the `-=` operator.
- *
+ * Removes the entry for the specified [key] from the map.
  * Equivalent to calling [remove] with the key.
  */
 operator fun <K: DynoKey<*>> MutableDynoMap<K>.minusAssign(key: K) {

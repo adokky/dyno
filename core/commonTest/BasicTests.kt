@@ -1,6 +1,12 @@
 package dyno
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import kotlin.test.*
 
 open class BasicTests: AbstractMutableDynoTest() {
@@ -229,6 +235,77 @@ open class BasicTests: AbstractMutableDynoTest() {
         check(mutableDynamicObjectOf().encodeDecode())
         check(buildMutableDynamicObject { put(e1); remove(e1.key) })
         check(buildMutableDynamicObject { put(e1); remove(e1.key) }.encodeDecode())
+    }
+
+    @Test
+    fun class_keys_mutation() {
+        @Serializable data class Data1(val s: String)
+        @Serializable data class Data2(val i: Int)
+
+        val expected1 = Data1("xyz")
+        val expected2 = Data2(456)
+
+        val dyno = mutableDynamicObjectOf()
+        assertNull(dyno.putInstance(Data1("abc")))
+        dyno.setInstance(expected1)
+        assertNull(dyno.putInstance(Data2(123)))
+        dyno.setInstance(expected2)
+
+        assertEquals(expected1, dyno.getInstance())
+        assertEquals(expected2, dyno.getInstance())
+
+        assertEquals(expected1, dyno.getInstanceOrFail())
+        assertEquals(expected2, dyno.getInstanceOrFail())
+
+        assertEquals(
+            dynamicObjectOf(
+                DynoKey<Data1>() with expected1,
+                DynoKey<Data2>() with expected2,
+            ),
+            dyno
+        )
+
+        assertEquals(expected1, dyno.putInstance(Data1("overwrite")))
+        assertEquals(expected2, dyno.putInstance(Data2(42)))
+
+        val ov1 = Data1("overwrite2")
+        val ov2 = Data2(94725)
+        dyno.setInstance(ov1)
+        assertEquals(ov1, dyno.getInstance())
+        dyno.setInstance(ov2)
+        assertEquals(ov2, dyno.getInstance())
+
+        assertEquals(ov1, dyno.removeInstance())
+        assertNull(dyno.getInstance<Data1>())
+        assertEquals(ov2, dyno.getInstance())
+        assertEquals(ov2, dyno.removeInstance())
+        assertNull(dyno.getInstance<Data2>())
+
+        assertTrue(dyno.isEmpty())
+
+        assertFailsWith<NoSuchDynoKeyException> { dyno.getInstanceOrFail<Data1>() }
+        assertFailsWith<NoSuchDynoKeyException> { dyno.getInstanceOrFail<Data2>() }
+    }
+
+    @Test
+    fun class_keys_serial_name() {
+        @SerialName("d1") @Serializable data class Data1(val s: String)
+        @SerialName("d2") @Serializable data class Data2(val i: Int)
+
+        val data = dynamicObjectOf(
+            DynoKey<Data1>() with Data1("ABC"),
+            DynoKey<Data2>() with Data2(321),
+            DynoKey<Int>() with 42
+        )
+
+        assertEquals(data, data.encodeDecode())
+        val actual = Json.encodeToJsonElement(data)
+        val expected = buildJsonObject {
+            putJsonObject("d1") { put("s", "ABC") }
+            putJsonObject("d2") { put("i", 321) }
+            put("kotlin.Int", 42)
+        }
+        assertEquals(expected, actual)
     }
 }
 

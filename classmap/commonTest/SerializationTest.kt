@@ -26,17 +26,17 @@ class SerializationTest: AbstractClassMapTest() {
 
     @Test
     fun mutable() {
-        val value = buildMutableClassMap { put("zzz"); put(111) }
-        val str = Json.encodeToString(MutableClassMapSerializer, value)
-        val decoded = Json.decodeFromString(MutableClassMapSerializer, str)
+        val value = buildMutableTypedClassMap<Any> { put("zzz"); put(111) }
+        val str = Json.encodeToString(MutableTypedClassMapSerializer, value)
+        val decoded = Json.decodeFromString(MutableTypedClassMapSerializer, str)
         assertEquals(value, decoded)
     }
 
     @Test
     fun read_only() {
-        val value = buildClassMap { put("zzz"); put(111) }
-        val str = Json.encodeToString(ClassMapSerializer, value)
-        val decoded = Json.decodeFromString(ClassMapSerializer, str)
+        val value = buildTypedClassMap<Any> { put("zzz"); put(111) }
+        val str = Json.encodeToString(TypedClassMapSerializer, value)
+        val decoded = Json.decodeFromString(TypedClassMapSerializer, str)
         assertEquals(value, decoded)
     }
 }
