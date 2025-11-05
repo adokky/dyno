@@ -1,5 +1,6 @@
 package dyno
 
+import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -66,6 +67,20 @@ class MutableClassMapTest: AbstractClassMapTest() {
         val cm = buildMutableTypedClassMap<Base> {}
 
         assertNull(cm.remove(A::class))
+
+        cm += a
+        cm += b
+
+        assertEquals(a, cm.remove(A::class))
+        assertEquals(b, cm.remove(B::class))
+        assertNull(cm.remove(Base::class))
+    }
+
+    @Test
+    fun remove_type() {
+        val cm = buildMutableTypedClassMap<Base> {}
+
+        assertNull(cm.remove(typeOf<A>()))
 
         cm += a
         cm += b

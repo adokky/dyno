@@ -3,6 +3,7 @@ package dyno
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 
 class ConversionTest: AbstractClassMapTest() {
     @Test
@@ -71,5 +72,41 @@ class ConversionTest: AbstractClassMapTest() {
         assertEquals(A("1"), cm.getOrFail())
         assertEquals(B(3), cm.getOrFail())
         assertEquals<DynoMapBase>(cm, tcm)
+    }
+
+    @Test
+    fun to_typed_class_map() {
+        val original = buildMutableClassMap {
+            put(a)
+            put(b)
+        }
+
+        val copy = original.toTypedClassMap()
+
+        assertEquals(a, copy.get<A>())
+        assertEquals(b, copy.get<B>())
+
+        // Check that modifications don't affect original
+        original.put(C("new"))
+        assertNull(copy.get<C>())
+        assertEquals(C("new"), original.get<C>())
+    }
+
+    @Test
+    fun to_mutable_class_map() {
+        val original = buildClassMap {
+            put(a)
+            put(b)
+        }
+
+        val mutable = original.toMutableClassMap()
+
+        assertEquals(a, mutable.get<A>())
+        assertEquals(b, mutable.get<B>())
+
+        // Check that modifications don't affect original
+        mutable.put(C("new"))
+        assertNull(original.get<C>())
+        assertEquals(C("new"), mutable.get<C>())
     }
 }

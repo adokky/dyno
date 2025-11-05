@@ -15,8 +15,8 @@ import kotlin.jvm.JvmName
  *
  * ## Usage
  *
- * The primary way to interact with a [MutableDynoMap] is through its operator functions
- * and extension functions. These allow type-safe mutation of the map contents.
+ * The primary way to interact with a [MutableDynoMap] is through its extension functions.
+ * These allow type-safe mutation of the map contents.
  *
  * Example:
  * ```
@@ -27,11 +27,11 @@ import kotlin.jvm.JvmName
  *
  * val person: MutableDynoMap<DynoKey<*>> = mutableDynamicObjectOf()
  *
- * // Set values using index operator
- * person[Person.name] = "Alice"
+ * // Set values using get() operator
+ * person[Person.name] = "Alex"
  * person[Person.age] = 30
  *
- * // Or using put function
+ * // Or using put() function
  * person.put(Person.name, "Bob")
  *
  * // Remove entries
@@ -131,7 +131,7 @@ fun <K: DynoKey<*>> MutableDynoMap<K>.putAll(entries: Iterable<DynoEntry<K, *>>)
 /**
  * Sets the [value] for the current context key in the map.
  *
- * This infix function allows DSL-style assignments when used inside a context lambda.
+ * This infix function allows DSL-style assignments when used inside [MutableDynoMap] context.
  * Example:
  * ```
  * with(mutableDynamicObjectOf()) {

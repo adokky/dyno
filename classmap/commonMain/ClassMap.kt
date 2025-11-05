@@ -4,13 +4,16 @@ import dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 /**
  * A container for mapping [KClass] instances to values.
  * The key must be a [KClass] corresponding to any serializable class.
+ *
+ * Mapping is performed using the `serialName` of the class or type provided as the key.
+ * This means that two classes with the same fully qualified name but different serial names
+ * (e.g., due to `@SerialName` annotation) will be treated as distinct keys.
  *
  * ```
  * val map: ClassMap = buildClassMap {
@@ -21,9 +24,8 @@ import kotlin.reflect.KType
  * map.get<String>() // returns "foo"
  * map.get<Int>() // returns 42
  * ```
- *
- * Note: While [ClassMap] itself is not directly serializable via kotlinx.serialization,
- *  * it can be serialized automatically when used as a property in a `@Serializable` class.
+ * Warning: If a key's `serialName` conflicts with another, behavior is undefined
+ * and may lead to unexpected overrides.
  *
  * @see TypedClassMapSerializer
  */
@@ -38,11 +40,11 @@ sealed class ClassMap: ClassMapBase<Any> {
 
     /**
      * Returns a new [ClassMap] containing all elements of this map and the given [value].
-     * The [value]'s class is used as the key.
+     * The key is determined by the `serialName` of the [value]'s class.
+     * If an entry with the same `serialName` already exists, it will be replaced.
      */
-    @JvmName("plusClassInstance")
     inline operator fun <reified T: Any> plus(value: T): ClassMap =
-        plus(dynoKey<T>(), value)
+        plus(DynoKey<T>(), value)
 
     @PublishedApi
     internal fun <T: Any> plus(key: DynoKey<T>, value: T): ClassMap =
@@ -51,7 +53,10 @@ sealed class ClassMap: ClassMapBase<Any> {
             .unsafeCast()
 
     /**
-     * Returns a new [ClassMap] containing all elements of this map except the entry with the [key].
+     * Returns a new [ClassMap] containing all elements of this map
+     * except the entry with the given [key] `serialName`.
+     * If no entry with the matching `serialName` exists,
+     * the returned map will be equal to the original.
      */
     override fun <T : Any> minus(key: KClass<out T>): ClassMap {
         return MutableClassMap(this)
@@ -60,7 +65,10 @@ sealed class ClassMap: ClassMapBase<Any> {
     }
 
     /**
-     * Returns a new [ClassMap] containing all elements of this map except the entry with the [key].
+     * Returns a new [ClassMap] containing all elements of this map
+     * except the entry with the given [key] `serialName`.
+     * If no entry with the matching `serialName` exists,
+     * the returned map will be equal to the original.
      */
     override fun <T : Any> minus(key: KType): ClassMap {
         return MutableClassMap(this)
@@ -73,8 +81,23 @@ sealed class ClassMap: ClassMapBase<Any> {
     }
 }
 
+/**
+ * Converts this [ClassMap] to a [TypedClassMap] with the same contents.
+ *
+ * This is a view conversion - both maps will share the same underlying data.
+ */
 fun ClassMap.asTypedClassMap(): TypedClassMap<Any> = MutableTypedClassMap(Unsafe.data, Unsafe.json)
 
+/**
+ * Creates a new [TypedClassMap] with the same contents as this [ClassMap].
+ *
+ * This is a copy conversion - modifications to the returned map will not affect the original.
+ */
 fun ClassMap.toTypedClassMap(): TypedClassMap<Any> = MutableTypedClassMap(this)
 
+/**
+ * Creates a new [MutableClassMap] with the same contents as this [ClassMap].
+ *
+ * This is a copy conversion - modifications to the returned map will not affect the original.
+ */
 fun ClassMap.toMutableClassMap(): MutableClassMap = MutableClassMap(this)

@@ -11,6 +11,11 @@ class ClassMapTest: AbstractClassMapTest() {
     private val cm = ucm.asTypedClassMap()
 
     @Test
+    fun dynoName() {
+        println(DynoKey<List<Int>>())
+    }
+
+    @Test
     fun simple_get() {
         assertEquals(a, cm.get<A>())
         assertEquals(b, cm.get<B>())

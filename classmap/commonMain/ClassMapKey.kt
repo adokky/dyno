@@ -13,14 +13,8 @@ internal fun classMapStringKey(klass: KClass<*>): String {
 }
 
 @PublishedApi
-internal fun classMapStringKey(ktype: KType): String {
-    return serializer(ktype).descriptor.serialName
-}
-
-@PublishedApi
-internal inline fun <reified T: Any> dynoKey(): DynoKey<T> {
-    val serializer = serializer<T>()
-    return DynoKey(serializer.descriptor.serialName, serializer)
+internal fun classMapStringKey(type: KType): String {
+    return serializer(type).descriptor.serialName
 }
 
 @PublishedApi

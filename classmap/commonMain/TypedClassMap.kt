@@ -24,11 +24,12 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
 
     /**
      * Returns a new [TypedClassMap] containing all elements of this map and the given [value].
-     * The [value]'s class is used as the key.
+     * The key is determined by the `serialName` of the [value]'s class.
+     * If an entry with the same `serialName` already exists, it will be replaced.
      */
     @JvmName("plusClassInstance")
     inline operator fun <reified T: Base> plus(value: T): TypedClassMap<Base> =
-        plus(dynoKey<T>(), value)
+        plus(DynoKey<T>(), value)
 
     @PublishedApi
     internal fun <T: Base> plus(key: DynoKey<T>, value: T): TypedClassMap<Base> =
@@ -37,7 +38,10 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
             .unsafeCast()
 
     /**
-     * Returns a new [TypedClassMap] containing all elements of this map except the entry with the [key].
+     * Returns a new [TypedClassMap] containing all elements of this map
+     * except the entry with the given [key] `serialName`.
+     * If no entry with the matching `serialName` exists,
+     * the returned map will be equal to the original.
      */
     override fun <T : Any> minus(key: KClass<out T>): TypedClassMap<Any> =
         MutableTypedClassMap(this)
@@ -45,7 +49,10 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
             .unsafeCast()
 
     /**
-     * Returns a new [TypedClassMap] containing all elements of this map except the entry with the [key].
+     * Returns a new [TypedClassMap] containing all elements of this map
+     * except the entry with the given [key] `serialName`.
+     * If no entry with the matching `serialName` exists,
+     * the returned map will be equal to the original.
      */
     override fun <T : Any> minus(key: KType): TypedClassMap<Any> =
         MutableTypedClassMap(this)
@@ -53,17 +60,30 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
             .unsafeCast()
 
     companion object {
+        @Suppress("FunctionName")
         @JvmStatic
-        fun <Base: Any> Empty(): TypedClassMap<Base> = EmptyTypedClassMap.unsafeCast()
+        fun <Base: Any> Empty(): TypedClassMap<Base> = Empty.unsafeCast()
+    }
+
+    private object Empty: TypedClassMap<Any>(0) {
+        override fun copy(): Empty = this
     }
 }
 
-private object EmptyTypedClassMap: TypedClassMap<Any>(0) {
-    override fun copy(): EmptyTypedClassMap = this
-}
-
+/**
+ * Creates a view of this [TypedClassMap] as a [ClassMap].
+ * Both maps share the same underlying data, so changes in one will reflect in the other.
+ */
 fun TypedClassMap<*>.asClassMap(): ClassMap = MutableClassMap(Unsafe.data, Unsafe.json)
 
+/**
+ * Creates a new [ClassMap] with the same contents as this [TypedClassMap].
+ * This is a copy conversion - modifications to the returned map will not affect the original.
+ */
 fun TypedClassMap<*>.toClassMap(): ClassMap = MutableClassMap(this)
 
+/**
+ * Creates a mutable copy of this [TypedClassMap].
+ * Modifications to the returned map will not affect the original.
+ */
 fun <T: Any> TypedClassMap<T>.toMutableTypedClassMap(): MutableTypedClassMap<T> = MutableTypedClassMap(this)

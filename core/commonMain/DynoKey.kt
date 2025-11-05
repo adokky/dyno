@@ -25,7 +25,7 @@ import kotlin.jvm.JvmStatic
  * ```
  * val nameKey = DynoKey<String>("name")
  * val ageKey = DynoKey<Int>("age")
- * val person = dynamicObjectOf(nameKey with "Alice", ageKey with 30)
+ * val person = dynamicObjectOf(nameKey with "Alex", ageKey with 30)
  *
  * val name: String = person[nameKey]
  * val age: Int = person[ageKey]
@@ -91,9 +91,6 @@ inline fun <reified T: Any> DynoKey(name: String): DynoKey<T> =
 inline fun <reified T: Any> DynoRequiredKey(name: String): DynoRequiredKey<T> =
     DynoRequiredKey(name, serializer<T>())
 
-// todo DynoKey() -> DynoTypeKey()
-//  also DynoClassKey()
-
 /**
  * Creates a new [DynoKey] for serializable type [T] with its serial name as the key name.
  */
@@ -114,16 +111,14 @@ inline fun <reified T: Any> DynoRequiredKey(): DynoRequiredKey<T> {
  * A basic implementation of [DynoKey].
  *
  * Keys are compared by their [name] only. This means that two keys with the same name
- * but different types will be considered equal, which can lead to unexpected behavior.
- * It is the user's responsibility to ensure key names are unique across types if needed.
- *
- * ## Example
- *
+ * but different types will be considered equal:
  * ```
  * val key1 = SimpleDynoKey("count", Int.serializer())
  * val key2 = SimpleDynoKey("count", Long.serializer())
  * // key1 == key2 is true!
  * ```
+ * It is the user's responsibility to ensure key names are unique across types if needed.
+ * @see SimpleDynoRequiredKey
  */
 open class SimpleDynoKey<T: Any>(
     final override val name: String,
@@ -151,6 +146,15 @@ open class SimpleDynoKey<T: Any>(
 
 /**
  * A basic implementation of [DynoRequiredKey].
+ *
+ * Keys are compared by their [name] only. This means that two keys with the same name
+ * but different types will be considered equal:
+ * ```
+ * val key1 = SimpleDynoKey("count", Int.serializer())
+ * val key2 = SimpleDynoRequiredKey("count", Long.serializer())
+ * // key1 == key2 is true!
+ * ```
+ * It is the user's responsibility to ensure key names are unique across types if needed.
  */
 open class SimpleDynoRequiredKey<T: Any>(
     name: String,

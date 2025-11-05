@@ -1,0 +1,133 @@
+public abstract class dyno/ClassMap : dyno/ClassMapBase {
+	public static final field Companion Ldyno/ClassMap$Companion;
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/ClassMapBase;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun copy ()Ldyno/ClassMap;
+	public fun minus (Lkotlin/reflect/KClass;)Ldyno/ClassMap;
+	public synthetic fun minus (Lkotlin/reflect/KClass;)Ldyno/ClassMapBase;
+	public fun minus (Lkotlin/reflect/KType;)Ldyno/ClassMap;
+	public synthetic fun minus (Lkotlin/reflect/KType;)Ldyno/ClassMapBase;
+	public final fun plus (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/ClassMap;
+}
+
+public final class dyno/ClassMap$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class dyno/ClassMap$Empty : dyno/ClassMap {
+	public static final field INSTANCE Ldyno/ClassMap$Empty;
+	public fun copy ()Ldyno/ClassMap$Empty;
+	public synthetic fun copy ()Ldyno/ClassMap;
+	public synthetic fun copy ()Ldyno/ClassMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapImpl;
+	public synthetic fun copy ()Ldyno/MutableDynoMapBase;
+}
+
+public abstract class dyno/ClassMapBase : dyno/DynoMapImpl, dyno/DynoMapBase {
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/ClassMapBase;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun contains (Lkotlin/reflect/KClass;)Z
+	public final fun contains (Lkotlin/reflect/KType;)Z
+	public abstract fun copy ()Ldyno/ClassMapBase;
+	public final fun get (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public final fun get (Lkotlin/reflect/KType;)Ljava/lang/Object;
+	public final fun getOrDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getOrFail (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public final fun getOrFail (Lkotlin/reflect/KType;)Ljava/lang/Object;
+	public abstract fun minus (Lkotlin/reflect/KClass;)Ldyno/ClassMapBase;
+	public abstract fun minus (Lkotlin/reflect/KType;)Ldyno/ClassMapBase;
+}
+
+public final class dyno/ClassMapFactoriesKt {
+	public static final fun buildClassMap (Lkotlin/jvm/functions/Function1;)Ldyno/ClassMap;
+	public static final fun buildMutableClassMap (Lkotlin/jvm/functions/Function1;)Ldyno/MutableClassMap;
+	public static final fun buildMutableTypedClassMap (Lkotlin/jvm/functions/Function1;)Ldyno/MutableTypedClassMap;
+	public static final fun buildTypedClassMap (Lkotlin/jvm/functions/Function1;)Ldyno/TypedClassMap;
+	public static final fun emptyClassMap ()Ldyno/ClassMap;
+	public static final fun emptyTypedClassMap ()Ldyno/TypedClassMap;
+}
+
+public final class dyno/ClassMapKeyKt {
+	public static final fun classMapStringKey (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public static final fun classMapStringKey (Lkotlin/reflect/KType;)Ljava/lang/String;
+	public static final fun dynoKey (Lkotlin/reflect/KClass;)Ldyno/DynoKey;
+	public static final fun dynoKey (Lkotlin/reflect/KType;)Ldyno/DynoKey;
+}
+
+public final class dyno/ClassMapKt {
+	public static final fun asTypedClassMap (Ldyno/ClassMap;)Ldyno/TypedClassMap;
+	public static final fun toMutableClassMap (Ldyno/ClassMap;)Ldyno/MutableClassMap;
+	public static final fun toTypedClassMap (Ldyno/ClassMap;)Ldyno/TypedClassMap;
+}
+
+public final class dyno/MutableClassMap : dyno/ClassMap, dyno/MutableDynoMapBase {
+	public static final field Companion Ldyno/MutableClassMap$Companion;
+	public fun <init> ()V
+	public synthetic fun copy ()Ldyno/ClassMap;
+	public synthetic fun copy ()Ldyno/ClassMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapImpl;
+	public fun copy ()Ldyno/MutableClassMap;
+	public synthetic fun copy ()Ldyno/MutableDynoMapBase;
+	public final fun minusAssign (Lkotlin/reflect/KClass;)V
+	public final fun minusAssign (Lkotlin/reflect/KType;)V
+	public final fun remove (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public final fun remove (Lkotlin/reflect/KType;)Ljava/lang/Object;
+	public final fun set (Ldyno/DynoMapBase$Unsafe;Lkotlin/reflect/KType;Ljava/lang/Object;)V
+	public final fun set (Lkotlin/reflect/KClass;Ljava/lang/Object;)V
+}
+
+public final class dyno/MutableClassMap$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public class dyno/MutableTypedClassMap : dyno/TypedClassMap, dyno/MutableDynoMapBase {
+	public static final field Companion Ldyno/MutableTypedClassMap$Companion;
+	public fun <init> ()V
+	protected fun <init> (I)V
+	public synthetic fun copy ()Ldyno/ClassMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapImpl;
+	public synthetic fun copy ()Ldyno/MutableDynoMapBase;
+	public fun copy ()Ldyno/MutableTypedClassMap;
+	public synthetic fun copy ()Ldyno/TypedClassMap;
+	public final fun minusAssign (Lkotlin/reflect/KClass;)V
+	public final fun minusAssign (Lkotlin/reflect/KType;)V
+	public final fun remove (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public final fun remove (Lkotlin/reflect/KType;)Ljava/lang/Object;
+	public final fun set (Lkotlin/reflect/KClass;Ljava/lang/Object;)V
+}
+
+public final class dyno/MutableTypedClassMap$Companion {
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public abstract class dyno/TypedClassMap : dyno/ClassMapBase, dyno/DynoMapBase {
+	public static final field Companion Ldyno/TypedClassMap$Companion;
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/ClassMap;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/TypedClassMap;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun Empty ()Ldyno/TypedClassMap;
+	public abstract fun copy ()Ldyno/TypedClassMap;
+	public synthetic fun minus (Lkotlin/reflect/KClass;)Ldyno/ClassMapBase;
+	public fun minus (Lkotlin/reflect/KClass;)Ldyno/TypedClassMap;
+	public synthetic fun minus (Lkotlin/reflect/KType;)Ldyno/ClassMapBase;
+	public fun minus (Lkotlin/reflect/KType;)Ldyno/TypedClassMap;
+	public final fun plus (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/TypedClassMap;
+}
+
+public final class dyno/TypedClassMap$Companion {
+	public final fun Empty ()Ldyno/TypedClassMap;
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class dyno/TypedClassMapKt {
+	public static final fun asClassMap (Ldyno/TypedClassMap;)Ldyno/ClassMap;
+	public static final fun toClassMap (Ldyno/TypedClassMap;)Ldyno/ClassMap;
+	public static final fun toMutableTypedClassMap (Ldyno/TypedClassMap;)Ldyno/MutableTypedClassMap;
+}
+
