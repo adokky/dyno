@@ -5,7 +5,7 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Represents an automatically serializable object with a dynamically defined
- * set of strictly typed properties ([DynoKey])
+ * set of strictly typed properties ([DynoKey]).
  * Provides a flexible way to work with structured data without predefined schema.
  *
  * This interface extends [DynoMap] with [DynoKey] as key type and adds

@@ -17,7 +17,7 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
     constructor(other: TypedClassMap<Base>): super(other)
-    protected constructor(other: ClassMap): super(other)
+    constructor(other: ClassMap): super(other)
     constructor(data: MutableMap<Any, Any>?, json: Json?): super(data, json)
 
     abstract override fun copy(): TypedClassMap<Base>
@@ -28,8 +28,12 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
      */
     @JvmName("plusClassInstance")
     inline operator fun <reified T: Base> plus(value: T): TypedClassMap<Base> =
+        plus(dynoKey<T>(), value)
+
+    @PublishedApi
+    internal fun <T: Base> plus(key: DynoKey<T>, value: T): TypedClassMap<Base> =
         MutableTypedClassMap(this)
-            .apply { Unsafe.put(dynoKey<T>(), value) }
+            .apply { Unsafe.put(key, value) }
             .unsafeCast()
 
     /**
@@ -40,6 +44,9 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
             .apply { Unsafe.remove(classMapStringKey(key)) }
             .unsafeCast()
 
+    /**
+     * Returns a new [TypedClassMap] containing all elements of this map except the entry with the [key].
+     */
     override fun <T : Any> minus(key: KType): TypedClassMap<Any> =
         MutableTypedClassMap(this)
             .apply { Unsafe.remove(classMapStringKey(key)) }

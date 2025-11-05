@@ -1,4 +1,6 @@
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 plugins {
     alias(libs.plugins.kotlinx.serialization)
@@ -42,8 +44,8 @@ kotlin {
 
     js().browser {
         testTask {
-            useKarma {
-                useFirefox()
+            useMocha {
+                timeout = "30000"
             }
         }
     }

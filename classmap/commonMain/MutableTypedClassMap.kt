@@ -8,14 +8,14 @@ import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 /**
- * Mutable version of [TypedClassMap] that allows adding, removing, and updating class-instance mappings
- * where the instance type is a subtype of [Base].
+ * Mutable version of [TypedClassMap] that allows adding, removing, and updating type-instance mappings
+ * where the type is a subtype of [Base].
  */
 @Serializable(MutableTypedClassMapSerializer::class)
 open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapBase {
-    constructor(): super()
-    constructor(capacity: Int): super(capacity)
-    constructor(other: TypedClassMap<Base>): super(other)
+    @PublishedApi internal constructor(): super()
+    protected constructor(capacity: Int): super(capacity)
+    internal constructor(other: TypedClassMap<Base>): super(other)
     internal constructor(other: ClassMap): super(other)
     internal constructor(data: MutableMap<Any, Any>?, json: Json?): super(data, json)
 

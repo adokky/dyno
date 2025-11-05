@@ -42,8 +42,12 @@ sealed class ClassMap: ClassMapBase<Any> {
      */
     @JvmName("plusClassInstance")
     inline operator fun <reified T: Any> plus(value: T): ClassMap =
+        plus(dynoKey<T>(), value)
+
+    @PublishedApi
+    internal fun <T: Any> plus(key: DynoKey<T>, value: T): ClassMap =
         MutableClassMap(this)
-            .apply { Unsafe.put(dynoKey<T>(), value) }
+            .apply { Unsafe.put(key, value) }
             .unsafeCast()
 
     /**
@@ -55,6 +59,9 @@ sealed class ClassMap: ClassMapBase<Any> {
             .unsafeCast()
     }
 
+    /**
+     * Returns a new [ClassMap] containing all elements of this map except the entry with the [key].
+     */
     override fun <T : Any> minus(key: KType): ClassMap {
         return MutableClassMap(this)
             .apply { Unsafe.remove(classMapStringKey(key)) }

@@ -33,8 +33,8 @@ kotlin {
 
     js().browser {
         testTask {
-            useKarma {
-                useFirefox()
+            useMocha {
+                timeout = "30000"
             }
         }
     }
