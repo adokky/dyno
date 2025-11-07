@@ -21,7 +21,7 @@ import kotlin.internal.Exact
 interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>> {
     /**
      * Creates a copy of the object with the same data.
-     * The copy is completely independent from the original.
+     * Modifications to the original will not affect the returned map.
      */
     override fun copy(): MutableDynamicObject
 

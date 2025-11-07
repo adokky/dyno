@@ -18,8 +18,6 @@ import kotlin.jvm.JvmStatic
  * - [onAssign] is called when a value is manually assigned to the key.
  * - [onDecode] is called when a value is deserialized from a JSON source.
  *
- * If validation fails, these methods should throw an exception.
- *
  * ## Example
  *
  * ```
@@ -37,10 +35,10 @@ interface DynoKey<T: Any>: AbstractEagerDynoSerializer.ResolveResult {
     val serializer: KSerializer<T>
 
     /** Called when putting key manually. Useful for validation */
-    fun onAssign(value: T): T = value
+    val onAssign: DynoKeyProcessor<T>? get() = null
 
     /** Called on deserialization. Useful for validation */
-    fun onDecode(value: T): T = value
+    val onDecode: DynoKeyProcessor<T>? get() = null
 }
 
 /**
@@ -122,7 +120,9 @@ inline fun <reified T: Any> DynoRequiredKey(): DynoRequiredKey<T> {
  */
 open class SimpleDynoKey<T: Any>(
     final override val name: String,
-    final override val serializer: KSerializer<T>
+    final override val serializer: KSerializer<T>,
+    override val onAssign: DynoKeyProcessor<T>? = null,
+    override val onDecode: DynoKeyProcessor<T>? = null
 ) : DynoKey<T>, Comparable<DynoKey<T>> {
     override fun toString(): String = name
 
@@ -158,8 +158,10 @@ open class SimpleDynoKey<T: Any>(
  */
 open class SimpleDynoRequiredKey<T: Any>(
     name: String,
-    serializer: KSerializer<T>
-) : SimpleDynoKey<T>(name, serializer), DynoRequiredKey<T> {
+    serializer: KSerializer<T>,
+    onAssign: DynoKeyProcessor<T>? = null,
+    onDecode: DynoKeyProcessor<T>? = null
+) : SimpleDynoKey<T>(name, serializer, onAssign, onDecode), DynoRequiredKey<T> {
     companion object {
         /**
          * Creates a new [SimpleDynoRequiredKey] with [serializer] for the type [T] the given [name].

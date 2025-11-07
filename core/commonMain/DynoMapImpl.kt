@@ -13,30 +13,23 @@ abstract class DynoMapImpl(
     data: MutableMap<Any, Any>?,
     json: Json?
 ): MutableDynoMapBase {
-    /**
-     * Each entry can be one of these types:
-     * 1. encoded: `String -> JsonElement`
-     * 2. decoded: `DynoKey -> Any?`
-     */
-    internal var data: HashMap<Any, Any>? = data?.toHashMap()
-        private set
-
-    /**
-     * If this property is not null, it means that this [DynoMapImpl] was deserialized,
-     * and [data] may contain [String] keys with [JsonElement] values.
-     * Upon the first attempt to read a value by such a key,
-     * the value is decoded and written under the [DynoKey],
-     * and the old [String] key is removed.
-     */
-    internal var json: Json? = json.takeIf { data != null }
-        private set
+    // see Unsafe.data
+    private var data: HashMap<Any, Any>? = data?.toHashMap()
+    // see Unsafe.json
+    private var json: Json? = json.takeIf { data != null }
 
     /**
      * Cached hash code. Updated on every mutation.
      * Zero used as "uninitialized" marker.
-     * Hash code tha actually zero will be recalculated on every [hashCode] invocation.
+     * Hash code that is actually zero will be recalculated on every [hashCode] invocation.
      */
     private var _hashCode = 0
+
+    override fun clear() {
+        data?.clear()
+        json = null
+        _hashCode = 0
+    }
 
     constructor(): this(null, null)
 
@@ -56,46 +49,56 @@ abstract class DynoMapImpl(
 
     abstract override fun copy(): DynoMapImpl
 
+    /**
+     * Each entry can be one of these types:
+     * 1. encoded: `String -> JsonElement`
+     * 2. decoded: `DynoKey -> Any?`
+     */
+    @Suppress("UnusedReceiverParameter")
+    val DynoMapBase.Unsafe.data: MutableMap<Any, Any>? get() = this@DynoMapImpl.data
+
+    /**
+     * If this property is not null, it means that this [DynoMapImpl] was deserialized,
+     * and [data] may contain [String] keys with [JsonElement] values.
+     * Upon the first attempt to read a value by such a key,
+     * the value is decoded and written under the corresponding [DynoKey],
+     * and the old [String] key is removed (exception: [getStateless]).
+     */
+    @Suppress("UnusedReceiverParameter")
+    val DynoMapBase.Unsafe.json: Json? get() = this@DynoMapImpl.json
+
     final override val size: Int get() = data?.size ?: 0
 
-    override fun clear() {
-        data?.clear()
-        json = null
-        _hashCode = 0
-    }
-
-    override fun <T: Any> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? {
-        val data = data ?: return null
-        val json = json ?: return data[key].unsafeCast()
-
-        val v = data.remove(key.name)
-            ?: data[key]
-            ?: return null
-
-        return decodeAndPutValue(key.unsafeCast(), v, json)
-    }
+    override fun <T: Any> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? = get(key, store = true)
 
     /**
      * Unlike [get], does not put deserialized value in [DynoMapImpl.data].
      */
-    override fun <T: Any> DynoMapBase.Unsafe.getStateless(key: DynoKey<T>): T? {
+    override fun <T: Any> DynoMapBase.Unsafe.getStateless(key: DynoKey<T>): T? = get(key, store = false)
+
+    private fun <T: Any> get(key: DynoKey<T>, store: Boolean): T? {
         val data = data ?: return null
         val json = json ?: return data[key].unsafeCast()
 
-        val v = data[key.name]
+        val v = if (store) data.remove(key.name) else data[key.name]
             ?: data[key]
             ?: return null
 
         return when (v) {
-            !is JsonElement -> v.unsafeCast()
-            else -> json.decodeValue(key, v)
+            is JsonElement -> json.decodeValue(key, v).also { decoded ->
+                if (store && decoded != null) {
+                    getOrInitData()[key] = decoded
+                }
+            }
+            else -> v.unsafeCast()
         }
     }
 
     override fun <T: Any> DynoMapBase.Unsafe.set(key: DynoKey<T>, value: T) {
+        key.onAssign?.process(value)
         val d = data
         if (d == null) {
-            getOrInitData()[key] = key.onAssign(value)
+            getOrInitData()[key] = value
             updateHashKeyAdded(key.name)
         } else {
             if (d.remove(key.name) == null) updateHashKeyAdded(key.name)
@@ -106,17 +109,17 @@ abstract class DynoMapImpl(
     override fun <T: Any> DynoMapBase.Unsafe.put(key: DynoKey<T>, value: T?): T? {
         if (value == null) return removeAndGet(key)
 
-        val data = getOrInitData()
+        key.onAssign?.process(value)
 
-        val value = key.onAssign(value)
+        val data = getOrInitData()
         val old: T?
         val oldEncoded = data.remove(key.name)
-        if (oldEncoded != null) {
-            old = json!!.decodeValue(key, oldEncoded.unsafeCast())
-            data[key] = value
-        } else {
+        if (oldEncoded == null) {
             old = data.put(key, value).unsafeCast()
             if (old == null) updateHashKeyAdded(key.name)
+        } else {
+            old = json!!.decodeValue(key, oldEncoded.unsafeCast())
+            data[key] = value
         }
 
         return old
@@ -173,14 +176,10 @@ abstract class DynoMapImpl(
         return key in data || SimpleDynoKey<Unit>(key) in data
     }
 
-    private fun <T: Any> decodeAndPutValue(key: DynoKey<T>, v: Any, json: Json): T? = when (v) {
-        is JsonElement -> json.decodeValue(key, v)?.also { getOrInitData()[key] = it }
-        else -> v.unsafeCast()
-    }
-
     private fun <T: Any> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
         v === JsonNull -> null
-        else -> key.onDecode(decodeFromJsonElement(key.serializer, v))
+        else -> decodeFromJsonElement(key.serializer, v)
+            .also { key.onDecode?.process(it) }
     }
 
     private fun getOrInitData(): HashMap<Any, Any> =
@@ -273,22 +272,16 @@ abstract class DynoMapImpl(
         }
     }
 
-    @Suppress("UnusedReceiverParameter")
-    val DynoMapBase.Unsafe.data: MutableMap<Any, Any>? get() = this@DynoMapImpl.data
-
-    @Suppress("UnusedReceiverParameter")
-    val DynoMapBase.Unsafe.json: Json? get() = this@DynoMapImpl.json
-
-
     internal companion object {
         private const val HASH_CODE_MULT = 31
 
         private fun createData(entries: Collection<DynoEntry<*, *>>): HashMap<Any, Any> =
             HashMap<Any, Any>(entries.size.coerceAtLeast(2), 1f).apply {
                 for (arg in entries) {
-                    if (arg.value != null) {
-                        put(arg.key.unsafeCast(), arg.value!!)
-                    }
+                    val value = arg.value ?: continue
+                    val key = arg.key.unsafeCast<DynoKey<Any>>()
+                    key.onAssign?.process(value)
+                    put(key, value)
                 }
             }
 

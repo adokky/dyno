@@ -253,3 +253,66 @@ object PersonEagerSerializer : AbstractEagerDynoSerializer<MutableDynamicObject>
 
     override fun createNew(): MutableDynamicObject = MutableDynamicObject()
 }
+```
+
+## `DynoKey` validation
+
+The `onAssign` and `onDecode` processors can be assigned to add validation logic.
+All processors are chained in the order of assignment.
+
+* `onAssign` is called when a value is manually assigned to the key (e.g., `obj[key] = value` or `dynamicObjectOf(key with value)`).
+* `onDecode` is called when a value is deserialized.
+* `validate` assigns the same validation logic to both `onAssign` and `onDecode`.
+
+Use `onDecode` alone when validation is only needed for deserialized objects received from network.
+
+### Example
+
+```kotlin
+object Person {
+    val age = DynoKey<Int>("age").onDecode { 
+        require(it > 0) { "'age' must be positive, but was: $it" } 
+    }
+    val name = DynoKey<String>("name").validate {
+        require(it.isNotBlank()) { "'name' must not be empty" }
+    }
+}
+
+// Decoding from JSON - both 'onDecode' and 'validate' processors are called
+val decoded = Json.decodeFromString<DynamicObject>(""" { "age": -1, "name": "" } """)
+decoded[Person.age]  // throws "'age' must be positive, but was: -1"
+decoded[Person.name] // throws "'name' must not be empty"
+
+// Manual assignment - only 'validate' processor is called
+val obj = mutableDynamicObjectOf(Person.age with -1)
+obj[Person.age]       // returns -1
+obj[Person.name] = "" // throws "'name' must not be empty"
+
+// throws "'name' must not be empty"
+mutableDynamicObjectOf(Person.name with "") 
+```
+
+Those utility functions are easily composable and can be used to build your own validation DSL:
+
+```kotlin
+fun DynoKey<String>.notBlank() = validate { 
+    require(it.isNotBlank()) { "property '$name' must not be empty"  }
+}
+
+fun DynoKey<String>.maxSize(size: Int) = validate {
+    require(it.size <= size) { "property '$name' must not be empty"  }
+}
+
+fun DynoKey<Int>.positive() = validate {
+    require(it > 0) { "property '$name' must be positive, but was: $it"  }
+}
+
+object Person {
+    val age = DynoKey<Int>("age")
+        .positive()
+    
+    val name = DynoKey<String>("name")
+        .notBlank()
+        .maxSize(250)
+}
+```

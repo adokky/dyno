@@ -82,7 +82,7 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
     }
 
     open fun serialize(encoder: JsonEncoder, value: DynoMapImpl) {
-        val data = value.data ?: emptyHashMap
+        val data = with(value) { DynoMapBase.Unsafe.data } ?: emptyHashMap
 
         encoder.encodeCollection(descriptor, data.size) {
             var index = 0

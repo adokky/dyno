@@ -27,9 +27,9 @@ internal fun DynoMapBase.encodeDecode(serializer: KSerializer<*> = DynoMapSerial
 }
 
 private fun DynoMapImpl.validate() {
-    for ((k,v) in data ?: return) {
+    for ((k,v) in DynoMapBase.Unsafe.data ?: return) {
         if (k is String) {
-            assertNotNull(json, "key '$k' is serialized but Json instance is null")
+            assertNotNull(DynoMapBase.Unsafe.json, "key '$k' is serialized but Json instance is null")
             assertIs<JsonElement>(v, "key '$k' is serialized but value is not JsonElement")
         } else {
             assertIs<DynoKey<*>>(k, "unexpected type of key '$k'")
