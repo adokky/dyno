@@ -174,10 +174,6 @@ val cat: Cat? = map.get<Cat>()
 map.put("string")
 ```
 
-### `DynoMap`
-
-A flexible, schema-less map-like structure that underlies both `DynamicObject` and `MutableDynamicObject`. It provides the core mechanics for storing and retrieving values by `DynoKey`.
-
 ## Serialization
 
 ### Lazy (default)
@@ -277,42 +273,53 @@ object Person {
         require(it.isNotBlank()) { "'name' must not be empty" }
     }
 }
+```
 
-// Decoding from JSON - both 'onDecode' and 'validate' processors are called
-val decoded = Json.decodeFromString<DynamicObject>(""" { "age": -1, "name": "" } """)
-decoded[Person.age]  // throws "'age' must be positive, but was: -1"
-decoded[Person.name] // throws "'name' must not be empty"
+Decoding from JSON - both `onDecode` and `validate` processors are called:
 
-// Manual assignment - only 'validate' processor is called
+```kotlin
+val obj = Json.decodeFromString<DynamicObject>(""" { "age": -1, "name": "" } """)
+decoded[Person.age]  // throws IAE
+decoded[Person.name] // throws IAE
+```
+
+Manual assignment - only 'validate' processor is called:
+
+```kotlin
 val obj = mutableDynamicObjectOf(Person.age with -1)
 obj[Person.age]       // returns -1
-obj[Person.name] = "" // throws "'name' must not be empty"
+obj[Person.name] = "" // throws IAE
 
-// throws "'name' must not be empty"
+// throws IAE
 mutableDynamicObjectOf(Person.name with "") 
 ```
 
-Those utility functions are easily composable and can be used to build your own validation DSL:
+### Composition
+
+The validation functions are easily composable and can be used to build your own validation DSL:
 
 ```kotlin
-fun DynoKey<String>.notBlank() = validate { 
-    require(it.isNotBlank()) { "property '$name' must not be empty"  }
+fun DynoKey<String>.notBlank() = validate {
+    require(it.isNotBlank()) { "property '$name' must not be empty" }
 }
 
-fun DynoKey<String>.maxSize(size: Int) = validate {
-    require(it.size <= size) { "property '$name' must not be empty"  }
-}
-
-fun DynoKey<Int>.positive() = validate {
-    require(it > 0) { "property '$name' must be positive, but was: $it"  }
-}
-
-object Person {
-    val age = DynoKey<Int>("age")
-        .positive()
-    
-    val name = DynoKey<String>("name")
-        .notBlank()
-        .maxSize(250)
+fun DynoKey<String>.maxLength(max: Int) = validate {
+    require(it.length <= max) { "property '$name' length must be <= $max, but was: ${it.length}" }
 }
 ```
+
+Multiple validators are chained together:
+
+```kotlin
+object Person {
+    val name = DynoKey<String>("name")
+        .notBlank()
+        .maxLength(100)
+        
+    val email = DynoKey<String>("email")
+        .validate { require("@" in it) { "property '$name' must be valid email" } }
+        .maxLength(255)
+}
+```
+
+When a value is assigned or decoded, all validators in the chain are executed in order.
