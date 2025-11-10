@@ -6,11 +6,11 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Represents an automatically serializable object with a dynamically defined
- * set of strictly typed properties ([DynoClassKey]).
+ * set of strictly typed properties ([DynoKey]).
  * Provides a flexible way to work with structured data without predefined schema.
  *
- * This interface extends [DynoMap] with [DynoClassKey] as key type and adds
- * convenient operators for working with dynamic objects.
+ * This interface extends [DynoMap] with `DynoKey<*>` as key type and adds
+ * convenient member operators, which do not require additional import.
  *
  * By default, [DynoMap] is deserialized "lazily" - each property is first deserialized
  * into a [kotlinx.serialization.json.JsonElement], and only when accessing specific properties
@@ -22,7 +22,7 @@ import kotlin.jvm.JvmStatic
  * Note that [DynoMap.hashCode] takes into account only the keys; the values are completely ignored.
  */
 @Serializable(DynamicObjectSerializer::class)
-interface DynamicObject: DynoMap<DynoKey<*>> {
+sealed interface DynamicObject: DynoMap<DynoKey<*>> {
     /**
      * Creates a copy of this object.
      *
@@ -31,6 +31,7 @@ interface DynamicObject: DynoMap<DynoKey<*>> {
     override fun copy(): DynamicObject
 
     /** Gets the value associated with the specified [key] or `null` if it is not present */
+    @Suppress("INAPPLICABLE_JVM_NAME") // KT-31420
     @JvmName("getNullable")
     operator fun <T> get(key: DynoKey<T>): T?
 

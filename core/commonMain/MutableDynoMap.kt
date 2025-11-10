@@ -3,6 +3,7 @@
 package dyno
 
 import dyno.DynoMapBase.Unsafe
+import kotlinx.serialization.serializer
 import kotlin.internal.Exact
 import kotlin.jvm.JvmName
 
@@ -56,7 +57,7 @@ interface MutableDynoMap<in K: DynoKey<*>>: MutableDynoMapBase, DynoMap<K> {
  *
  * If [value] is `null`, the entry associated with [key] is removed from the map.
  */
-operator fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.set(key: K, value: T?) {
+operator fun <K: DynoKey<T>, T> MutableDynoMap<K>.set(key: K, value: T?) {
     if (value == null) Unsafe.remove(key) else Unsafe.set(key, value)
 }
 
@@ -72,7 +73,7 @@ inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.setInstance(value: T) {
  *
  * Returns the previous value associated with [key], or `null` if the [key] was not present.
  */
-fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(key: K, value: @Exact T): T? =
+fun <K: DynoKey<T>, T> MutableDynoMap<K>.put(key: K, value: @Exact T & Any): T? =
     Unsafe.put(key, value)
 
 /**
@@ -80,7 +81,7 @@ fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(key: K, value: @Exact T): T? =
  *
  * Returns the previous value associated with [key], or `null` if the [key] was not present.
  */
-fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.remove(key: K): T? =
+fun <K: DynoKey<T>, T> MutableDynoMap<K>.remove(key: K): T? =
     Unsafe.removeAndGet(key)
 
 /**
@@ -142,7 +143,7 @@ fun <K: DynoKey<*>> MutableDynoMap<K>.putAll(entries: Iterable<DynoEntry<K, *>>)
  */
 @JvmName("setValue")
 context(obj: MutableDynoMap<K>)
-infix fun <K: DynoKey<T>, T : Any> K.set(value: @Exact T) {
+infix fun <K: DynoKey<T>, @Exact T> K.set(value: T) {
     obj[this] = value
 }
 
@@ -160,4 +161,10 @@ operator fun <K: DynoKey<*>> MutableDynoMap<K>.plusAssign(entry: DynoEntry<K, *>
  */
 operator fun <K: DynoKey<*>> MutableDynoMap<K>.minusAssign(key: K) {
     Unsafe.remove(key)
+}
+
+@PublishedApi
+internal inline fun <reified T: Any> DynoClassKey(): DynoKey<T> {
+    val serializer = serializer<T>()
+    return DynoKey(serializer.descriptor.serialName, serializer)
 }

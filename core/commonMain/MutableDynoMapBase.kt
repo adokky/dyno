@@ -8,10 +8,6 @@ interface MutableDynoMapBase: DynoMapBase {
 
     override fun copy(): MutableDynoMapBase
 
-
-    // Unsafe operations, hidden from simple direct usage.
-    // All subtype restrictions are completely ignored
-
     fun <T> Unsafe.set(key: DynoKey<T>, value: T & Any)
 
     fun <T> Unsafe.put(key: DynoKey<T>, value: T?): T?

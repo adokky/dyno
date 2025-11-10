@@ -8,15 +8,15 @@ class DynoKeyTest {
     @Test
     fun auto_equality_test() {
         testEquality {
-            group { DynoKey<String>("k1") }
-            group { DynoKey<String>("k2") }
-            group { DynoRequiredKey<String>("k3") }
+            group { DynoKey<String?>("k1") }
+            group { DynoKey<String?>("k2") }
+            group { DynoKey<String>("k3") }
             group(
-                DynoKey<String>("k4"),
-                DynoRequiredKey<Int>("k4"),
-                DynoKey<List<String>>("k4"),
-                SimpleDynoRequiredKey<Short>("k4"),
-                SimpleDynoKey<Map<Boolean, Boolean>>("k4"),
+                DynoKey<String?>("k4"),
+                DynoKey<Int>("k4"),
+                DynoKey<List<String>?>("k4"),
+                SimpleDynoKey<Short>("k4"),
+                SimpleDynoKey<Map<Boolean, Boolean>?>("k4"),
             )
             checkToString = true
             requireNonIdentical = true

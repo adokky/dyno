@@ -27,8 +27,3 @@ infix fun <K: DynoKey<T>, @Exact T: Any> K.with(value: T): DynoEntry<K, T> =
 @JvmName("nullableWith")
 infix fun <K: DynoKey<T?>, @Exact T: Any> K.with(value: T): DynoEntry<K, T?> =
     SimpleDynoEntry(this, value)
-
-
-fun testfoo() {
-
-}

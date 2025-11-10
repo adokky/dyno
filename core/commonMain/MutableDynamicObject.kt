@@ -18,7 +18,7 @@ import kotlin.internal.Exact
  * ```
  */
 @Serializable(MutableDynamicObjectSerializer::class)
-interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>> {
+sealed interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>> {
     /**
      * Creates a copy of the object with the same data.
      * Modifications to the original will not affect the returned map.

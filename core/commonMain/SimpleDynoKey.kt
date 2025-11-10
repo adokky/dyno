@@ -1,5 +1,6 @@
 package dyno
 
+import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import kotlin.jvm.JvmName
@@ -29,7 +30,7 @@ data class SimpleDynoKey<T>(
 ) : DynoKey<T>,
     Comparable<DynoKey<T>>,
     ReadOnlyProperty<Any, DynoKey<T>>,
-    DynoKeySpec<T>
+    DynoKeySpec<T & Any>
 {
     override fun toString(): String = name
 
@@ -48,8 +49,8 @@ data class SimpleDynoKey<T>(
          */
         @JvmName("get")
         @JvmStatic
-        inline operator fun <reified T: Any> invoke(name: String): SimpleDynoKey<T> {
-            return SimpleDynoKey(name, serializer<T>())
+        inline operator fun <reified T> invoke(name: String): SimpleDynoKey<T> {
+            return SimpleDynoKey(name, serializer<T>().unsafeCast())
         }
     }
 }

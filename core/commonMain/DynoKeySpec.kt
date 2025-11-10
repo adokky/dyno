@@ -2,7 +2,7 @@ package dyno
 
 import karamel.utils.unsafeCast
 
-sealed interface DynoKeySpec<T>
+sealed interface DynoKeySpec<T: Any>
 
 /**
  * Adds [DynoKeyProcessor] that is called when a value is manually assigned to this key.
@@ -21,7 +21,7 @@ sealed interface DynoKeySpec<T>
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T> R.onDecode(processor: DynoKeyProcessor<T & Any>): R = when(this) {
+fun <R: DynoKeySpec<in T & Any>, T> R.onDecode(processor: DynoKeyProcessor<T & Any>): R = when(this) {
     is DynoKeyPrototype<*> -> {
         this as DynoKeyPrototype<T>
         DynoKeyPrototype(this, onDecode = onDecode + processor)
@@ -52,7 +52,7 @@ fun <R: DynoKeySpec<T>, T> R.onDecode(processor: DynoKeyProcessor<T & Any>): R =
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T> R.onAssign(processor: DynoKeyProcessor<T & Any>): R = when(this) {
+fun <R: DynoKeySpec<in T & Any>, T> R.onAssign(processor: DynoKeyProcessor<T & Any>): R = when(this) {
     is DynoKeyPrototype<*> -> {
         this as DynoKeyPrototype<T>
         DynoKeyPrototype(this, onAssign = onAssign + processor)
@@ -76,7 +76,7 @@ fun <R: DynoKeySpec<T>, T> R.onAssign(processor: DynoKeyProcessor<T & Any>): R =
  * All processors are chained in the order of assignment.
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T> R.validate(processor: DynoKeyProcessor<T & Any>): R = when(this) {
+fun <R: DynoKeySpec<in T & Any>, T> R.validate(processor: DynoKeyProcessor<T & Any>): R = when(this) {
     is DynoKeyPrototype<*> -> {
         this as DynoKeyPrototype<T>
         DynoKeyPrototype(this, onAssign = onAssign + processor, onDecode = onDecode + processor)

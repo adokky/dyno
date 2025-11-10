@@ -5,6 +5,7 @@ package dyno
 import dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.json.Json
+import kotlin.jvm.JvmName
 
 internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
     constructor(): super()
@@ -15,6 +16,8 @@ internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
 
     override fun copy(): DynamicObjectImpl = DynamicObjectImpl(this)
 
+    @Suppress("INAPPLICABLE_JVM_NAME") // KT-31420
+    @JvmName("getNullable")
     override fun <T> get(key: DynoKey<T>): T? =
         Unsafe.get(key)
 

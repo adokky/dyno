@@ -80,7 +80,7 @@ abstract class DynoMapImpl(
         val data = data ?: return null
         val json = json ?: return data[key].unsafeCast()
 
-        val v = if (store) data.remove(key.name) else data[key.name]
+        val v = (if (store) data.remove(key.name) else data[key.name])
             ?: data[key]
             ?: return null
 
@@ -282,7 +282,7 @@ abstract class DynoMapImpl(
         private fun createData(entries: Collection<DynoEntry<*, *>>): HashMap<Any, Any> =
             HashMap<Any, Any>(entries.size.coerceAtLeast(2), 1f).apply {
                 for (arg in entries) {
-                    val value = arg.value ?: continue
+                    val value = arg.value
                     val key = arg.key.unsafeCast<DynoKey<Any>>()
                     key.onAssign?.apply { key.process(value) }
                     put(key, value)

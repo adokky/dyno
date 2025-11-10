@@ -2,7 +2,6 @@ package dyno
 
 import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.serializer
 import kotlin.reflect.KProperty
 
@@ -10,7 +9,7 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
     internal val serializer: KSerializer<T & Any>,
     internal val onAssign: DynoKeyProcessor<T & Any>? = null,
     internal val onDecode: DynoKeyProcessor<T & Any>? = null
-): DynoKeySpec<T> {
+): DynoKeySpec<T & Any> {
     internal constructor(
         other: DynoKeyPrototype<T>,
         serializer: KSerializer<T & Any> = other.serializer,
@@ -25,19 +24,7 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
     }
 }
 
-inline fun <reified T: Any> dynoKey(): DynoKeyPrototype<T> =
-    DynoKeyPrototype(serializer<T>())
-
-inline fun <reified T: Any> dynoOptionalKey(): DynoKeyPrototype<T?> =
-    dynoKey<T>().optional()
+inline fun <reified T> dynoKey(): DynoKeyPrototype<T> =
+    DynoKeyPrototype(serializer<T>().unsafeCast<KSerializer<T & Any>>())
 
 fun <T: Any> DynoKeyPrototype<T>.optional(): DynoKeyPrototype<T?> = unsafeCast()
-
-object TestDK: DynoSchema() {
-    val k2 by dynoKey<Int>().optional()
-    val k3 by dynoKey<Int>().validate { println(name + it) }
-
-    fun test() {
-
-    }
-}

@@ -50,7 +50,7 @@ inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstance(): T? =
  * @throws NoSuchDynoKeyException if key with serial name of [T] is not found.
  */
 inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstanceOrFail(): T =
-    getOrFail(DynoClassKey<T?>())
+    Unsafe.getOrFail(DynoClassKey<T>())
 
 /**
  * Gets the value associated with the specified [key] or throws [NoSuchDynoKeyException] if not found.

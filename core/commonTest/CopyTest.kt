@@ -12,9 +12,10 @@ class CopyTest: AbstractDynoTest() {
         val obj = dynamicObjectOf(e1, e2, e3)
         assertNotNull(obj[p1])
 
-        val copy = (obj + p1.with(null)) as MutableDynamicObject
+        val me1 = p1.with(e1.value + "_modified")
+        val copy = (obj + me1) as MutableDynamicObject
         assertEquals(dynamicObjectOf(e1, e2, e3), obj, "original map was modified via 'copy'")
-        assertNull(copy[p1])
+        assertEquals(me1.value, copy[p1])
         assertNotEquals(obj, copy)
 
         assertEquals(obj, copy + p1.with(e1.value))

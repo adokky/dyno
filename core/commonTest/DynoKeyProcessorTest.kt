@@ -3,18 +3,9 @@ package dyno
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-object Person {
-    val age = DynoKey<Int>("age").validate {
-        require(it < 0) { "'age' must be positive" }
-    }
-    val name = DynoKey<String>("name").notBlank()
-}
-
-fun DynoKey<String>.notBlank() = validate {
-    require(it.isNotBlank()) { "property '$name' must not be empty"  }
-}
-
 class DynoKeyProcessorTest {
+    private val k = DynoKey<Unit>("key")
+
     @Test
     fun chaining() {
         val seq = ArrayList<Int>()
@@ -23,11 +14,11 @@ class DynoKeyProcessorTest {
         val p2 = DynoKeyProcessor<Unit> { seq += 2 }
         val p3 = DynoKeyProcessor<Unit> { seq += 3 }
 
-        (null + p1 + p2 + p3).process(Unit)
+        with(null + p1 + p2 + p3) { k.process(Unit) }
 
         assertEquals(listOf(1, 2, 3), seq)
 
-        (null + p1 + p2 + p3).process(Unit)
+        with(null + p1 + p2 + p3) { k.process(Unit) }
 
         assertEquals(listOf(1, 2, 3, 1, 2, 3), seq)
     }
