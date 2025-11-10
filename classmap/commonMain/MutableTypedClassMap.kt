@@ -47,7 +47,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Base> put(value: T): T? =
-        Unsafe.put(DynoKey<T>(), value)
+        Unsafe.put(DynoClassKey<T>(), value)
 
     /**
      * Associates the specified [value] with the provided class [key] using the `serialName` of the class.
@@ -62,7 +62,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Base> remove(): T? =
-        Unsafe.removeAndGet(DynoKey<T>())
+        Unsafe.removeAndGet(DynoClassKey<T>())
 
     /**
      * Removes the entry for the specified class [key] from the map using the `serialName` of the class.
@@ -84,7 +84,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @param defaultValue The function to compute a default value.
      */
     inline fun <reified T: Base> getOrPut(defaultValue: () -> T): T {
-        val key = DynoKey<T>()
+        val key = DynoClassKey<T>()
         Unsafe.getStateless(key)?.let { return it }
         return defaultValue().also { Unsafe.set(key, it) }
     }
@@ -93,7 +93,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * Adds the specified [value] to the map using the `serialName` of the type [T] as the key.
      */
     inline operator fun <reified T: Base> plusAssign(value: T) {
-        Unsafe.put(DynoKey<T>(), value)
+        Unsafe.put(DynoClassKey<T>(), value)
     }
 
     /**

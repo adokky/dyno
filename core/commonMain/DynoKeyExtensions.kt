@@ -1,5 +1,7 @@
 package dyno
 
+import kotlinx.serialization.KSerializer
+
 /**
  * Adds [DynoKeyProcessor] that is called when a value is manually assigned to this key.
  * This includes any programmatic assignments like ```obj.put(key, value)``` or `dynamicObjectOf(key with value)`.
@@ -16,7 +18,7 @@ package dyno
  *     }
  * ```
  */
-fun <T: Any> DynoKey<T>.onDecode(processor: DynoKeyProcessor<T>): DynoKey<T> {
+fun <T> DynoKey<T>.onDecode(processor: DynoKeyProcessor<T & Any>): DynoKey<T> {
     val newProcessor = onDecode + processor
     return when {
         this::class == SimpleDynoKey::class -> SimpleDynoKey(name, serializer,
@@ -41,7 +43,7 @@ fun <T: Any> DynoKey<T>.onDecode(processor: DynoKeyProcessor<T>): DynoKey<T> {
  *     }
  * ```
  */
-fun <T: Any> DynoKey<T>.onAssign(processor: DynoKeyProcessor<T>): DynoKey<T> {
+fun <T> DynoKey<T>.onAssign(processor: DynoKeyProcessor<T & Any>): DynoKey<T> {
     val newProcessor = onAssign + processor
     return when {
         this::class == SimpleDynoKey::class -> SimpleDynoKey(name, serializer,
@@ -59,7 +61,7 @@ fun <T: Any> DynoKey<T>.onAssign(processor: DynoKeyProcessor<T>): DynoKey<T> {
  *
  * All processors are chained in the order of assignment.
  */
-fun <T: Any> DynoKey<T>.validate(processor: DynoKeyProcessor<T>): DynoKey<T> {
+fun <T> DynoKey<T>.validate(processor: DynoKeyProcessor<T & Any>): DynoKey<T> {
     val newOnDecode = onDecode + processor
     val newOnAssign = onAssign + processor
 
@@ -72,12 +74,13 @@ fun <T: Any> DynoKey<T>.validate(processor: DynoKeyProcessor<T>): DynoKey<T> {
 }
 
 @PublishedApi
-internal class DynoKeyDelegate<T: Any>(
+internal class DynoKeyDelegate<T>(
     private val original: DynoKey<T>,
-    onAssign: DynoKeyProcessor<T>? = original.onAssign,
-    onDecode: DynoKeyProcessor<T>? = original.onDecode
-) : SimpleDynoKey<T>(original.name, original.serializer, onAssign= onAssign, onDecode = onDecode)
-{
+    override val name: String = original.name,
+    override val serializer: KSerializer<T & Any> = original.serializer,
+    override val onAssign: DynoKeyProcessor<T & Any>? = original.onAssign,
+    override val onDecode: DynoKeyProcessor<T & Any>? = original.onDecode
+) : DynoKey<T> {
     override fun equals(other: Any?): Boolean = original.equals(other)
     override fun hashCode(): Int = original.hashCode()
     override fun toString(): String = original.toString()

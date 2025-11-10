@@ -41,7 +41,7 @@ sealed class ClassMapBase<in Base: Any>: DynoMapImpl, DynoMapBase {
      *
      * Returns `null` if no value is found for the type's serial name.
      */
-    inline fun <reified T: Base> get(): T? = DynoMapBase.Unsafe.get(DynoKey<T>())
+    inline fun <reified T: Base> get(): T? = DynoMapBase.Unsafe.get(DynoClassKey<T>())
 
     /**
      * Retrieves a value associated with the serial name of the specified [KClass] [key].
@@ -64,7 +64,7 @@ sealed class ClassMapBase<in Base: Any>: DynoMapImpl, DynoMapBase {
      * @throws NoSuchDynoKeyException
      */
     inline fun <reified T: Base> getOrFail(): T {
-        val key = DynoKey<T>()
+        val key = DynoClassKey<T>()
         return DynoMapBase.Unsafe.get(key) ?: throw NoSuchDynoKeyException(key)
     }
 
@@ -95,7 +95,7 @@ sealed class ClassMapBase<in Base: Any>: DynoMapImpl, DynoMapBase {
      * or returns the result of [defaultValue] if not found.
      */
     inline fun <reified T: Base> getOrDefault(defaultValue: () -> T): T {
-        val key = DynoKey<T>()
+        val key = DynoClassKey<T>()
         return DynoMapBase.Unsafe.get(key) ?: defaultValue()
     }
 
@@ -111,7 +111,7 @@ sealed class ClassMapBase<in Base: Any>: DynoMapImpl, DynoMapBase {
     /**
      * Checks whether a value exists for the serial name of the reified type [T].
      */
-    inline fun <reified T : Base> contains(): Boolean = DynoMapBase.Unsafe.contains(DynoKey<T>())
+    inline fun <reified T : Base> contains(): Boolean = DynoMapBase.Unsafe.contains(DynoClassKey<T>())
 
     /**
      * Checks whether a value exists for the serial name of the specified [KClass] [key].

@@ -1,14 +1,15 @@
 package dyno
 
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 
 /**
  * Represents an automatically serializable object with a dynamically defined
- * set of strictly typed properties ([DynoKey]).
+ * set of strictly typed properties ([DynoClassKey]).
  * Provides a flexible way to work with structured data without predefined schema.
  *
- * This interface extends [DynoMap] with [DynoKey] as key type and adds
+ * This interface extends [DynoMap] with [DynoClassKey] as key type and adds
  * convenient operators for working with dynamic objects.
  *
  * By default, [DynoMap] is deserialized "lazily" - each property is first deserialized
@@ -30,19 +31,20 @@ interface DynamicObject: DynoMap<DynoKey<*>> {
     override fun copy(): DynamicObject
 
     /** Gets the value associated with the specified [key] or `null` if it is not present */
-    operator fun <T: Any> get(key: DynoKey<T>): T?
+    @JvmName("getNullable")
+    operator fun <T> get(key: DynoKey<T>): T?
 
     /**
      * Gets the value associated with the specified [key] or throws an exception if not found.
      * @throws NoSuchDynoKeyException if the [key] is not present.
      */
-    operator fun <T: Any> get(key: DynoRequiredKey<T>): T = getOrFail(key)
+    operator fun <T: Any> get(key: DynoKey<T>): T
 
     /**
      * Gets the value associated with the specified [key] or throws an exception if not found.
      * @throws NoSuchDynoKeyException if the [key] is not present.
      */
-    fun <T: Any> getOrFail(key: DynoKey<T>): T
+    fun <T: Any> getOrFail(key: DynoKey<T?>): T
 
     /** Checks if the specified [key] is present in this object. */
     operator fun contains(key: DynoKey<*>): Boolean

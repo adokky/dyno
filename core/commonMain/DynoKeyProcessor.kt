@@ -3,11 +3,11 @@ package dyno
 import kotlin.jvm.JvmName
 
 fun interface DynoKeyProcessor<in T: Any> {
-    fun process(value: T)
+    fun DynoKey<out T>.process(value: T)
 }
 
 @JvmName("nullablePlus")
-operator fun <T: Any> DynoKeyProcessor<T>?.plus(other: DynoKeyProcessor<T>): DynoKeyProcessor<T> =
+internal operator fun <T: Any> DynoKeyProcessor<T>?.plus(other: DynoKeyProcessor<T>): DynoKeyProcessor<T> =
     when(this) {
         null -> other
         else -> this + other
@@ -41,7 +41,11 @@ internal class DynoKeyProcessorChain<T: Any>(
         }
     }
 
-    override fun process(value: T) {
-        processors.forEach { it.process(value) }
+    override fun DynoKey<out T>.process(value: T) {
+        processors.forEach { processor ->
+            with(processor) {
+                process(value)
+            }
+        }
     }
 }

@@ -22,7 +22,7 @@ import kotlinx.serialization.serializer
 abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializer<T>() {
     /**
      * Result of key resolution during deserialization.
-     * Take a note that [DynoKey] is a subclass of [ResolveResult].
+     * Take a note that [DynoClassKey] is a subclass of [ResolveResult].
      */
     sealed interface ResolveResult {
         /** Skip this key and its value entirely. */
@@ -88,12 +88,12 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         decodeValue(serializer<T>())
 
     /**
-     * Resolve [DynoKey] given current [ResolveContextImpl].
+     * Resolve [DynoClassKey] given current [ResolveContextImpl].
      */
     protected abstract fun resolve(context: ResolveContext): ResolveResult
 
     /**
-     * Resolve [DynoKey] given current [ResolveContextImpl].
+     * Resolve [DynoClassKey] given current [ResolveContextImpl].
      * Called after all keys have been scanned.
      */
     protected open fun postResolve(context: ResolveContext): ResolveResult = ResolveResult.Skip

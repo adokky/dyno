@@ -7,7 +7,7 @@ import kotlin.internal.Exact
 import kotlin.jvm.JvmName
 
 /**
- * Represents a mutable map-like structure with typed keys conforming to [DynoKey].
+ * Represents a mutable map-like structure with typed keys conforming to [DynoClassKey].
  *
  * This interface extends both [MutableDynoMapBase] for general mutable map operations
  * and [DynoMap] for typed key-based access. It supports adding, removing, and updating
@@ -64,7 +64,7 @@ operator fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.set(key: K, value: T?) {
  * Sets the [value] for the serial name of [T] in the map.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.setInstance(value: T) {
-    Unsafe.set(DynoKey<T>(), value)
+    Unsafe.set(DynoClassKey<T>(), value)
 }
 
 /**
@@ -90,7 +90,7 @@ fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.remove(key: K): T? =
  * or `null` if it was not present.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.removeInstance(): T? =
-    Unsafe.removeAndGet(DynoKey<T>())
+    Unsafe.removeAndGet(DynoClassKey<T>())
 
 /**
  * Sets the entry defined by [entry] in the map.
@@ -106,7 +106,7 @@ fun <K: DynoKey<*>> MutableDynoMap<K>.set(entry: DynoEntry<K, *>) {
  *
  * Returns the previous value associated with the key from [entry], or `null` if the key was not present.
  */
-fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(entry: DynoEntry<K, T?>): T? =
+fun <K: DynoKey<T>, T> MutableDynoMap<K>.put(entry: DynoEntry<K, T>): T? =
     Unsafe.put(entry)
 
 /**
@@ -115,7 +115,7 @@ fun <K: DynoKey<T>, T: Any> MutableDynoMap<K>.put(entry: DynoEntry<K, T?>): T? =
  * Returns the previous value associated with [T] serial name, or `null` if the key was not present.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.putInstance(value: T): T? =
-    put(DynoKey<T>(), value)
+    put(DynoClassKey<T>(), value)
 
 /**
  * Adds all [entries] to the map.

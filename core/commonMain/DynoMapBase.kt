@@ -18,10 +18,12 @@ interface DynoMapBase {
     /** Checks if a property with the given [key] name exists in this container. */
     operator fun contains(key: String): Boolean
 
-    fun <T: Any> Unsafe.get(key: DynoKey<T>): T?
+    fun <T> Unsafe.get(key: DynoKey<T>): T?
+
+    fun <T> Unsafe.getOrFail(key: DynoKey<T>): T & Any = get(key) ?: throw NoSuchDynoKeyException(key)
 
     /** Unlike [get], this method does not put deserialized value in [DynoMapImpl.data]. */
-    fun <T: Any> Unsafe.getStateless(key: DynoKey<T>): T?
+    fun <T> Unsafe.getStateless(key: DynoKey<T>): T?
 
     fun Unsafe.contains(key: DynoKey<*>): Boolean
 

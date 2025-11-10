@@ -12,13 +12,13 @@ interface MutableDynoMapBase: DynoMapBase {
     // Unsafe operations, hidden from simple direct usage.
     // All subtype restrictions are completely ignored
 
-    fun <T: Any> Unsafe.set(key: DynoKey<T>, value: T)
+    fun <T> Unsafe.set(key: DynoKey<T>, value: T & Any)
 
-    fun <T: Any> Unsafe.put(key: DynoKey<T>, value: T?): T?
+    fun <T> Unsafe.put(key: DynoKey<T>, value: T?): T?
 
-    fun <T: Any> Unsafe.removeAndGet(key: DynoKey<T>): T?
+    fun <T> Unsafe.removeAndGet(key: DynoKey<T>): T?
 
-    fun <T: Any> Unsafe.put(entry: DynoEntry<*, T?>): T?
+    fun <T> Unsafe.put(entry: DynoEntry<*, T>): T?
 
     fun Unsafe.set(entry: DynoEntry<*, *>)
 

@@ -259,8 +259,8 @@ open class BasicTests: AbstractMutableDynoTest() {
 
         assertEquals(
             dynamicObjectOf(
-                DynoKey<Data1>() with expected1,
-                DynoKey<Data2>() with expected2,
+                DynoClassKey<Data1>() with expected1,
+                DynoClassKey<Data2>() with expected2,
             ),
             dyno
         )
@@ -293,9 +293,9 @@ open class BasicTests: AbstractMutableDynoTest() {
         @SerialName("d2") @Serializable data class Data2(val i: Int)
 
         val data = dynamicObjectOf(
-            DynoKey<Data1>() with Data1("ABC"),
-            DynoKey<Data2>() with Data2(321),
-            DynoKey<Int>() with 42
+            DynoClassKey<Data1>() with Data1("ABC"),
+            DynoClassKey<Data2>() with Data2(321),
+            DynoClassKey<Int>() with 42
         )
 
         assertEquals(data, data.encodeDecode())

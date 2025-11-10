@@ -15,10 +15,13 @@ internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
 
     override fun copy(): DynamicObjectImpl = DynamicObjectImpl(this)
 
-    override fun <T: Any> get(key: DynoKey<T>): T? =
+    override fun <T> get(key: DynoKey<T>): T? =
         Unsafe.get(key)
 
-    override fun <T: Any> getOrFail(key: DynoKey<T>): T =
+    override fun <T : Any> get(key: DynoKey<T>): T =
+        Unsafe.getOrFail(key)
+
+    override fun <T : Any> getOrFail(key: DynoKey<T?>): T =
         Unsafe.get(key) ?: throw NoSuchDynoKeyException(key)
 
     override fun contains(key: DynoKey<*>): Boolean =
@@ -30,21 +33,21 @@ internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
     override fun minus(key: DynoKey<*>): DynamicObject =
         DynamicObjectImpl(this).also { it -= key }
 
-    override fun <T: Any> set(key: DynoKey<T>, value: T?) {
+    override fun <T> set(key: DynoKey<T>, value: T?) {
         if (value == null) Unsafe.remove(key) else Unsafe.set(key.unsafeCast(), value)
     }
 
-    override fun <T: Any> put(key: DynoKey<T>, value: T): T? =
+    override fun <T> put(key: DynoKey<T>, value: T & Any): T? =
         Unsafe.put(key, value)
 
-    override fun <T: Any> remove(key: DynoKey<out T>): T? =
+    override fun <T> remove(key: DynoKey<out T>): T? =
         Unsafe.removeAndGet(key)
 
     override fun set(entry: DynoEntry<DynoKey<*>, *>) {
         Unsafe.set(entry)
     }
 
-    override fun <T: Any> put(entry: DynoEntry<DynoKey<T>, T?>): T? =
+    override fun <T> put(entry: DynoEntry<DynoKey<T>, T>): T? =
         Unsafe.put(entry)
 
     override fun putAll(entries: Iterable<DynoEntry<DynoKey<*>, *>>) {

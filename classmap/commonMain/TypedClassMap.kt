@@ -29,7 +29,7 @@ sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
      */
     @JvmName("plusClassInstance")
     inline operator fun <reified T: Base> plus(value: T): TypedClassMap<Base> =
-        plus(DynoKey<T>(), value)
+        plus(DynoClassKey<T>(), value)
 
     @PublishedApi
     internal fun <T: Base> plus(key: DynoKey<T>, value: T): TypedClassMap<Base> =
