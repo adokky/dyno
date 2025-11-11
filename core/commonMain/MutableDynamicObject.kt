@@ -3,6 +3,7 @@
 package dyno
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.internal.Exact
 
 /**
@@ -11,9 +12,10 @@ import kotlin.internal.Exact
  * Usage:
  * ```
  * fun example(obj: MutableDynamicObject) {
- *     obj[key1] = "value1"
- *     val previousValue = obj.put(key2, 42)
- *     obj += DynoMapEntry(key3, listOf(1, 2, 3))
+ *     val key by dynoKey<String>()
+ *     obj[key] = "value1"
+ *     val previousValue: String? = obj.put(key, "value2")
+ *     obj += key with "value3"
  * }
  * ```
  */
@@ -72,5 +74,11 @@ sealed interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>>
      */
     operator fun minusAssign(key: DynoKey<*>)
 }
+
+fun MutableDynamicObject(capacity: Int): MutableDynamicObject = DynamicObjectImpl(capacity)
+
+@UnsafeDynoApi
+fun MutableDynamicObject(data: MutableMap<Any, Any>?, json: Json?): MutableDynamicObject =
+    DynamicObjectImpl(data, json)
 
 internal object MutableDynamicObjectSerializer: DynoMapSerializerBase<MutableDynamicObject>()

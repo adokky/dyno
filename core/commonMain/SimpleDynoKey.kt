@@ -21,7 +21,7 @@ import kotlin.reflect.KProperty
  * ```
  * It is the user's responsibility to ensure key names are unique across types if needed.
  */
-@JvmRecord // ensures constant folding for static SimpleDynoKey fields
+@JvmRecord // improves constant folding for static SimpleDynoKey fields
 data class SimpleDynoKey<T>(
     override val name: String,
     override val serializer: KSerializer<T & Any>,
@@ -32,6 +32,8 @@ data class SimpleDynoKey<T>(
     ReadOnlyProperty<Any, DynoKey<T>>,
     DynoKeySpec<T & Any>
 {
+    constructor(other: DynoKey<T>): this(other.name, other.serializer, other.onAssign, other.onDecode)
+
     override fun toString(): String = name
 
     override fun equals(other: Any?): Boolean =
@@ -42,6 +44,18 @@ data class SimpleDynoKey<T>(
     override fun compareTo(other: DynoKey<T>): Int = name.compareTo(other.name)
 
     override fun getValue(thisRef: Any, property: KProperty<*>): DynoKey<T> = this
+
+    override val DynoKeySpec.Internal.onAssign: DynoKeyProcessor<T & Any>?
+        get() = this@SimpleDynoKey.onAssign
+
+    override val DynoKeySpec.Internal.onDecode: DynoKeyProcessor<T & Any>?
+        get() = this@SimpleDynoKey.onDecode
+
+    override fun DynoKeySpec.Internal.copy(
+        onAssign: DynoKeyProcessor<T & Any>?,
+        onDecode: DynoKeyProcessor<T & Any>?
+    ): SimpleDynoKey<T & Any> =
+        SimpleDynoKey(name, serializer, onAssign = onAssign, onDecode = onDecode)
 
     companion object {
         /**

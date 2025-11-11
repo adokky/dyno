@@ -11,13 +11,13 @@ import kotlinx.serialization.serializer
  * Keys are identified by their [name] and are associated with a specific type [T].
  * Keys with the same name but different types are considered equal and will conflict.
  *
- * ## Validation
+ * ### Validation
  *
  * The [onAssign] and [onDecode] methods can be overridden to add validation logic.
  * - [onAssign] is called when a value is manually assigned to the key.
  * - [onDecode] is called when a value is deserialized from a JSON source.
  *
- * ## Example
+ * ### Usage
  *
  * ```
  * val nameKey = DynoKey<String>("name")
@@ -29,6 +29,7 @@ import kotlinx.serialization.serializer
  * ```
  */
 @OptIn(ExperimentalSerializationApi::class)
+@DynoDslMarker
 interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val name: String
     val serializer: KSerializer<T & Any>
@@ -39,8 +40,6 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     /** Called on deserialization. Useful for validation */
     val onDecode: DynoKeyProcessor<T & Any>? get() = null
 }
-
-// default constructors
 
 /**
  * Creates a new [DynoKey] with the given [name] and [serializer].
@@ -53,3 +52,27 @@ fun <T: Any> DynoKey(name: String, serializer: KSerializer<T>): DynoKey<T> =
  */
 inline fun <reified T> DynoKey(name: String): DynoKey<T> =
     SimpleDynoKey(name, serializer<T>().unsafeCast())
+
+/**
+ * Creates a [DynoKeyPrototype] for type [T] with an optional [name].
+ *
+ * If [name] is not provided, it will be inferred from the property name
+ * when used with `by` delegate syntax.
+ *
+ * The resulting prototype can be further configured with [onAssign], [onDecode],
+ * or [validate] methods.
+ *
+ * Example:
+ * ```
+ * val name by dynoKey<String>() // name inferred from property
+ * val age by dynoKey<Int>("userAge") // explicit name
+ *
+ * val email by dynoKey<String>()
+ *     .validate { require("@" in it) { "Invalid email" } }
+ * ```
+ */
+inline fun <reified T> dynoKey(
+    name: String? = null,
+    serializer: KSerializer<T & Any> = serializer<T>().unsafeCast<KSerializer<T & Any>>()
+): DynoKeyPrototype<T> =
+    DynoKeyPrototype(serializer = serializer, propertyName = name)

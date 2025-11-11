@@ -1,7 +1,7 @@
 package dyno
 
 
-fun emptyDynamicObject(): DynamicObject = DynamicObject.Empty
+fun emptyDynamicObject(): DynamicObject = EmptyDynamicObject
 
 /**
  * Creates a new [DynamicObject] using the provided [entries].
@@ -92,11 +92,9 @@ fun mutableDynamicObjectOf(entries: Collection<DynoEntry<DynoKey<*>, *>>): Mutab
     DynamicObjectImpl(entries)
 
 
-fun dynamicObjectOf(): DynamicObject = DynamicObject.Empty
+fun dynamicObjectOf(): DynamicObject = EmptyDynamicObject
 
 fun mutableDynamicObjectOf(): MutableDynamicObject = DynamicObjectImpl()
-
-fun MutableDynamicObject(capacity: Int): MutableDynamicObject = DynamicObjectImpl(capacity)
 
 /**
  * Creates a new [DynamicObject] using the provided [body] lambda.
