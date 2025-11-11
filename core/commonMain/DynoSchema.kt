@@ -1,13 +1,9 @@
 package dyno
 
-import kotlinx.serialization.serializer
+interface DynoSchema {
+    val Internal.keys: Collection<DynoKey<*>>
 
-abstract class DynoSchema() {
-    internal fun register(key: DynoKey<*>) {
+    fun Internal.register(key: DynoKey<*>)
 
-    }
-
-    // todo register keys here
-    protected inline fun <reified T: Any> dynoKey(): DynoKeyPrototype<T> =
-        DynoKeyPrototype(serializer<T>())
+    object Internal
 }

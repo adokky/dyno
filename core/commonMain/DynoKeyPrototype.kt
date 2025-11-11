@@ -3,6 +3,7 @@ package dyno
 import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
+import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class DynoKeyPrototype<T> @PublishedApi internal constructor(
@@ -17,9 +18,12 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
         onDecode: DynoKeyProcessor<T & Any>? = other.onDecode
     ): this(serializer, onAssign, onDecode)
 
-    operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): SimpleDynoKey<T> {
+    @InternalDynoApi
+    operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): ReadOnlyProperty<Any, DynoKey<T>> {
         val key = SimpleDynoKey<T>(property.name, serializer, onAssign, onDecode)
-        if (thisRef is DynoSchema) thisRef.register(key)
+        if (thisRef is DynoSchema) with(thisRef) {
+            DynoSchema.Internal.register(key)
+        }
         return key
     }
 }

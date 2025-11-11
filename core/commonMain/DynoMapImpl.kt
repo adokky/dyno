@@ -95,8 +95,7 @@ abstract class DynoMapImpl(
     }
 
     final override fun <T> DynoMapBase.Unsafe.set(key: DynoKey<T>, value: T & Any) {
-        (key.onAssign as DynoKeyProcessor<Any>?)?.apply { (key as DynoKey<Any>).process(value) }
-//        key.onAssign?.apply { key.process(value) }
+        key.onAssign?.apply { key.process(value) }
         val d = data
         if (d == null) {
             getOrInitData()[key] = value
@@ -110,8 +109,7 @@ abstract class DynoMapImpl(
     final override fun <T> DynoMapBase.Unsafe.put(key: DynoKey<T>, value: T?): T? {
         if (value == null) return removeAndGet(key)
 
-        (key.onAssign as DynoKeyProcessor<Any>?)?.apply { (key as DynoKey<Any>).process(value) }
-//        key.onAssign?.apply { key.process(value) }
+        key.onAssign?.apply { key.process(value) }
 
         val data = getOrInitData()
         val old: T?
@@ -146,10 +144,7 @@ abstract class DynoMapImpl(
         put(entry.key, entry.value)
 
     final override fun DynoMapBase.Unsafe.set(entry: DynoEntry<*, *>) {
-        when (val v = entry.value) {
-            null -> remove(entry.key)
-            else -> set(entry.key.unsafeCast(), v)
-        }
+        set<Any>(entry.key.unsafeCast(), entry.value)
     }
 
     /** @return `true` if the [key] has been successfully removed; `false` if it was not contained in the map */
@@ -181,8 +176,7 @@ abstract class DynoMapImpl(
     private fun <T> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
         v === JsonNull -> null
         else -> decodeFromJsonElement(key.serializer, v).also { value ->
-            (key.onDecode as DynoKeyProcessor<Any>?)?.apply { (key as DynoKey<Any>).process(value) }
-//            key.onDecode?.apply { key.process(value) }
+            key.onDecode?.apply { key.process(value) }
         }
     }
 
