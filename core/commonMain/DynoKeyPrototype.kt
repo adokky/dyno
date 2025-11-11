@@ -21,8 +21,8 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
     @InternalDynoApi
     operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): ReadOnlyProperty<Any, DynoKey<T>> {
         val key = SimpleDynoKey<T>(property.name, serializer, onAssign, onDecode)
-        if (thisRef is DynoSchema) with(thisRef) {
-            DynoSchema.Internal.register(key)
+        if (thisRef is DynoKeyRegistry) with(thisRef) {
+            DynoKeyRegistry.Internal.register(key)
         }
         return key
     }
