@@ -2,7 +2,6 @@ package dyno
 
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmStatic
 
 /**
  * Represents an automatically serializable object with a dynamically defined
@@ -55,11 +54,6 @@ sealed interface DynamicObject: DynoMap<DynoKey<*>> {
 
     /** Creates a new object with the specified [key] removed. */
     operator fun minus(key: DynoKey<*>): DynamicObject
-
-    companion object {
-        @JvmStatic
-        val Empty: DynamicObject get() = EmptyDynamicObject
-    }
 }
 
 internal object DynamicObjectSerializer: DynoMapSerializerBase<DynamicObject>()

@@ -9,8 +9,7 @@ Type-safe, serializable, heterogeneous map.
 ## Key Features
 
 - **Flexible and Type-Safe API**: Work with dynamic objects using strictly typed keys (`DynoKey<T>`).
-- **Automatic Serialization**: Out-of-the-box support for `kotlinx.serialization` with both lazy and eager deserialization modes, 
-allowing you to choose the approach that best fits your performance and usability requirements.
+- **Automatic Serialization**: Out-of-the-box support for `kotlinx.serialization`.
 - **Read-Only and Mutable Variants**: Choose between `DynamicObject` and `MutableDynamicObject`.
 - **Schema-less**: No need to predefine schemas; properties can be added or removed dynamically.
 
@@ -20,9 +19,9 @@ allowing you to choose the approach that best fits your performance and usabilit
 ```kotlin
 // Define typed keys
 object Person {
-    val name = DynoKey<String>("name")
-    val age = DynoKey<Int>("age")
-    val emails = DynoKey<List<String>>("emails")
+    val name by dynoKey<String>()
+    val age by dynoKey<Int>()
+    val emails by dynoKey<List<String>?>()
 }
 
 val person = mutableDynamicObjectOf(
@@ -34,7 +33,7 @@ val person = mutableDynamicObjectOf(
 // Access values in a type-safe manner
 val name: String = person[Person.name]
 val age: Int = person[Person.age]
-val emails: List<String> = person[Person.emails]
+val emails: List<String>? = person[Person.emails]
 
 person[Person.age] = 31
 person.remove(Person.emails)
@@ -48,15 +47,16 @@ val restored = Json.decodeFromString(json)
 
 `io.github.adokky:dyno-core:0.7`
 
-### `DynoKey<T>` and `RequiredDynoKey<T>`
+### `DynoKey<T>`
 
 A typed key used to access values in `DynamicObject` and `MutableDynamicObject`.
+Can be instantiated directly or by using a delegate `dynoKey`.
 
 ```kotlin
 object Person {
-    val id = RequiredDynoKey<Int>("id")
-    val name = DynoKey<String>("name")
-    val age = DynoKey<Int>("age")
+    val id by dynoKey<Int>("id")
+    val name by dynoKey<String>("name")
+    val age by dynoKey<Int?>("age")
 }
 ```
 
@@ -72,10 +72,11 @@ val obj = dynamicObjectOf(
     Person.age with 30
 )
 
-val name: String? = obj[Person.name] // "Alex"
+val name: Int? = obj[Person.age]
 ```
 
-If the key is `RequiredDynoKey`, then the return type is non-nullable. `NoSuchDynoKeyException` is thrown if the key does not exist:
+If the type parameter `T` in `DynoKey<T>` is not nullable, then the return type is also non-nullable. 
+`NoSuchDynoKeyException` is thrown if the key does not exist:
 
 ```kotlin
 val id: Int = obj[Person.id]
@@ -170,13 +171,20 @@ val map: TypedClassMap<Animal> = buildTypedClassMap {
 val dog: Dog? = map.get<Dog>()
 val cat: Cat? = map.get<Cat>()
 
-// This will cause compilation error, because "string" is not a subclass of Animal
+// This will cause compilation error: String is not a subtype of Animal
 map.put("string")
 ```
 
 ## Serialization
 
+Dyno allows both lazy and eager deserialization modes,
+allowing you to choose the approach that best fits your performance and usability requirements.
+
 ### Lazy (default)
+
+* Works out-of-the-box: no additional setup required for basic usage.
+* Schema-less by design: easily extendable without pre-registering keys.
+* May be slower than eager deserialization, due to intermediate representation storage.
 
 The following classes are automatically serializable without any extra steps:
 - `DynamicObject`
@@ -220,10 +228,10 @@ Achieved with `AbstractEagerDynoSerializer` — a powerful base class for implem
 ```kotlin
 object PersonEagerSerializer : AbstractEagerDynoSerializer<MutableDynamicObject>() {
     object Vehicle {
-        val type = DynoKey<String>("type")
-        val brand = DynoKey<String>("brand")
-        val engineType = DynoKey<String>("engineType") // only for Car
-        val gearsCount = DynoKey<Int>("gearsCount")   // only for Bicycle
+        val type by dynoKey<String>()
+        val brand by dynoKey<String>()
+        val engineType by dynoKey<String>() // only for Car
+        val gearsCount by dynoKey<Int>()    // only for Bicycle
     }
 
     override fun resolve(context: ResolveContext): ResolveResult {
@@ -257,10 +265,9 @@ The `onAssign` and `onDecode` processors can be assigned to add validation logic
 All processors are chained in the order of assignment.
 
 * `onAssign` is called when a value is manually assigned to the key (e.g., `obj[key] = value` or `dynamicObjectOf(key with value)`).
-* `onDecode` is called when a value is deserialized.
+* `onDecode` is called when a value is deserialized. 
+Usefulll when validation is only needed for deserialized objects received from network.
 * `validate` assigns the same validation logic to both `onAssign` and `onDecode`.
-
-Use `onDecode` alone when validation is only needed for deserialized objects received from network.
 
 ### Example
 

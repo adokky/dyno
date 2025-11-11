@@ -1,6 +1,29 @@
 package dyno
 
-sealed interface DynoKeySpec<T: Any>
+@SubclassOptInRequired(UnsafeDynoApi::class)
+interface DynoKeySpec<T: Any> {
+    /** See [DynoKey.onAssign] */
+    val Internal.onAssign: DynoKeyProcessor<T>?
+
+    /** See [DynoKey.onDecode] */
+    val Internal.onDecode: DynoKeyProcessor<T>?
+
+    /**
+     * Creates a new instance of [DynoKeySpec] with the specified parameters.
+     *
+     * WARNING: Implementers **must** return a copy of the same subtype, not a different [DynoKeySpec] implementation.
+     * Otherwise, using [onDecode], [onAssign], [validate] may result in [ClassCastException].
+     *
+     * @return A new instance of the same [DynoKeySpec] subtype with updated parameters
+     */
+    fun Internal.copy(
+        onAssign: DynoKeyProcessor<T>? = Internal.onAssign,
+        onDecode: DynoKeyProcessor<T>? = Internal.onDecode
+    ): DynoKeySpec<T>
+
+    @ExperimentalDynoApi
+    object Internal
+}
 
 /**
  * Adds [DynoKeyProcessor] that is called when a value is deserialized from external source.
@@ -19,16 +42,8 @@ sealed interface DynoKeySpec<T: Any>
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T: Any> R.onDecode(processor: DynoKeyProcessor<T>): R = when(this) {
-    is DynoKeyPrototype<*> -> {
-        this as DynoKeyPrototype<T>
-        DynoKeyPrototype(this, onDecode = onDecode + processor)
-    }
-    is SimpleDynoKey<*> -> {
-        this as SimpleDynoKey<T>
-        copy(onDecode = onDecode + processor)
-    }
-} as R
+fun <R: DynoKeySpec<T>, T: Any> R.onDecode(processor: DynoKeyProcessor<T>): R =
+    with(DynoKeySpec.Internal) { copy(onDecode = onDecode + processor) as R }
 
 /**
  * Adds [DynoKeyProcessor] that is called when a value is manually assigned to this key.
@@ -47,16 +62,8 @@ fun <R: DynoKeySpec<T>, T: Any> R.onDecode(processor: DynoKeyProcessor<T>): R = 
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T: Any> R.onAssign(processor: DynoKeyProcessor<T>): R = when(this) {
-    is DynoKeyPrototype<*> -> {
-        this as DynoKeyPrototype<T>
-        DynoKeyPrototype(this, onAssign = onAssign + processor)
-    }
-    is SimpleDynoKey<*> -> {
-        this as SimpleDynoKey<T>
-        copy(onAssign = onAssign + processor)
-    }
-} as R
+fun <R: DynoKeySpec<T>, T: Any> R.onAssign(processor: DynoKeyProcessor<T>): R =
+    with(DynoKeySpec.Internal) { copy(onAssign = onAssign + processor) as R }
 
 /**
  * Adds validation logic that is applied to both manually assigned values and deserialized values.
@@ -68,13 +75,10 @@ fun <R: DynoKeySpec<T>, T: Any> R.onAssign(processor: DynoKeyProcessor<T>): R = 
  * All processors are chained in the order of assignment.
  */
 @Suppress("UNCHECKED_CAST")
-fun <R: DynoKeySpec<T>, T: Any> R.validate(processor: DynoKeyProcessor<T>): R = when(this) {
-    is DynoKeyPrototype<*> -> {
-        this as DynoKeyPrototype<T>
-        DynoKeyPrototype(this, onAssign = onAssign + processor, onDecode = onDecode + processor)
+fun <R: DynoKeySpec<T>, T: Any> R.validate(processor: DynoKeyProcessor<T>): R =
+    with(DynoKeySpec.Internal) {
+        copy(
+            onDecode = onDecode + processor,
+            onAssign = onAssign + processor
+        ) as R
     }
-    is SimpleDynoKey<*> -> {
-        this as SimpleDynoKey<T>
-        copy(onAssign = onAssign + processor, onDecode = onDecode + processor)
-    }
-} as R

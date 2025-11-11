@@ -3,6 +3,7 @@
 package dyno
 
 import dyno.DynoMapBase.Unsafe
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import kotlin.internal.Exact
 import kotlin.jvm.JvmName
@@ -163,8 +164,15 @@ operator fun <K: DynoKey<*>> MutableDynoMap<K>.minusAssign(key: K) {
     Unsafe.remove(key)
 }
 
-@PublishedApi
-internal inline fun <reified T: Any> DynoClassKey(): DynoKey<T> {
+@InternalDynoApi
+inline fun <reified T: Any> DynoClassKey(): DynoKey<T> {
     val serializer = serializer<T>()
     return DynoKey(serializer.descriptor.serialName, serializer)
 }
+
+fun <K: DynoKey<*>> MutableDynoMap(capacity: Int): MutableDynoMap<K> =
+    DynamicObjectImpl(capacity)
+
+@UnsafeDynoApi
+fun <K: DynoKey<*>> MutableDynoMap(data: MutableMap<Any, Any>?, json: Json?): MutableDynoMap<K> =
+    DynamicObjectImpl(data, json)

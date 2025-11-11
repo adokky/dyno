@@ -28,6 +28,7 @@ kotlin {
         languageSettings {
             optIn("dyno.InternalDynoApi")
             optIn("dyno.ExperimentalDynoApi")
+            optIn("dyno.UnsafeDynoApi")
         }
     }
 

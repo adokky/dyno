@@ -32,7 +32,8 @@ interface DynoMapBase {
      * subtypes of [DynoMapBase]. These operations should be used with caution,
      * as they can bypass compile-time type safety.
      */
-    @InternalDynoApi
+    @ExperimentalDynoApi
+    @UnsafeDynoApi
     object Unsafe
 }
 

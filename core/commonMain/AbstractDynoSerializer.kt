@@ -4,6 +4,7 @@ import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
@@ -77,15 +78,16 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
     final override fun serialize(encoder: Encoder, value: T) {
         serialize(
             encoder as? JsonEncoder ?: incompatibleFormatError(),
-            value.unsafeCast<DynoMapImpl>()
+            value
         )
     }
 
-    open fun serialize(encoder: JsonEncoder, value: DynoMapImpl) {
-        val data = with(value) { DynoMapBase.Unsafe.data } ?: emptyHashMap
+    open fun serialize(encoder: JsonEncoder, value: T) {
+        val data = with(value as DynoMapImpl) { DynoMapBase.Unsafe.data } ?: emptyHashMap
 
         encoder.encodeCollection(descriptor, data.size) {
-            var index = 0
+            var index = encodeCustomKeys(value)
+
             for ((k, v) in data) {
                 val keyName: String
                 val serializer: KSerializer<*>
@@ -104,6 +106,14 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
         }
     }
 
+    /**
+     * Can be used to write custom prefix properties inside JSON object.
+     *
+     * Must return the next element index after writing all key-value pairs.
+     * For example, if you write one key-value pair, return 2.
+     */
+    protected open fun CompositeEncoder.encodeCustomKeys(value: T): Int = 0
+
     private fun incompatibleFormatError(): Nothing = error("DynamicObject is compatible with JSON format only")
 
     private companion object {
@@ -111,7 +121,7 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
     }
 }
 
-internal sealed class DynoMapSerializerBase<T: DynoMapBase>: AbstractDynoSerializer<T>() {
+internal open class DynoMapSerializerBase<T: DynoMapBase>: AbstractDynoSerializer<T>() {
     final override fun createMap(data: MutableMap<Any, Any>?, json: Json?): T =
         DynamicObjectImpl(data, json).unsafeCast()
 }

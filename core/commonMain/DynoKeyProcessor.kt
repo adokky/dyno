@@ -2,6 +2,11 @@ package dyno
 
 import kotlin.jvm.JvmName
 
+@DslMarker
+@Retention(AnnotationRetention.BINARY)
+annotation class DynoDslMarker
+
+@DynoDslMarker
 fun interface DynoKeyProcessor<in T: Any> {
     fun DynoKey<*>.process(value: T)
 }
@@ -42,9 +47,9 @@ internal class DynoKeyProcessorChain<T: Any>(
     }
 
     override fun DynoKey<*>.process(value: T) {
-        processors.forEach { processor ->
+        this@DynoKeyProcessorChain.processors.forEach { processor ->
             with(processor) {
-                process(value)
+                this@process.process(value)
             }
         }
     }

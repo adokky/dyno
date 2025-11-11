@@ -1,6 +1,4 @@
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 plugins {
     alias(libs.plugins.kotlinx.serialization)
@@ -39,6 +37,7 @@ kotlin {
         languageSettings {
             optIn("dyno.InternalDynoApi")
             optIn("dyno.ExperimentalDynoApi")
+            optIn("dyno.UnsafeDynoApi")
         }
     }
 
