@@ -13,6 +13,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 equalsTester = { module = "io.github.adokky:equals-tester", version.ref = "equalsTester" }
 karamelUtils-core = { module = "io.github.adokky:karamel-utils-core", version.ref = "karamelUtils" }
 objectPool = { module = "io.github.adokky:object-pool", version = "1.0" }
+bitvector = { module = "io.github.adokky:bitvector", version = "0.9.2" }
 zeroJson-kotlinx = { module = "io.github.adokky:zero-json-kotlinx", version.ref = "zeroJson" }
 jmh-processor = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
