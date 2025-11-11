@@ -278,7 +278,7 @@ object Person {
 Decoding from JSON - both `onDecode` and `validate` processors are called:
 
 ```kotlin
-val obj = Json.decodeFromString<DynamicObject>(""" { "age": -1, "name": "" } """)
+val obj = Json.decodeFromString<DynamicObject>("""{"name": "", "age": -1}""")
 decoded[Person.age]  // throws IAE
 decoded[Person.name] // throws IAE
 ```
@@ -299,11 +299,11 @@ mutableDynamicObjectOf(Person.name with "")
 The validation functions are easily composable and can be used to build your own validation DSL:
 
 ```kotlin
-fun DynoKey<String>.notBlank() = validate {
+fun <R: DynoKeySpec<String>> R.notBlank() = validate {
     require(it.isNotBlank()) { "property '$name' must not be empty" }
 }
 
-fun DynoKey<String>.maxLength(max: Int) = validate {
+fun <R: DynoKeySpec<String>> R.maxLength(max: Int) = validate {
     require(it.length <= max) { "property '$name' length must be <= $max, but was: ${it.length}" }
 }
 ```
@@ -311,12 +311,12 @@ fun DynoKey<String>.maxLength(max: Int) = validate {
 Multiple validators are chained together:
 
 ```kotlin
-object Person {
-    val name = DynoKey<String>("name")
+object User {
+    val name = DynoKey<String>("username")
         .notBlank()
         .maxLength(100)
         
-    val email = DynoKey<String>("email")
+    val email by dynoKey<String>()
         .validate { require("@" in it) { "property '$name' must be valid email" } }
         .maxLength(255)
 }
