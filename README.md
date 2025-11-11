@@ -266,10 +266,10 @@ Use `onDecode` alone when validation is only needed for deserialized objects rec
 
 ```kotlin
 object Person {
-    val age = DynoKey<Int>("age").onDecode { 
+    val age by dynoKey<Int>().onDecode { 
         require(it > 0) { "'age' must be positive, but was: $it" } 
     }
-    val name = DynoKey<String>("name").validate {
+    val name by dynoKey<String>().validate {
         require(it.isNotBlank()) { "'name' must not be empty" }
     }
 }
