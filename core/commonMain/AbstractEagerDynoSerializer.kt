@@ -124,7 +124,10 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         private var decodedValue: Any? = null
         private var jsonElement: JsonElement? = null
 
+        final override var state: Any? = null
+
         override fun close() {
+            state = null
             decoder = null
             jsonElement = null
             decodedValue = null
@@ -154,8 +157,6 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         }
 
         open fun skipValue() { if (valueSerializer == null) getJsonValue() }
-
-        final override var state: Any? = null
 
         final override fun getScannedUnknown(key: String): JsonElement? =
             (getDelayedKey(key) ?: data[key]).unsafeCast()
@@ -296,8 +297,9 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         // No need to defer. try-finally has a cost.
         // Nothing breaks if object will not return to the pool,
         // just more allocations on slow path
+        val state = ctx.state
         releaseContext(ctx)
-        createMap(ctx.state, data, json.takeUnless { allKeysDecoded })
+        createMap(state, data, json.takeUnless { allKeysDecoded })
     }
 
     private fun decodeDelayedKeys(
