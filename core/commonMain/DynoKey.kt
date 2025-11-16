@@ -41,6 +41,9 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val onDecode: DynoKeyProcessor<T & Any>? get() = null
 }
 
+// todo KType
+val DynoKey<*>.isOptional: Boolean get() = serializer.descriptor.isNullable
+
 /**
  * Creates a new [DynoKey] with the given [name] and [serializer].
  */
