@@ -1,6 +1,8 @@
 package dyno
 
 import dev.dokky.pool.AbstractObjectPool
+import dyno.AbstractEagerDynoSerializer.BaseResolveContext
+import dyno.AbstractEagerDynoSerializer.ResolveContext
 import karamel.utils.ThreadLocal
 import karamel.utils.unsafeCast
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -39,14 +41,11 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
     /**
      * Context provided to the [resolve] and [postResolve] methods.
      */
-    sealed interface ResolveContext {
+    sealed interface BaseResolveContext {
         val json: Json
 
         /** The key currently being processed. */
         val keyString: String
-
-        /** User-defined temporal state available only during the deserialization process */
-        var state: Any?
 
         /**
          * Retrieves [JsonElement] value for the [key] that was not recognized by the resolver.
@@ -82,10 +81,11 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         @ExperimentalDynoApi
         fun <T: Any> decodeValue(serializer: KSerializer<T>): T?
     }
-
-    /** Reified version of [ResolveContext.decodeValue]. */
-    protected inline fun <reified T: Any> ResolveContext.decodeValue(): T? =
-        decodeValue(serializer<T>())
+    
+    sealed interface ResolveContext: BaseResolveContext {
+        /** User-defined temporal state available only during the deserialization process */
+        var state: Any?
+    }
 
     /**
      * Resolve [DynoKey] given current [ResolveContextImpl].
@@ -342,3 +342,7 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         val contextPool = ThreadLocal(::ContextPool)
     }
 }
+
+/** Reified version of [ResolveContext.decodeValue]. */
+inline fun <reified T: Any> BaseResolveContext.decodeValue(): T? =
+    decodeValue(serializer<T>())
