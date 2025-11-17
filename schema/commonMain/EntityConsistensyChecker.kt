@@ -7,7 +7,7 @@ import karamel.utils.MutableInt
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 
-internal class EntityConsistensyChecker(private val schema: DynoSchema) {
+internal class EntityConsistensyChecker(val schema: DynoSchema) {
     private val nameToIndex: HashMap<String, Int>? =
         if (schema is AbstractDynoSchema<*>) null else {
             HashMap<String, Int>(schema.keyCount()).also { mapping ->

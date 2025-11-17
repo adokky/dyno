@@ -4,7 +4,7 @@ import kotlinx.serialization.json.Json
 
 internal abstract class SchemaSerializer<M: DynoMap<*>>(
     schema: DynoSchema,
-    private val unknownKeysStrategy: UnknownKeysStrategy
+    val unknownKeysStrategy: UnknownKeysStrategy
 ): AbstractEagerDynoSerializer<M>() {
     private val schema: DynoSchema = schema.withChecker()
 

@@ -7,10 +7,12 @@ import kotlinx.serialization.json.Json
 open class PolymorphicEntitySerializer<T: Entity<*>>: PolymorphicDynoSerializer<T> {
     constructor(
         baseSchemaName: String,
+        baseSchemaVersion: Int = -1,
         discriminator: String = DEFAULT_DISCRIMINATOR,
-        unknownKeysStrategy: UnknownKeysStrategy = UnknownKeysStrategy.KeepIfJsonAllowed
+        unknownKeysStrategy: UnknownKeysStrategy = DEFAULT_UNKNOWN_KEY_STRATEGY
     ): super(
         baseSchemaName = baseSchemaName,
+        baseSchemaVersion = baseSchemaVersion,
         unknownKeysStrategy,
         discriminator = discriminator
     )

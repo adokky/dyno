@@ -4,7 +4,7 @@ package dyno
 
 import kotlin.internal.Exact
 
-inline fun <S: AbstractDynoSchema<DynoMap<K>>, K: DynoKey<*>> S.new(
+inline fun <S: AbstractDynoSchema<DynoMap<K>>, K: DynoKey<*>> S.newUnsafe(
     capacity: Int = keyCount(),
     body: context(MutableDynoMap<K>) S.() -> Unit
 ): DynoMap<K> {
@@ -15,7 +15,7 @@ inline fun <S: AbstractDynoSchema<DynoMap<K>>, K: DynoKey<*>> S.new(
     return map
 }
 
-inline fun <S: EntitySchema> S.new(
+inline fun <S: EntitySchema> S.newUnsafe(
     capacity: Int = keyCount(),
     body: context(MutableEntity<S>) S.() -> Unit
 ): Entity<S> {

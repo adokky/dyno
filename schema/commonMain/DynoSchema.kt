@@ -14,6 +14,8 @@ interface DynoSchema {
 
     fun name(): String
 
+    fun version(): Int
+
     /**
      * Retrieves a [DynoKey] instance corresponding to the given key name within the specified [SerializersModule],
      * or `null` if not found.

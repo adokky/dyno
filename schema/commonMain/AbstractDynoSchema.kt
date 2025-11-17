@@ -12,6 +12,7 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
 ): DynoSchema, KSerializer<M> {
     private val keys = HashMap<String, SchemaProperty<*, *>>()
 
+    @PublishedApi
     internal val checker by lazy { EntityConsistensyChecker(this) }
 
     init {

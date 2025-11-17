@@ -5,21 +5,27 @@ import kotlinx.serialization.KSerializer
 
 open class SimpleDynoSchema internal constructor(
     private val name: String,
+    private val version: Int,
     unknownKeysStrategy: UnknownKeysStrategy,
     keys: Collection<DynoKey<*>>
 ): AbstractDynoSchema<DynoMap<DynoKey<*>>>(keys = keys) {
     constructor(
         name: String,
-        unknownKeysStrategy: UnknownKeysStrategy = UnknownKeysStrategy.KeepIfJsonAllowed
-    ): this(name = name, unknownKeysStrategy, keys = emptyList())
+        version: Int = 0,
+        unknownKeysStrategy: UnknownKeysStrategy = PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY
+    ): this(name = name, version = version, unknownKeysStrategy, keys = emptyList())
 
     constructor(
         other: DynoSchema,
-        name: String? = null,
-        unknownKeysStrategy: UnknownKeysStrategy? = null
+        name: String = other.name(),
+        version: Int = other.version(),
+        unknownKeysStrategy: UnknownKeysStrategy =
+            (other as? SimpleDynoSchema)?.serializer?.unknownKeysStrategy
+                ?: PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY
     ): this(
-        name = name ?: other.name(),
-        unknownKeysStrategy ?: UnknownKeysStrategy.KeepIfJsonAllowed,
+        name = name,
+        version = version,
+        unknownKeysStrategy,
         keys = other.keys().unsafeCast()
     )
 
@@ -29,7 +35,9 @@ open class SimpleDynoSchema internal constructor(
 
     override fun serializer(): KSerializer<DynoMap<DynoKey<*>>> = serializer
 
-    override fun name(): String = name
+    final override fun name(): String = name
+
+    final override fun version(): Int = version
 }
 
 

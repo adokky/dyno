@@ -20,7 +20,7 @@ internal class ContextElement(val registry: DynoSchemaRegistry): KSerializer<Con
 }
 
 /**
- * Registers a [DynoSimpleSchemaRegistry] into the current [kotlinx.serialization.modules.SerializersModuleBuilder].
+ * Registers a [SimpleSchemaRegistry] into the current [kotlinx.serialization.modules.SerializersModuleBuilder].
  *
  * This is typically called internally by the DSL function [dynoSchemaRegistry].
  */
