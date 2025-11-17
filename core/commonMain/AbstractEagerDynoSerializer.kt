@@ -87,6 +87,8 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         var state: Any?
     }
 
+    protected open fun initContextState(json: Json): Any? = null
+
     /**
      * Resolve [DynoKey] given current [ResolveContextImpl].
      */
@@ -264,6 +266,7 @@ abstract class AbstractEagerDynoSerializer<T: DynoMapBase>: AbstractDynoSerializ
         val data = HashMap<Any, Any>(capacity)
         var allKeysDecoded = true
         val ctx = acquireContext(descriptor, json, this, data.unsafeCast())
+        ctx.state = initContextState(json)
 
         while (true) {
             val index = decodeElementIndex(descriptor)
