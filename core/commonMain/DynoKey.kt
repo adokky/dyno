@@ -34,6 +34,9 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val name: String
     val serializer: KSerializer<T & Any>
 
+    // todo KType
+    // todo alternativeNames
+
     /** Called when putting key manually. Useful for validation */
     val onAssign: DynoKeyProcessor<T & Any>? get() = null
 
