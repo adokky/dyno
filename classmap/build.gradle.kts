@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    commonMainApi(project(":core"))
+    commonMainApi(project(":dyno-core"))
     commonMainImplementation(libs.karamelUtils.core)
 }
 
