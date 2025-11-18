@@ -7,11 +7,12 @@ plugins {
 dependencies {
     commonMainApi(project(":dyno-core"))
     commonMainImplementation(libs.karamelUtils.core)
+    commonMainImplementation(libs.bitvector)
 }
 
 mavenPublishing {
     pom {
-        description = "A container for mapping KClass to instances"
+        description = "Schema definition DSL for dyno"
         inceptionYear = "2025"
     }
 }
@@ -22,6 +23,7 @@ kotlin {
         // In order to use kotlin.internal inference annotations
         // we need to suppress `INVISIBLE_REFERENCE` error
         freeCompilerArgs.add("-Xdont-warn-on-error-suppression")
+        freeCompilerArgs.add("-Xnested-type-aliases")
     }
 
     sourceSets.configureEach {
@@ -34,8 +36,8 @@ kotlin {
 
     js().browser {
         testTask {
-            useMocha {
-                timeout = "30000"
+            useKarma {
+                useFirefox()
             }
         }
     }
