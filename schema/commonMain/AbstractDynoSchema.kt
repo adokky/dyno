@@ -13,7 +13,7 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
     private val keys = HashMap<String, SchemaProperty<*, *>>()
 
     @PublishedApi
-    internal val checker by lazy { EntityConsistensyChecker(this) }
+    internal val checker by lazy { EntityConsistencyChecker(this) }
 
     init {
         keys.forEach(::register)

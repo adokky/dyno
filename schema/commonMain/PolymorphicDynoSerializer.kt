@@ -127,7 +127,7 @@ abstract class PolymorphicDynoSerializer<T: Entity<*>>(
         val state = state as State
         val schema = state.schema ?: throwMissingSchema()
         var unwrapped = schema
-        val checker: EntityConsistensyChecker
+        val checker: EntityConsistencyChecker
         when(schema) {
             is AbstractDynoSchema<*> -> { checker = schema.checker }
             is DynoSchemaWithChecker -> {

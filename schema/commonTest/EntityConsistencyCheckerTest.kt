@@ -1,13 +1,14 @@
 package dyno
 
 import karamel.utils.unsafeCast
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlin.test.*
 
-class EntityConsistensyCheckerTest {
+class EntityConsistencyCheckerTest {
     private class TestDynoSchema(private val keys: List<DynoKey<*>>) : DynoSchema {
         override fun name(): String = "TestSchema"
         override fun version(): Int = 0
@@ -25,7 +26,7 @@ class EntityConsistensyCheckerTest {
             DynoKey<Unit>("key3")
         )
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         var state: Any? = null
         for (key in keys) {
@@ -44,7 +45,7 @@ class EntityConsistensyCheckerTest {
             DynoKey<Unit>("key4")
         )
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         // Mark only key2 and key3 as present
         var state: Any? = null
@@ -65,19 +66,20 @@ class EntityConsistensyCheckerTest {
             DynoKey<Unit?>("key2")
         )
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         val missing = checker.getRequiredKeysMissing(null)
         assertNull(missing)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testCheckWithMissingFields() {
         val keys = listOf(
             DynoKey<Unit>("requiredKey")
         )
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         assertFailsWith<MissingFieldException> {
             checker.check(null)
@@ -94,7 +96,7 @@ class EntityConsistensyCheckerTest {
         val nser = ser.nullable
         val keys = (1..20).map { DynoKey<Unit>("key$it", serializer = (if (it % 2 == 0) nser else ser).unsafeCast()) }
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         var state: Any? = null
         // Mark only even (optional) keys as present
@@ -120,7 +122,7 @@ class EntityConsistensyCheckerTest {
         val keys = (1..50).map { DynoKey<Unit>("key$it", serializer = (if (it % 3 == 0) nser else ser).unsafeCast()) }
         assertEquals(16, keys.count { it.isOptional })
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         var state: Any? = null
         // Mark only keys divisible by 3 as present (which are optional)
@@ -140,7 +142,7 @@ class EntityConsistensyCheckerTest {
     fun testMarkIsPresentWithIndex() {
         val keys = listOf(DynoKey<Unit>("key1"), DynoKey<Unit>("key2"))
         val schema = TestDynoSchema(keys)
-        val checker = EntityConsistensyChecker(schema)
+        val checker = EntityConsistencyChecker(schema)
 
         // Test marking with index
         var state: Any? = null

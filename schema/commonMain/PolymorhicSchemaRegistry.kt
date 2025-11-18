@@ -3,10 +3,11 @@ package dyno
 sealed interface PolymorhicSchemaRegistry: DynoSchemaRegistry {
     val global: SimpleSchemaRegistry // can also be retrieved as base schema with empty name
 
-    val all: Sequence<BaseSchemaRegistry>
+    val allLatest: Sequence<BaseSchemaRegistry>
 
     class BaseSchemaRegistry(val name: String, val version: Int, val subSchemas: SimpleSchemaRegistry)
 
+    /** @param version if < 0 then latest version is returned */
     fun get(name: String, version: Int = -1): SimpleSchemaRegistry?
 }
 

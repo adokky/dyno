@@ -1,10 +1,10 @@
 package dyno
 
 internal class DynoSchemaWithChecker(internal val original: DynoSchema): DynoSchema by original {
-    val checker = EntityConsistensyChecker(original)
+    val checker = EntityConsistencyChecker(original)
 }
 
-internal fun DynoSchema.checker(): EntityConsistensyChecker = when (this) {
+internal fun DynoSchema.checker(): EntityConsistencyChecker = when (this) {
     is AbstractDynoSchema<*> -> checker
     is DynoSchemaWithChecker -> checker
     else -> throwNoConsistencyChecker(this)

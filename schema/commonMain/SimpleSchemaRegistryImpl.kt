@@ -9,7 +9,7 @@ internal open class SimpleSchemaRegistryImpl(val parent: PolymorphicSchemaRegist
             field = value
         }
 
-    override val all: Sequence<DynoSchema> get() =
+    override val allLatest: Sequence<DynoSchema> get() =
         registry.nameToVersions.values.asSequence().map { it.latest }
 
     override fun get(name: String, version: Int): DynoSchema? {

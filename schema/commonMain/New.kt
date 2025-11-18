@@ -31,7 +31,7 @@ inline fun <S: EntitySchema> S.new(
 }
 
 class DynoMapBuilder<S: AbstractDynoSchema<*>> @PublishedApi internal constructor(
-    private val checker: EntityConsistensyChecker,
+    private val checker: EntityConsistencyChecker,
     result: MutableDynoMap<*>
 ) {
     private val result: MutableDynoMap<DynoKey<Any?>> = result.unsafeCast()

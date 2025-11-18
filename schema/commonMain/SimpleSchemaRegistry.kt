@@ -8,10 +8,11 @@ sealed interface DynoSchemaRegistry
  * Used by [PolymorphicDynoSerializer] during deserialization.
  */
 sealed interface SimpleSchemaRegistry: DynoSchemaRegistry {
-    val all: Sequence<DynoSchema>
+    val allLatest: Sequence<DynoSchema>
 
     val fallback: DynoSchema?
 
+    /** @param version if < 0 then latest version is returned */
     fun get(name: String, version: Int = -1): DynoSchema?
 }
 

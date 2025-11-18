@@ -5,7 +5,7 @@ import karamel.utils.unsafeCast
 internal class PolymorphicSchemaRegistryImpl: MutablePolymorhicSchemaRegistry {
     private val registry = VersionedRegistry<SimpleSchemaRegistryImpl>()
 
-    override val all: Sequence<PolymorhicSchemaRegistry.BaseSchemaRegistry>
+    override val allLatest: Sequence<PolymorhicSchemaRegistry.BaseSchemaRegistry>
         get() = registry.nameToVersions.entries.asSequence().map {
             PolymorhicSchemaRegistry.BaseSchemaRegistry(
                 name = it.key,
@@ -15,6 +15,10 @@ internal class PolymorphicSchemaRegistryImpl: MutablePolymorhicSchemaRegistry {
         }
 
     override val global = SimpleSchemaRegistryImpl(null)
+
+    init {
+        overwrite("", 0, global)
+    }
 
     override operator fun get(name: String, version: Int): SimpleSchemaRegistryImpl? =
         registry.get(name, version)

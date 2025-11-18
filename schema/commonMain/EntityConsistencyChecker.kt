@@ -7,7 +7,7 @@ import karamel.utils.MutableInt
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 
-internal class EntityConsistensyChecker(val schema: DynoSchema) {
+internal class EntityConsistencyChecker(val schema: DynoSchema) {
     private val nameToIndex: HashMap<String, Int>? =
         if (schema is AbstractDynoSchema<*>) null else {
             HashMap<String, Int>(schema.keyCount()).also { mapping ->
@@ -56,8 +56,6 @@ internal class EntityConsistensyChecker(val schema: DynoSchema) {
         return markIsPresent(state, getPropertyIndex(key))
     }
 
-    private fun Int.isPropertyPresent(index: Int): Boolean = (this and (1 shl index)) != 0
-
     fun getRequiredKeysMissing(state: Any?): List<String>? = when (state) {
         null -> schema.keys().let { keys ->
             ArrayList<String>(keys.size).apply {
@@ -87,7 +85,7 @@ internal class EntityConsistensyChecker(val schema: DynoSchema) {
         }
     }
 
-    private fun getMissingFields(state: BitVector) = buildList<String> {
+    private fun getMissingFields(state: BitVector): List<String> = buildList {
         for (k in schema.keys()) {
             val index = getPropertyIndex(k)
             if (!state[index] && !k.isOptional) add(k.name)
