@@ -1,13 +1,29 @@
+public abstract class dyno/AbstractDynoKey : dyno/DynoKey, java/lang/Comparable {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun compareTo (Ldyno/DynoKey;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun getOnAssign ()Ldyno/DynoKeyProcessor;
+	public fun getOnDecode ()Ldyno/DynoKeyProcessor;
+	public fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun getType ()Lkotlin/reflect/KType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract class dyno/AbstractDynoSerializer : kotlinx/serialization/KSerializer {
 	public fun <init> ()V
 	protected abstract fun createMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/DynoMapBase;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ldyno/DynoMapBase;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/json/JsonDecoder;)Ldyno/DynoMapBase;
+	protected fun encodeCustomKeys (Lkotlinx/serialization/encoding/CompositeEncoder;Ldyno/DynoMapBase;)I
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ldyno/DynoMapBase;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize (Lkotlinx/serialization/json/JsonEncoder;Ldyno/DynoMapImpl;)V
+	public fun serialize (Lkotlinx/serialization/json/JsonEncoder;Ldyno/DynoMapBase;)V
 }
 
 public abstract class dyno/AbstractEagerDynoSerializer : dyno/AbstractDynoSerializer {
@@ -16,20 +32,24 @@ public abstract class dyno/AbstractEagerDynoSerializer : dyno/AbstractDynoSerial
 	protected abstract fun createMap (Ljava/lang/Object;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/DynoMapBase;
 	protected final fun createMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/DynoMapBase;
 	public final fun deserialize (Lkotlinx/serialization/json/JsonDecoder;)Ldyno/DynoMapBase;
+	protected fun initState (Lkotlinx/serialization/json/Json;)Ljava/lang/Object;
 	protected fun postResolve (Ldyno/AbstractEagerDynoSerializer$ResolveContext;)Ldyno/AbstractEagerDynoSerializer$ResolveResult;
 	protected fun releaseContext (Ldyno/AbstractEagerDynoSerializer$ResolveContextImpl;)V
 	protected abstract fun resolve (Ldyno/AbstractEagerDynoSerializer$ResolveContext;)Ldyno/AbstractEagerDynoSerializer$ResolveResult;
 }
 
-public abstract interface class dyno/AbstractEagerDynoSerializer$ResolveContext {
+public abstract interface class dyno/AbstractEagerDynoSerializer$BaseResolveContext {
 	public abstract fun decodeValue (Lkotlinx/serialization/KSerializer;)Ljava/lang/Object;
 	public abstract fun getDecoded (Ldyno/DynoKey;)Ljava/lang/Object;
 	public abstract fun getJson ()Lkotlinx/serialization/json/Json;
 	public abstract fun getJsonValue ()Lkotlinx/serialization/json/JsonElement;
 	public abstract fun getKeyString ()Ljava/lang/String;
 	public abstract fun getScannedUnknown (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
-	public abstract fun getState ()Ljava/lang/Object;
 	public abstract fun isScannedUnknown (Ljava/lang/String;)Z
+}
+
+public abstract interface class dyno/AbstractEagerDynoSerializer$ResolveContext : dyno/AbstractEagerDynoSerializer$BaseResolveContext {
+	public abstract fun getState ()Ljava/lang/Object;
 	public abstract fun setState (Ljava/lang/Object;)V
 }
 
@@ -81,24 +101,21 @@ public abstract interface class dyno/DynamicObject : dyno/DynoMap {
 	public abstract fun contains (Ldyno/DynoKey;)Z
 	public abstract fun copy ()Ldyno/DynamicObject;
 	public abstract fun get (Ldyno/DynoKey;)Ljava/lang/Object;
-	public fun get (Ldyno/DynoRequiredKey;)Ljava/lang/Object;
-	public static fun getEmpty ()Ldyno/DynamicObject;
+	public abstract fun getNullable (Ldyno/DynoKey;)Ljava/lang/Object;
 	public abstract fun getOrFail (Ldyno/DynoKey;)Ljava/lang/Object;
 	public abstract fun minus (Ldyno/DynoKey;)Ldyno/DynamicObject;
 	public abstract fun plus (Ldyno/DynoEntry;)Ldyno/DynamicObject;
 }
 
 public final class dyno/DynamicObject$Companion {
-	public final fun getEmpty ()Ldyno/DynamicObject;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class dyno/DynamicObject$DefaultImpls {
-	public static fun get (Ldyno/DynamicObject;Ldyno/DynoRequiredKey;)Ljava/lang/Object;
+	public static fun getOrFail (Ldyno/DynamicObject;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 }
 
 public final class dyno/DynamicObjectFactoriesKt {
-	public static final fun MutableDynamicObject (I)Ldyno/MutableDynamicObject;
 	public static final fun buildDynamicObject (Lkotlin/jvm/functions/Function1;)Ldyno/DynamicObject;
 	public static final fun buildMutableDynamicObject (Lkotlin/jvm/functions/Function1;)Ldyno/MutableDynamicObject;
 	public static final fun dynamicObjectOf ()Ldyno/DynamicObject;
@@ -110,35 +127,94 @@ public final class dyno/DynamicObjectFactoriesKt {
 	public static final fun mutableDynamicObjectOf ([Ldyno/DynoEntry;)Ldyno/MutableDynamicObject;
 }
 
+public abstract interface annotation class dyno/DynoDslMarker : java/lang/annotation/Annotation {
+}
+
 public abstract interface class dyno/DynoEntry {
 	public abstract fun getKey ()Ldyno/DynoKey;
 	public abstract fun getValue ()Ljava/lang/Object;
 }
 
 public final class dyno/DynoEntryKt {
-	public static final fun DynamicObjectEntry (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
-	public static final fun NullDynamicObjectEntry (Ldyno/DynoKey;Ljava/lang/Void;)Ldyno/DynoEntry;
-	public static final fun NullableDynamicObjectEntry (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
+	public static final fun DynoEntry (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
+	public static final fun nullableWith (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
 	public static final fun with (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
-	public static final fun withNull (Ldyno/DynoKey;Ljava/lang/Void;)Ldyno/DynoEntry;
-	public static final fun withNullable (Ldyno/DynoKey;Ljava/lang/Object;)Ldyno/DynoEntry;
 }
 
 public abstract interface class dyno/DynoKey : dyno/AbstractEagerDynoSerializer$ResolveResult {
 	public abstract fun getName ()Ljava/lang/String;
+	public fun getOnAssign ()Ldyno/DynoKeyProcessor;
+	public fun getOnDecode ()Ldyno/DynoKeyProcessor;
 	public abstract fun getSerializer ()Lkotlinx/serialization/KSerializer;
-	public fun onAssign (Ljava/lang/Object;)Ljava/lang/Object;
-	public fun onDecode (Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun getType ()Lkotlin/reflect/KType;
 }
 
 public final class dyno/DynoKey$DefaultImpls {
-	public static fun onAssign (Ldyno/DynoKey;Ljava/lang/Object;)Ljava/lang/Object;
-	public static fun onDecode (Ldyno/DynoKey;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun getOnAssign (Ldyno/DynoKey;)Ldyno/DynoKeyProcessor;
+	public static fun getOnDecode (Ldyno/DynoKey;)Ldyno/DynoKeyProcessor;
+}
+
+public final class dyno/DynoKeyDelegate : dyno/DynoKey {
+	public fun <init> (Ldyno/DynoKey;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Ldyno/DynoKey;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun getOnAssign ()Ldyno/DynoKeyProcessor;
+	public fun getOnDecode ()Ldyno/DynoKeyProcessor;
+	public fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun getType ()Lkotlin/reflect/KType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dyno/DynoKeyExtensionsKt {
+	public static final fun onAssign (Ldyno/DynoKey;Ldyno/DynoKeyProcessor;)Ldyno/DynoKey;
+	public static final fun onDecode (Ldyno/DynoKey;Ldyno/DynoKeyProcessor;)Ldyno/DynoKey;
+	public static final fun validate (Ldyno/DynoKey;Ldyno/DynoKeyProcessor;)Ldyno/DynoKey;
 }
 
 public final class dyno/DynoKeyKt {
-	public static final fun DynoKey (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)Ldyno/DynoKey;
-	public static final fun DynoRequiredKey (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)Ldyno/DynoRequiredKey;
+	public static final fun DynoKey (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;)Ldyno/DynoKey;
+	public static final fun isOptional (Ldyno/DynoKey;)Z
+}
+
+public abstract interface class dyno/DynoKeyProcessor {
+	public abstract fun process (Ldyno/DynoKey;Ljava/lang/Object;)V
+}
+
+public final class dyno/DynoKeyProcessorKt {
+	public static final fun plus (Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeyProcessor;
+}
+
+public final class dyno/DynoKeyPrototype : dyno/DynoKeySpec {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeyPrototype;
+	public synthetic fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public fun getOnAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun getOnDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public final fun provideDelegate (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Lkotlin/properties/ReadOnlyProperty;
+}
+
+public abstract interface class dyno/DynoKeySpec {
+	public abstract fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public static synthetic fun copy$default (Ldyno/DynoKeySpec;Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILjava/lang/Object;)Ldyno/DynoKeySpec;
+	public abstract fun getOnAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public abstract fun getOnDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+}
+
+public final class dyno/DynoKeySpec$DefaultImpls {
+	public static synthetic fun copy$default (Ldyno/DynoKeySpec;Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILjava/lang/Object;)Ldyno/DynoKeySpec;
+}
+
+public final class dyno/DynoKeySpec$Internal {
+	public static final field INSTANCE Ldyno/DynoKeySpec$Internal;
+}
+
+public final class dyno/DynoKeySpecKt {
+	public static final fun onAssign (Ldyno/DynoKeySpec;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public static final fun onDecode (Ldyno/DynoKeySpec;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public static final fun validate (Ldyno/DynoKeySpec;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
 }
 
 public abstract interface class dyno/DynoMap : dyno/DynoMapBase {
@@ -149,13 +225,22 @@ public final class dyno/DynoMap$Companion {
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 }
 
+public final class dyno/DynoMap$DefaultImpls {
+	public static fun getOrFail (Ldyno/DynoMap;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+}
+
 public abstract interface class dyno/DynoMapBase {
 	public abstract fun contains (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
 	public abstract fun contains (Ljava/lang/String;)Z
 	public abstract fun copy ()Ldyno/DynoMapBase;
 	public abstract fun get (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+	public fun getOrFail (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 	public abstract fun getSize ()I
 	public abstract fun getStateless (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+}
+
+public final class dyno/DynoMapBase$DefaultImpls {
+	public static fun getOrFail (Ldyno/DynoMapBase;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 }
 
 public final class dyno/DynoMapBase$Unsafe {
@@ -176,42 +261,35 @@ public abstract class dyno/DynoMapImpl : dyno/MutableDynoMapBase {
 	public fun <init> (Ljava/util/Collection;)V
 	public fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;)V
 	public fun clear ()V
-	public fun contains (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
+	public final fun contains (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
 	public fun contains (Ljava/lang/String;)Z
 	public abstract fun copy ()Ldyno/DynoMapImpl;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun get (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+	public final fun get (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 	public final fun getData (Ldyno/DynoMapBase$Unsafe;)Ljava/util/Map;
 	public final fun getJson (Ldyno/DynoMapBase$Unsafe;)Lkotlinx/serialization/json/Json;
 	public final fun getKeyNames ()Lkotlin/sequences/Sequence;
+	public fun getOrFail (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 	public final fun getSize ()I
-	public fun getStateless (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+	public final fun getStateless (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 	public fun hashCode ()I
-	public fun put (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoEntry;)Ljava/lang/Object;
-	public fun put (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;Ljava/lang/Object;)Ljava/lang/Object;
-	public fun remove (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
-	public fun remove (Ldyno/DynoMapBase$Unsafe;Ljava/lang/String;)Z
-	public fun removeAndGet (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
-	public fun set (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoEntry;)V
-	public fun set (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;Ljava/lang/Object;)V
+	public final fun put (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoEntry;)Ljava/lang/Object;
+	public final fun put (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun remove (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
+	public final fun remove (Ldyno/DynoMapBase$Unsafe;Ljava/lang/String;)Z
+	public final fun removeAndGet (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+	public final fun set (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoEntry;)V
+	public final fun set (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;Ljava/lang/Object;)V
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class dyno/DynoMapKt {
 	public static final fun contains (Ldyno/DynoMap;Ldyno/DynoKey;)Z
 	public static final fun get (Ldyno/DynoMap;Ldyno/DynoKey;)Ljava/lang/Object;
-	public static final fun get (Ldyno/DynoMap;Ldyno/DynoRequiredKey;)Ljava/lang/Object;
+	public static final fun getNullable (Ldyno/DynoMap;Ldyno/DynoKey;)Ljava/lang/Object;
 	public static final fun getOrFail (Ldyno/DynoMap;Ldyno/DynoKey;)Ljava/lang/Object;
 	public static final fun minus (Ldyno/DynoMap;Ldyno/DynoKey;)Ldyno/DynoMap;
 	public static final fun plus (Ldyno/DynoMap;Ldyno/DynoEntry;)Ldyno/DynoMap;
-}
-
-public abstract interface class dyno/DynoRequiredKey : dyno/DynoKey {
-}
-
-public final class dyno/DynoRequiredKey$DefaultImpls {
-	public static fun onAssign (Ldyno/DynoRequiredKey;Ljava/lang/Object;)Ljava/lang/Object;
-	public static fun onDecode (Ldyno/DynoRequiredKey;Ljava/lang/Object;)Ljava/lang/Object;
 }
 
 public abstract interface annotation class dyno/ExperimentalDynoApi : java/lang/annotation/Annotation {
@@ -238,11 +316,20 @@ public final class dyno/MutableDynamicObject$Companion {
 }
 
 public final class dyno/MutableDynamicObject$DefaultImpls {
-	public static fun get (Ldyno/MutableDynamicObject;Ldyno/DynoRequiredKey;)Ljava/lang/Object;
+	public static fun getOrFail (Ldyno/MutableDynamicObject;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+}
+
+public final class dyno/MutableDynamicObjectKt {
+	public static final fun MutableDynamicObject (I)Ldyno/MutableDynamicObject;
+	public static final fun MutableDynamicObject (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/MutableDynamicObject;
 }
 
 public abstract interface class dyno/MutableDynoMap : dyno/DynoMap, dyno/MutableDynoMapBase {
 	public abstract fun copy ()Ldyno/MutableDynoMap;
+}
+
+public final class dyno/MutableDynoMap$DefaultImpls {
+	public static fun getOrFail (Ldyno/MutableDynoMap;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 }
 
 public abstract interface class dyno/MutableDynoMapBase : dyno/DynoMapBase {
@@ -257,7 +344,13 @@ public abstract interface class dyno/MutableDynoMapBase : dyno/DynoMapBase {
 	public abstract fun set (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;Ljava/lang/Object;)V
 }
 
+public final class dyno/MutableDynoMapBase$DefaultImpls {
+	public static fun getOrFail (Ldyno/MutableDynoMapBase;Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+}
+
 public final class dyno/MutableDynoMapKt {
+	public static final fun MutableDynoMap (I)Ldyno/MutableDynoMap;
+	public static final fun MutableDynoMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/MutableDynoMap;
 	public static final fun minusAssign (Ldyno/MutableDynoMap;Ldyno/DynoKey;)V
 	public static final fun plusAssign (Ldyno/MutableDynoMap;Ldyno/DynoEntry;)V
 	public static final fun put (Ldyno/MutableDynoMap;Ldyno/DynoEntry;)Ljava/lang/Object;
@@ -303,28 +396,46 @@ public final class dyno/SimpleDynoEntry : dyno/DynoEntry {
 	public fun toString ()Ljava/lang/String;
 }
 
-public class dyno/SimpleDynoKey : dyno/DynoKey, java/lang/Comparable {
+public final class dyno/SimpleDynoKey : java/lang/Record, dyno/DynoKey, dyno/DynoKeySpec, java/lang/Comparable, kotlin/properties/ReadOnlyProperty {
 	public static final field Companion Ldyno/SimpleDynoKey$Companion;
-	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)V
+	public fun <init> (Ldyno/DynoKey;)V
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun compareTo (Ldyno/DynoKey;)I
 	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/KSerializer;
+	public final fun component3 ()Lkotlin/reflect/KType;
+	public final fun component4 ()Ldyno/DynoKeyProcessor;
+	public final fun component5 ()Ldyno/DynoKeyProcessor;
+	public synthetic fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/SimpleDynoKey;
+	public final fun copy (Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/SimpleDynoKey;
+	public static synthetic fun copy$default (Ldyno/SimpleDynoKey;Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILjava/lang/Object;)Ldyno/SimpleDynoKey;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getName ()Ljava/lang/String;
-	public final fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public synthetic fun getName ()Ljava/lang/String;
+	public synthetic fun getOnAssign ()Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode ()Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public synthetic fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public synthetic fun getType ()Lkotlin/reflect/KType;
+	public fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ldyno/DynoKey;
+	public synthetic fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
 	public fun hashCode ()I
-	public fun onAssign (Ljava/lang/Object;)Ljava/lang/Object;
-	public fun onDecode (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun name ()Ljava/lang/String;
+	public fun onAssign ()Ldyno/DynoKeyProcessor;
+	public fun onAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun onDecode ()Ldyno/DynoKeyProcessor;
+	public fun onDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun serializer ()Lkotlinx/serialization/KSerializer;
 	public fun toString ()Ljava/lang/String;
+	public fun type ()Lkotlin/reflect/KType;
 }
 
 public final class dyno/SimpleDynoKey$Companion {
 }
 
-public class dyno/SimpleDynoRequiredKey : dyno/SimpleDynoKey, dyno/DynoRequiredKey {
-	public static final field Companion Ldyno/SimpleDynoRequiredKey$Companion;
-	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)V
-}
-
-public final class dyno/SimpleDynoRequiredKey$Companion {
+public abstract interface annotation class dyno/UnsafeDynoApi : java/lang/annotation/Annotation {
 }
 

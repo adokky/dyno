@@ -1,0 +1,269 @@
+public abstract class dyno/AbstractDynoSchema : dyno/DynoSchema, kotlinx/serialization/KSerializer {
+	public synthetic fun <init> (Ljava/util/Collection;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/Collection;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ldyno/DynoMap;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getChecker ()Ldyno/EntityConsistencyChecker;
+	public final synthetic fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getKey (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/String;)Ldyno/DynoKey;
+	protected abstract fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun keyCount ()I
+	public fun keys ()Ljava/util/Collection;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ldyno/DynoMap;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract class dyno/AbstractSchemaRegistryBuilder {
+	public final fun extendSchema (Ldyno/DynoSchema;)V
+	public final fun getFallback ()Ldyno/DynoSchema;
+	public final fun schema (Ldyno/DynoSchema;)V
+	public final fun setFallback (Ldyno/DynoSchema;)V
+}
+
+public final class dyno/CombineKt {
+	public static final fun combine (Ldyno/DynoSchema;Ldyno/DynoSchema;)Ldyno/DynoSchema;
+}
+
+public final class dyno/DynoMapBuilder {
+	public fun <init> (Ldyno/EntityConsistencyChecker;Ldyno/MutableDynoMap;)V
+	public final fun getResult ()Ldyno/DynoMap;
+}
+
+public class dyno/DynoMapSchema : dyno/AbstractDynoSchema {
+	public fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;)V
+	public synthetic fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public final fun name ()Ljava/lang/String;
+	public final fun version ()I
+}
+
+public abstract interface class dyno/DynoSchema {
+	public abstract fun getKey (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/String;)Ldyno/DynoKey;
+	public fun keyCount ()I
+	public abstract fun keys ()Ljava/util/Collection;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun version ()I
+}
+
+public final class dyno/DynoSchema$DefaultImpls {
+	public static fun keyCount (Ldyno/DynoSchema;)I
+}
+
+public abstract interface class dyno/DynoSchemaRegistry {
+}
+
+public abstract class dyno/Entity : dyno/DynoMapImpl, dyno/DynoMap {
+	public synthetic fun <init> (Ldyno/DynoSchema;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Collection;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun copy ()Ldyno/Entity;
+	public final fun getSchema ()Ldyno/DynoSchema;
+}
+
+public abstract class dyno/EntitySchema : dyno/AbstractDynoSchema {
+	public fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun createSerializer ()Lkotlinx/serialization/KSerializer;
+	protected final fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public final fun name ()Ljava/lang/String;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public final fun version ()I
+}
+
+public final class dyno/MutableEntity : dyno/Entity, dyno/MutableDynoMap {
+	public fun <init> (Ldyno/DynoSchema;)V
+	public fun <init> (Ldyno/DynoSchema;I)V
+	public fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;)V
+	public fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;)V
+	public synthetic fun copy ()Ldyno/DynoMapBase;
+	public synthetic fun copy ()Ldyno/DynoMapImpl;
+	public synthetic fun copy ()Ldyno/Entity;
+	public synthetic fun copy ()Ldyno/MutableDynoMap;
+	public synthetic fun copy ()Ldyno/MutableDynoMapBase;
+	public fun copy ()Ldyno/MutableEntity;
+}
+
+public abstract interface class dyno/MutablePolymorhicSchemaRegistry : dyno/PolymorhicSchemaRegistry {
+	public abstract fun overwrite (Ljava/lang/String;ILdyno/SimpleSchemaRegistry;)Ldyno/SimpleSchemaRegistry;
+	public abstract fun remove (Ljava/lang/String;I)Ldyno/SimpleSchemaRegistry;
+}
+
+public abstract interface class dyno/MutableSimpleSchemaRegistry : dyno/SimpleSchemaRegistry {
+	public abstract fun getFallback ()Ldyno/DynoSchema;
+	public abstract fun overwrite (Ldyno/DynoSchema;)Ldyno/DynoSchema;
+	public abstract fun register (Ldyno/DynoSchema;)V
+	public abstract fun remove (Ljava/lang/String;I)Ldyno/DynoSchema;
+	public abstract fun setFallback (Ldyno/DynoSchema;)V
+}
+
+public final class dyno/NewKt {
+	public static final fun new (Ldyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;)Ldyno/DynoMap;
+	public static final fun new (Ldyno/EntitySchema;ILkotlin/jvm/functions/Function2;)Ldyno/Entity;
+	public static synthetic fun new$default (Ldyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldyno/DynoMap;
+	public static synthetic fun new$default (Ldyno/EntitySchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldyno/Entity;
+	public static final fun set (Ldyno/DynoMapBuilder;Ldyno/SchemaProperty;Ljava/lang/Object;)V
+}
+
+public final class dyno/NewUnsafeKt {
+	public static final fun newUnsafe (Ldyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;)Ldyno/DynoMap;
+	public static final fun newUnsafe (Ldyno/EntitySchema;ILkotlin/jvm/functions/Function2;)Ldyno/Entity;
+	public static synthetic fun newUnsafe$default (Ldyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldyno/DynoMap;
+	public static synthetic fun newUnsafe$default (Ldyno/EntitySchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldyno/Entity;
+	public static final fun set (Ldyno/MutableEntity;Ldyno/SchemaProperty;Ljava/lang/Object;)V
+}
+
+public abstract interface class dyno/PolymorhicSchemaRegistry : dyno/DynoSchemaRegistry {
+	public abstract fun get (Ljava/lang/String;I)Ldyno/SimpleSchemaRegistry;
+	public static synthetic fun get$default (Ldyno/PolymorhicSchemaRegistry;Ljava/lang/String;IILjava/lang/Object;)Ldyno/SimpleSchemaRegistry;
+	public abstract fun getAllLatest ()Lkotlin/sequences/Sequence;
+	public abstract fun getGlobal ()Ldyno/SimpleSchemaRegistry;
+}
+
+public final class dyno/PolymorhicSchemaRegistry$BaseSchemaRegistry {
+	public fun <init> (Ljava/lang/String;ILdyno/SimpleSchemaRegistry;)V
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSubSchemas ()Ldyno/SimpleSchemaRegistry;
+	public final fun getVersion ()I
+}
+
+public final class dyno/PolymorhicSchemaRegistry$DefaultImpls {
+	public static synthetic fun get$default (Ldyno/PolymorhicSchemaRegistry;Ljava/lang/String;IILjava/lang/Object;)Ldyno/SimpleSchemaRegistry;
+}
+
+public abstract interface class dyno/Polymorphic : dyno/DynoSchema {
+}
+
+public final class dyno/Polymorphic$DefaultImpls {
+	public static fun keyCount (Ldyno/Polymorphic;)I
+}
+
+public abstract class dyno/PolymorphicDynoSerializer : dyno/AbstractEagerDynoSerializer {
+	public static final field Companion Ldyno/PolymorphicDynoSerializer$Companion;
+	public static final field DEFAULT_DISCRIMINATOR Ljava/lang/String;
+	public static final field DEFAULT_UNKNOWN_KEY_STRATEGY Ldyno/UnknownKeysStrategy;
+	public fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/PolymorhicSchemaRegistry;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/PolymorhicSchemaRegistry;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public synthetic fun createMap (Ljava/lang/Object;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/DynoMapBase;
+	protected final fun createMap (Ljava/lang/Object;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/Entity;
+	public synthetic fun encodeCustomKeys (Lkotlinx/serialization/encoding/CompositeEncoder;Ldyno/DynoMapBase;)I
+	protected fun encodeCustomKeys (Lkotlinx/serialization/encoding/CompositeEncoder;Ldyno/Entity;)I
+	protected abstract fun getMap (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/Entity;
+	protected final fun getUnknownKeysStrategy ()Ldyno/UnknownKeysStrategy;
+	protected final fun initState (Lkotlinx/serialization/json/Json;)Ljava/lang/Object;
+	protected final fun postResolve (Ldyno/AbstractEagerDynoSerializer$ResolveContext;)Ldyno/AbstractEagerDynoSerializer$ResolveResult;
+	protected final fun resolve (Ldyno/AbstractEagerDynoSerializer$ResolveContext;)Ldyno/AbstractEagerDynoSerializer$ResolveResult;
+}
+
+public final class dyno/PolymorphicDynoSerializer$Companion {
+}
+
+public class dyno/PolymorphicEntitySerializer : dyno/PolymorphicDynoSerializer {
+	public fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;)V
+	public synthetic fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	protected fun getMap (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/Entity;
+}
+
+public final class dyno/PolymorphicSchemaRegistryBuilder : dyno/AbstractSchemaRegistryBuilder {
+}
+
+public final class dyno/SchemaProperty : java/lang/Record, dyno/DynoKey, dyno/DynoKeySpec, java/lang/Comparable, kotlin/properties/ReadOnlyProperty {
+	public fun compareTo (Ldyno/DynoKey;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/KSerializer;
+	public final fun component3 ()Lkotlin/reflect/KType;
+	public final fun component5 ()Ldyno/DynoKeyProcessor;
+	public final fun component6 ()Ldyno/DynoKeyProcessor;
+	public synthetic fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/SchemaProperty;
+	public fun equals (Ljava/lang/Object;)Z
+	public synthetic fun getName ()Ljava/lang/String;
+	public synthetic fun getOnAssign ()Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode ()Ldyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public synthetic fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public synthetic fun getType ()Lkotlin/reflect/KType;
+	public fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ldyno/SchemaProperty;
+	public synthetic fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun name ()Ljava/lang/String;
+	public fun onAssign ()Ldyno/DynoKeyProcessor;
+	public fun onAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun onDecode ()Ldyno/DynoKeyProcessor;
+	public fun onDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+	public fun type ()Lkotlin/reflect/KType;
+}
+
+public final class dyno/SchemaPropertySpec : dyno/DynoKeySpec {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/DynoKeySpec;
+	public fun copy (Ldyno/DynoKeySpec$Internal;Ldyno/DynoKeyProcessor;Ldyno/DynoKeyProcessor;)Ldyno/SchemaPropertySpec;
+	public fun getOnAssign (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public fun getOnDecode (Ldyno/DynoKeySpec$Internal;)Ldyno/DynoKeyProcessor;
+	public final fun provideDelegate (Ldyno/DynoSchema;Lkotlin/reflect/KProperty;)Lkotlin/properties/ReadOnlyProperty;
+}
+
+public final class dyno/SchemaRegistryBuilder : dyno/AbstractSchemaRegistryBuilder {
+	public fun <init> ()V
+	public synthetic fun getTopRegistry$dyno_schema ()Ldyno/MutableSimpleSchemaRegistry;
+	public final fun polymorhic (Ldyno/DynoSchema;Lkotlin/jvm/functions/Function1;)V
+	public final fun polymorhic (Ljava/lang/String;ILkotlin/jvm/functions/Function1;)V
+	public static synthetic fun polymorhic$default (Ldyno/SchemaRegistryBuilder;Ljava/lang/String;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class dyno/SchemaRegistryBuilderKt {
+	public static final fun dynoSchemaRegistry (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class dyno/SchemaRegistryContextElementKt {
+	public static final fun dynoSchemaRegistry (Lkotlinx/serialization/modules/SerializersModuleBuilder;Ldyno/DynoSchemaRegistry;)V
+}
+
+public final class dyno/SelectKt {
+	public static final fun select (Ldyno/Entity;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class dyno/Selector {
+	public fun <init> (Ldyno/Entity;)V
+	public final fun getEnt ()Ldyno/Entity;
+	public final fun getResult ()Ljava/lang/Object;
+	public final fun getSelected ()Z
+	public final fun get_result ()Ljava/lang/Object;
+	public final fun orElse (Lkotlin/jvm/functions/Function2;)V
+	public final fun setSelected (Z)V
+	public final fun set_result (Ljava/lang/Object;)V
+}
+
+public abstract interface class dyno/SimpleSchemaRegistry : dyno/DynoSchemaRegistry {
+	public abstract fun get (Ljava/lang/String;I)Ldyno/DynoSchema;
+	public static synthetic fun get$default (Ldyno/SimpleSchemaRegistry;Ljava/lang/String;IILjava/lang/Object;)Ldyno/DynoSchema;
+	public abstract fun getAllLatest ()Lkotlin/sequences/Sequence;
+	public abstract fun getFallback ()Ldyno/DynoSchema;
+}
+
+public final class dyno/SimpleSchemaRegistry$DefaultImpls {
+	public static synthetic fun get$default (Ldyno/SimpleSchemaRegistry;Ljava/lang/String;IILjava/lang/Object;)Ldyno/DynoSchema;
+}
+
+public abstract class dyno/UnknownKeysStrategy : java/lang/Enum {
+	public static final field Error Ldyno/UnknownKeysStrategy;
+	public static final field Keep Ldyno/UnknownKeysStrategy;
+	public static final field KeepIfJsonAllowed Ldyno/UnknownKeysStrategy;
+	public static final field Skip Ldyno/UnknownKeysStrategy;
+	public static final field SkipIfJsonAllowed Ldyno/UnknownKeysStrategy;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldyno/UnknownKeysStrategy;
+	public static fun values ()[Ldyno/UnknownKeysStrategy;
+}
+

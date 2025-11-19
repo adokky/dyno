@@ -74,6 +74,7 @@ public final class dyno/MutableClassMap : dyno/ClassMap, dyno/MutableDynoMapBase
 	public synthetic fun copy ()Ldyno/MutableDynoMapBase;
 	public final fun minusAssign (Lkotlin/reflect/KClass;)V
 	public final fun minusAssign (Lkotlin/reflect/KType;)V
+	public final fun put (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun remove (Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun remove (Lkotlin/reflect/KType;)Ljava/lang/Object;
 	public final fun set (Ldyno/DynoMapBase$Unsafe;Lkotlin/reflect/KType;Ljava/lang/Object;)V
@@ -96,6 +97,7 @@ public class dyno/MutableTypedClassMap : dyno/TypedClassMap, dyno/MutableDynoMap
 	public synthetic fun copy ()Ldyno/TypedClassMap;
 	public final fun minusAssign (Lkotlin/reflect/KClass;)V
 	public final fun minusAssign (Lkotlin/reflect/KType;)V
+	public final fun put (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun remove (Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun remove (Lkotlin/reflect/KType;)Ljava/lang/Object;
 	public final fun set (Lkotlin/reflect/KClass;Ljava/lang/Object;)V
