@@ -40,27 +40,28 @@ inline fun <S: DynoSchema, R: Any> Entity<S>.select(body: Selector<S, R>.() -> U
 class Selector<S: DynoSchema, R>
 @PublishedApi internal constructor(val ent: Entity<S>)
 {
-    @PublishedApi internal var result: R? = null
-    @PublishedApi internal var selected: Boolean = false
+    @PublishedApi internal var _result: R? = null
+    @PublishedApi internal var selected = false
 
     inline fun <reified T: S> on(body: T.(Entity<T>) -> R) {
+        if (selected) return
         val s = ent.schema
         if (s is T) {
-            result = s.body(ent.unsafeCast<Entity<T>>())
+            _result = s.body(ent.unsafeCast<Entity<T>>())
             selected = true
         }
     }
 
     inline fun orElse(body: S.(Entity<S>) -> R) {
-        if (selected) error("'orElse' called twice")
-        result = ent.schema.body(ent)
+        if (selected) return
+        _result = ent.schema.body(ent)
         selected = true
     }
 
     @PublishedApi
     internal fun getResult(): R {
         if (!selected) throwResultIsNotSet()
-        return result.unsafeCast()
+        return _result.unsafeCast()
     }
 
     private fun throwResultIsNotSet(): Nothing =
