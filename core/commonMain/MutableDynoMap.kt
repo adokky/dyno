@@ -7,9 +7,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import kotlin.internal.Exact
 import kotlin.jvm.JvmName
+import kotlin.reflect.typeOf
 
 /**
- * Represents a mutable map-like structure with typed keys conforming to [DynoClassKey].
+ * Represents a mutable map-like structure with typed keys conforming to [DynoTypeKey].
  *
  * This interface extends both [MutableDynoMapBase] for general mutable map operations
  * and [DynoMap] for typed key-based access. It supports adding, removing, and updating
@@ -66,7 +67,7 @@ operator fun <K: DynoKey<T>, T> MutableDynoMap<K>.set(key: K, value: T?) {
  * Sets the [value] for the serial name of [T] in the map.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.setInstance(value: T) {
-    Unsafe.set(DynoClassKey<T>(), value)
+    Unsafe.set(DynoTypeKey<T>(), value)
 }
 
 /**
@@ -92,7 +93,7 @@ fun <K: DynoKey<T>, T> MutableDynoMap<K>.remove(key: K): T? =
  * or `null` if it was not present.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.removeInstance(): T? =
-    Unsafe.removeAndGet(DynoClassKey<T>())
+    Unsafe.removeAndGet(DynoTypeKey<T>())
 
 /**
  * Sets the entry defined by [entry] in the map.
@@ -117,7 +118,7 @@ fun <K: DynoKey<T>, T> MutableDynoMap<K>.put(entry: DynoEntry<K, T>): T? =
  * Returns the previous value associated with [T] serial name, or `null` if the key was not present.
  */
 inline fun <reified T: Any> MutableDynoMap<DynoKey<*>>.putInstance(value: T): T? =
-    put(DynoClassKey<T>(), value)
+    put(DynoTypeKey<T>(), value)
 
 /**
  * Adds all [entries] to the map.
@@ -165,9 +166,9 @@ operator fun <K: DynoKey<*>> MutableDynoMap<K>.minusAssign(key: K) {
 }
 
 @InternalDynoApi
-inline fun <reified T: Any> DynoClassKey(): DynoKey<T> {
+inline fun <reified T: Any> DynoTypeKey(): DynoKey<T> {
     val serializer = serializer<T>()
-    return DynoKey(serializer.descriptor.serialName, serializer)
+    return DynoKey(serializer.descriptor.serialName, serializer, typeOf<T>())
 }
 
 fun <K: DynoKey<*>> MutableDynoMap(capacity: Int): MutableDynoMap<K> =

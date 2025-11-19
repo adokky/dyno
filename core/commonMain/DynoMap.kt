@@ -20,7 +20,7 @@ import kotlin.jvm.JvmName
  *
  * Note that [DynoMap.hashCode] takes into account only the keys; the values are completely ignored.
  *
- * @see DynoClassKey
+ * @see DynoTypeKey
  * @see AbstractEagerDynoSerializer
  */
 @Serializable(DynoMapSerializer::class)
@@ -43,14 +43,14 @@ operator fun <K: DynoKey<T>, T: Any> DynoMap<K>.get(key: K): T =
  * Gets the value associated with the serial name of [T] or `null` if not found.
  */
 inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstance(): T? =
-    Unsafe.get(DynoClassKey<T>())
+    Unsafe.get(DynoTypeKey<T>())
 
 /**
  * Retrieves a value of type [T] by its serial name or throws [NoSuchDynoKeyException] if not found.
  * @throws NoSuchDynoKeyException if key with serial name of [T] is not found.
  */
 inline fun <reified T: Any> DynoMap<DynoKey<*>>.getInstanceOrFail(): T =
-    Unsafe.getOrFail(DynoClassKey<T>())
+    Unsafe.getOrFail(DynoTypeKey<T>())
 
 /**
  * Gets the value associated with the specified [key] or throws [NoSuchDynoKeyException] if not found.
