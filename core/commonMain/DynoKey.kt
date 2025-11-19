@@ -4,6 +4,8 @@ import karamel.utils.unsafeCast
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * Represents a typed key for accessing values in a [DynoMap] or [DynamicObject].
@@ -33,8 +35,8 @@ import kotlinx.serialization.serializer
 interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val name: String
     val serializer: KSerializer<T & Any>
+    val type: KType
 
-    // todo KType
     // todo alternativeNames
 
     /** Called when putting key manually. Useful for validation */
@@ -44,20 +46,23 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val onDecode: DynoKeyProcessor<T & Any>? get() = null
 }
 
-// todo KType
-val DynoKey<*>.isOptional: Boolean get() = serializer.descriptor.isNullable
+val DynoKey<*>.isOptional: Boolean get() = type.isMarkedNullable
+
+@UnsafeDynoApi
+fun <T: Any> DynoKey(name: String, serializer: KSerializer<T>, type: KType): DynoKey<T> =
+    SimpleDynoKey(name, serializer, type)
 
 /**
  * Creates a new [DynoKey] with the given [name] and [serializer].
  */
-fun <T: Any> DynoKey(name: String, serializer: KSerializer<T>): DynoKey<T> =
-    SimpleDynoKey(name, serializer)
+inline fun <reified T: Any> DynoKey(name: String, serializer: KSerializer<T>): DynoKey<T> =
+    SimpleDynoKey(name, serializer, typeOf<T>())
 
 /**
  * Creates a new [DynoKey] with [serializer] for the type [T] with the given [name].
  */
 inline fun <reified T> DynoKey(name: String): DynoKey<T> =
-    SimpleDynoKey(name, serializer<T>().unsafeCast())
+    SimpleDynoKey(name)
 
 /**
  * Creates a [DynoKeyPrototype] for type [T] with an optional [name].
@@ -81,4 +86,4 @@ inline fun <reified T> dynoKey(
     name: String? = null,
     serializer: KSerializer<T & Any> = serializer<T>().unsafeCast<KSerializer<T & Any>>()
 ): DynoKeyPrototype<T> =
-    DynoKeyPrototype(serializer = serializer, propertyName = name)
+    DynoKeyPrototype(serializer = serializer, type = typeOf<T>(), propertyName = name)

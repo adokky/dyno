@@ -6,6 +6,7 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.reflect.typeOf
 import kotlin.test.*
 
 class EntityConsistencyCheckerTest {
@@ -89,12 +90,18 @@ class EntityConsistencyCheckerTest {
         }
     }
 
+    private val nullableUnit = Unit.serializer().nullable
+
+    private fun DynoKey(index: Int, isOptional: Boolean): DynoKey<Unit> = DynoKey(
+        "key$index",
+        serializer = (if (isOptional) nullableUnit else Unit.serializer()).unsafeCast(),
+        type = if (isOptional) typeOf<Unit?>() else typeOf<Unit>()
+    )
+
     @Test
     fun int_based_tracking() {
         // Test with <= 32 keys to use Int-based tracking
-        val ser = Unit.serializer()
-        val nser = ser.nullable
-        val keys = (1..20).map { DynoKey<Unit>("key$it", serializer = (if (it % 2 == 0) nser else ser).unsafeCast()) }
+        val keys = (1..20).map { DynoKey(it, isOptional = it % 2 == 0) }
         val schema = TestDynoSchema(keys)
         val checker = EntityConsistencyChecker(schema)
 
@@ -117,9 +124,7 @@ class EntityConsistencyCheckerTest {
     @Test
     fun bit_vector_based_tracking() {
         // Test with > 32 keys to use BitVector-based tracking
-        val ser = Unit.serializer()
-        val nser = ser.nullable
-        val keys = (1..50).map { DynoKey<Unit>("key$it", serializer = (if (it % 3 == 0) nser else ser).unsafeCast()) }
+        val keys = (1..50).map { DynoKey(it, isOptional = it % 3 == 0) }
         assertEquals(16, keys.count { it.isOptional })
         val schema = TestDynoSchema(keys)
         val checker = EntityConsistencyChecker(schema)

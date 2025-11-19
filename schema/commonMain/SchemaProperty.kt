@@ -4,6 +4,7 @@ import kotlinx.serialization.KSerializer
 import kotlin.jvm.JvmRecord
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
 
 /**
  * A basic implementation of [DynoKey].
@@ -14,6 +15,7 @@ import kotlin.reflect.KProperty
 data class SchemaProperty<in S: DynoSchema, T> internal constructor(
     override val name: String,
     override val serializer: KSerializer<T & Any>,
+    override val type: KType,
     internal val index: Int,
     override val onAssign: DynoKeyProcessor<T & Any>? = null,
     override val onDecode: DynoKeyProcessor<T & Any>? = null,
@@ -42,5 +44,5 @@ data class SchemaProperty<in S: DynoSchema, T> internal constructor(
         onAssign: DynoKeyProcessor<T & Any>?,
         onDecode: DynoKeyProcessor<T & Any>?
     ): SchemaProperty<S, T & Any> =
-        SchemaProperty(name, serializer, index, onAssign = onAssign, onDecode = onAssign)
+        SchemaProperty(name, serializer, type, index, onAssign = onAssign, onDecode = onAssign)
 }

@@ -6,6 +6,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -15,7 +16,7 @@ import kotlin.test.assertNull
 
 class PolymorphismTest {
     @Suppress("UnusedReceiverParameter")
-    private val Car.extension get() = SchemaProperty<Car, Int>("ext", Int.serializer(), 0)
+    private val Car.extension get() = SchemaProperty<Car, Int>("ext", Int.serializer(), typeOf<Int>(), 0)
 
     private typealias VehicleEntity = @Serializable(Vehicle.Companion::class) Entity<Vehicle>
 

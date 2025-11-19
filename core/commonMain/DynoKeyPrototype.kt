@@ -3,9 +3,11 @@ package dyno
 import kotlinx.serialization.KSerializer
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
 
 class DynoKeyPrototype<T> @PublishedApi internal constructor(
     private val serializer: KSerializer<T & Any>,
+    private val type: KType,
     private val propertyName: String? = null,
     private val onAssign: DynoKeyProcessor<T & Any>? = null,
     private val onDecode: DynoKeyProcessor<T & Any>? = null
@@ -20,9 +22,9 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
         onAssign: DynoKeyProcessor<T & Any>?,
         onDecode: DynoKeyProcessor<T & Any>?
     ): DynoKeyPrototype<T> =
-        DynoKeyPrototype(serializer, onAssign = onAssign, onDecode = onDecode)
+        DynoKeyPrototype(serializer, type, onAssign = onAssign, onDecode = onDecode)
 
     @UnsafeDynoApi
     operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): ReadOnlyProperty<Any, DynoKey<T>> =
-        SimpleDynoKey(propertyName ?: property.name, serializer, onAssign, onDecode)
+        SimpleDynoKey(propertyName ?: property.name, serializer, type, onAssign, onDecode)
 }

@@ -6,6 +6,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.reflect.typeOf
 
 sealed class AbstractDynoSchema<M: DynoMap<*>>(
     keys: Collection<DynoKey<*>> = emptyList(),
@@ -47,7 +48,14 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
         val key = if (key is SchemaProperty<*, *> && key.index == keys.size) key else {
             @Suppress("UNCHECKED_CAST")
             key as DynoKey<Any>
-            SchemaProperty<DynoSchema, Any>(key.name, key.serializer, keys.size, key.onAssign, key.onDecode)
+            SchemaProperty<DynoSchema, Any>(
+                name = key.name,
+                serializer = key.serializer,
+                type = key.type,
+                index = keys.size,
+                onAssign = key.onAssign,
+                onDecode = key.onDecode
+            )
         }
         return keys.put(key.name, key) == null
     }
@@ -81,12 +89,12 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
         name: String? = null,
         serializer: KSerializer<T & Any> = kotlinx.serialization.serializer<T>().unsafeCast()
     ): SchemaPropertySpec<T> =
-        SchemaPropertySpec(serializer = serializer, name = name)
+        SchemaPropertySpec(serializer = serializer, type = typeOf<T>(), name = name)
 
-    fun <S2: AbstractDynoSchema<M>, M: DynoMap<SchemaProperty<S2, *>>>
+    inline fun <S2: AbstractDynoSchema<M>, reified M: DynoMap<SchemaProperty<S2, *>>>
             dynoKey(schema: S2): SchemaPropertySpec<M> =
-        SchemaPropertySpec(serializer = schema.unsafeCast())
+        SchemaPropertySpec(serializer = schema.unsafeCast(), typeOf<M>())
 
-    fun <S2: EntitySchema> dynoKey(schema: S2): SchemaPropertySpec<Entity<S2>> =
-        SchemaPropertySpec(serializer = schema.unsafeCast())
+    inline fun <reified S2: EntitySchema> dynoKey(schema: S2): SchemaPropertySpec<Entity<S2>> =
+        SchemaPropertySpec(serializer = schema.unsafeCast(), typeOf<Entity<S2>>())
 }

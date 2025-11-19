@@ -3,9 +3,11 @@ package dyno
 import kotlinx.serialization.KSerializer
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
 
 class SchemaPropertySpec<T> @PublishedApi internal constructor(
     private val serializer: KSerializer<T & Any>,
+    private val type: KType,
     private val name: String? = null,
     private val onAssign: DynoKeyProcessor<T & Any>? = null,
     private val onDecode: DynoKeyProcessor<T & Any>? = null
@@ -19,7 +21,7 @@ class SchemaPropertySpec<T> @PublishedApi internal constructor(
         onAssign: DynoKeyProcessor<T & Any>?,
         onDecode: DynoKeyProcessor<T & Any>?
     ): SchemaPropertySpec<T> =
-        SchemaPropertySpec(serializer, name, onAssign = onAssign, onDecode = onDecode)
+        SchemaPropertySpec(serializer, type, name = name, onAssign = onAssign, onDecode = onDecode)
 
     @UnsafeDynoApi
     operator fun <S: DynoSchema> provideDelegate(
@@ -29,6 +31,7 @@ class SchemaPropertySpec<T> @PublishedApi internal constructor(
         return SchemaProperty<S, T>(
             name = name ?: property.name,
             serializer = serializer,
+            type = type,
             index = thisRef.keyCount(),
             onAssign = onAssign,
             onDecode = onDecode

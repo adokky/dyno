@@ -8,6 +8,8 @@ import kotlin.jvm.JvmRecord
 import kotlin.jvm.JvmStatic
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * A basic implementation of [DynoKey].
@@ -22,9 +24,10 @@ import kotlin.reflect.KProperty
  * It is the user's responsibility to ensure key names are unique across types if needed.
  */
 @JvmRecord // improves constant folding for static SimpleDynoKey fields
-data class SimpleDynoKey<T>(
+data class SimpleDynoKey<T> @UnsafeDynoApi constructor(
     override val name: String,
     override val serializer: KSerializer<T & Any>,
+    override val type: KType,
     override val onAssign: DynoKeyProcessor<T & Any>? = null,
     override val onDecode: DynoKeyProcessor<T & Any>? = null
 ) : DynoKey<T>,
@@ -32,7 +35,7 @@ data class SimpleDynoKey<T>(
     ReadOnlyProperty<Any, DynoKey<T>>,
     DynoKeySpec<T & Any>
 {
-    constructor(other: DynoKey<T>): this(other.name, other.serializer, other.onAssign, other.onDecode)
+    constructor(other: DynoKey<T>): this(other.name, other.serializer, other.type, other.onAssign, other.onDecode)
 
     override fun toString(): String = name
 
@@ -55,7 +58,7 @@ data class SimpleDynoKey<T>(
         onAssign: DynoKeyProcessor<T & Any>?,
         onDecode: DynoKeyProcessor<T & Any>?
     ): SimpleDynoKey<T & Any> =
-        SimpleDynoKey(name, serializer, onAssign = onAssign, onDecode = onDecode)
+        SimpleDynoKey(name, serializer, type, onAssign = onAssign, onDecode = onDecode)
 
     companion object {
         /**
@@ -64,7 +67,7 @@ data class SimpleDynoKey<T>(
         @JvmName("get")
         @JvmStatic
         inline operator fun <reified T> invoke(name: String): SimpleDynoKey<T> {
-            return SimpleDynoKey(name, serializer<T>().unsafeCast())
+            return SimpleDynoKey(name, serializer<T>().unsafeCast(), typeOf<T>())
         }
     }
 }

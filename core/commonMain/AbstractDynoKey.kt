@@ -1,10 +1,12 @@
 package dyno
 
 import kotlinx.serialization.KSerializer
+import kotlin.reflect.KType
 
 abstract class AbstractDynoKey<T>(
     override val name: String,
     override val serializer: KSerializer<T & Any>,
+    override val type: KType,
     override val onAssign: DynoKeyProcessor<T & Any>? = null,
     override val onDecode: DynoKeyProcessor<T & Any>? = null
 ) : DynoKey<T>, Comparable<DynoKey<T>> {
