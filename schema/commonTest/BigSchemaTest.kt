@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class BigSchemaTest {
-    private object BigSchema: SimpleDynoSchema("big") {
+    private object BigSchema: DynoMapSchema("big") {
         val k0 by dynoKey<Int>()
         val k1 by dynoKey<Int>()
         val k2 by dynoKey<Int>()

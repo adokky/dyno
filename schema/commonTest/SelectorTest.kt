@@ -17,7 +17,7 @@ class SelectorTest {
             electric set false
         }
 
-        fun test(vehicle: Entity<Vehicle>): String = vehicle.selectSingle {
+        fun test(vehicle: Entity<Vehicle>): String = vehicle.select {
             on<Car> { it[wheels].toString() }
             on<Bicycle> { it[electric].toString() }
             orElse { fail() }

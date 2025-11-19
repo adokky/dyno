@@ -1,29 +1,28 @@
 package dyno
 
-import dyno.Example.Person
 import karamel.utils.unsafeCast
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private typealias PersonEntity = @Serializable(Person::class) Entity<Person>
-
 class Example {
-    object Address: EntitySchema("address") {
+    private object Address: EntitySchema("address") {
         val street by dynoKey<String>()
         val house by dynoKey<String>()
     }
 
-    object Person: EntitySchema("person") {
+    private object Person: EntitySchema("person") {
         val name by dynoKey<String>()
         val age by dynoKey<Int>()
         val emails by dynoKey<List<String>>("emails")
         val address by dynoKey(Address)
     }
 
+    private typealias PersonEntity = @Serializable(Person::class) Entity<Person>
+
     // Create a mutable dynamic object
-    val person: PersonEntity = Person.new {
+    private val person: PersonEntity = Person.new {
         name set "Alice"
         age set 30
         emails set listOf("alice@example.com")
@@ -34,7 +33,7 @@ class Example {
     }
 
     @Test
-    fun constructionDsl() {
+    fun construction_DSL() {
         val p = Person.new {
             name set "Bob"
             age set 11

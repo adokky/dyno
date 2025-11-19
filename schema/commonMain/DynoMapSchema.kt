@@ -3,7 +3,7 @@ package dyno
 import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
 
-open class SimpleDynoSchema internal constructor(
+open class DynoMapSchema internal constructor(
     private val name: String,
     private val version: Int,
     unknownKeysStrategy: UnknownKeysStrategy,
@@ -20,7 +20,7 @@ open class SimpleDynoSchema internal constructor(
         name: String = other.name(),
         version: Int = other.version(),
         unknownKeysStrategy: UnknownKeysStrategy =
-            (other as? SimpleDynoSchema)?.serializer?.unknownKeysStrategy
+            (other as? DynoMapSchema)?.serializer?.unknownKeysStrategy
                 ?: PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY
     ): this(
         name = name,
@@ -33,7 +33,7 @@ open class SimpleDynoSchema internal constructor(
         MutableDynoMap(data, json)
     }
 
-    override fun serializer(): KSerializer<DynoMap<DynoKey<*>>> = serializer
+    override fun getSerializer(): KSerializer<DynoMap<DynoKey<*>>> = serializer
 
     final override fun name(): String = name
 

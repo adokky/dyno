@@ -48,7 +48,7 @@ abstract class PolymorphicDynoSerializer<T: Entity<*>>(
         var checkerState: Any? = null
     }
 
-    final override fun initContextState(json: Json): Any = State(
+    final override fun initState(json: Json): Any = State(
         when (val registry = getRegistry(json)) {
             is PolymorhicSchemaRegistry -> registry.get(baseSchemaName, baseSchemaVersion)
                 ?: throwSchemaNotFound(baseSchemaName)

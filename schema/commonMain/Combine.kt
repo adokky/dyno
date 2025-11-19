@@ -9,7 +9,7 @@ package dyno
  * @throws IllegalArgumentException if there is a property name conflict.
  */
 fun DynoSchema.combine(other: DynoSchema): DynoSchema {
-    val newSchema = SimpleDynoSchema(this)
+    val newSchema = DynoMapSchema(this)
 
     for (key in other.keys()) {
         require(newSchema.tryRegister(key)) {

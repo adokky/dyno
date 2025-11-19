@@ -19,7 +19,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testAllRequiredFieldsPresent() {
+    fun all_required_fields_are_present() {
         val keys = listOf(
             DynoKey<Unit>("key1"),
             DynoKey<Unit>("key2"),
@@ -37,7 +37,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testSomeRequiredFieldsMissing() {
+    fun some_required_fields_are_missing() {
         val keys = listOf(
             DynoKey<Unit>("key1"),
             DynoKey<Unit>("key2"),
@@ -60,7 +60,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testNoRequiredFields() {
+    fun no_required_fields() {
         val keys = listOf(
             DynoKey<Unit?>("key1"),
             DynoKey<Unit?>("key2")
@@ -74,7 +74,7 @@ class EntityConsistencyCheckerTest {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun testCheckWithMissingFields() {
+    fun check_with_missing_fields() {
         val keys = listOf(
             DynoKey<Unit>("requiredKey")
         )
@@ -90,7 +90,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testIntBasedTracking() {
+    fun int_based_tracking() {
         // Test with <= 32 keys to use Int-based tracking
         val ser = Unit.serializer()
         val nser = ser.nullable
@@ -115,7 +115,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testBitVectorBasedTracking() {
+    fun bit_vector_based_tracking() {
         // Test with > 32 keys to use BitVector-based tracking
         val ser = Unit.serializer()
         val nser = ser.nullable
@@ -139,7 +139,7 @@ class EntityConsistencyCheckerTest {
     }
 
     @Test
-    fun testMarkIsPresentWithIndex() {
+    fun mark_is_present_with_index() {
         val keys = listOf(DynoKey<Unit>("key1"), DynoKey<Unit>("key2"))
         val schema = TestDynoSchema(keys)
         val checker = EntityConsistencyChecker(schema)

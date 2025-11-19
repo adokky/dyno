@@ -19,7 +19,7 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
         keys.forEach(::register)
     }
 
-    protected abstract fun serializer(): KSerializer<M>
+    protected abstract fun getSerializer(): KSerializer<M>
 
     @Deprecated(
         "Protected from direct usage to avoid interference with declared key properties. " +
@@ -27,13 +27,13 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
         level = DeprecationLevel.HIDDEN
     )
     final override val descriptor: SerialDescriptor
-        get() = serializer().descriptor
+        get() = getSerializer().descriptor
 
     final override fun serialize(encoder: Encoder, value: M): Unit =
-        serializer().serialize(encoder, value)
+        getSerializer().serialize(encoder, value)
 
     final override fun deserialize(decoder: Decoder): M =
-        serializer().deserialize(decoder).unsafeCast()
+        getSerializer().deserialize(decoder).unsafeCast()
 
     override fun getKey(serializersModule: SerializersModule, name: String): DynoKey<*>? = keys[name]
 
