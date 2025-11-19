@@ -78,19 +78,15 @@ abstract class DynoMapImpl(
 
     private fun <T> get(key: DynoKey<T>, store: Boolean): T? {
         val data = data ?: return null
-        val json = json ?: return data[key].unsafeCast()
+        val json = json
 
-        val v = (if (store) data.remove(key.name) else data[key.name])
-            ?: data[key]
-            ?: return null
+        val v = json?.let { if (store) data.remove(key.name) else data[key.name] }
+            ?: return data[key].unsafeCast()
 
-        return when (v) {
-            is JsonElement -> json.decodeValue(key, v).also { decoded ->
-                if (store && decoded != null) {
-                    getOrInitData()[key] = decoded
-                }
+        return json.decodeValue(key, v.unsafeCast()).also { decoded ->
+            if (store && decoded != null) {
+                getOrInitData()[key] = decoded
             }
-            else -> v.unsafeCast()
         }
     }
 
@@ -144,7 +140,7 @@ abstract class DynoMapImpl(
         put(entry.key, entry.value)
 
     final override fun DynoMapBase.Unsafe.set(entry: DynoEntry<*, *>) {
-        set<Any>(entry.key.unsafeCast(), entry.value)
+        set(entry.key.unsafeCast(), entry.value)
     }
 
     /** @return `true` if the [key] has been successfully removed; `false` if it was not contained in the map */
