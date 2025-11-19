@@ -45,7 +45,9 @@ val restored = Json.decodeFromString(json)
 
 ## Module `core`
 
-`io.github.adokky:dyno-core:0.7`
+```kotlin
+implementation("io.github.adokky:dyno-core:0.8")
+```
 
 ### `DynoKey<T>`
 
@@ -94,7 +96,9 @@ obj -= Person.name
 
 ## Module `classmap`
 
-`io.github.adokky:dyno-classmap:0.7`
+```kotlin
+implementation("io.github.adokky:dyno-classmap:0.8")
+```
 
 ### `ClassMap<T>`
 
@@ -174,6 +178,37 @@ val cat: Cat? = map.get<Cat>()
 // compilation error: String is not a subtype of Animal
 map.put("string")
 ```
+
+## Module `schema`
+
+The `dyno-schema` module provides a powerful way to define and work with structured, validated dynamic objects using schemas. It brings compile-time safety and structural validation to `DynamicObject`.
+
+- **Structural Validation**: Ensures required fields are present.
+- **Eager Deserialization**: Fields ar`e validated and deserialized immediately, catching errors early.
+- **Polymorphic Support**: Define and work with polymorphic schemas for flexible data structures.
+- **Type-Safe Entities**: Ensures that only keys compatible with the defined schema can be used, preventing runtime errors from mismatched types.
+
+```kotlin
+object Person : SimpleDynoSchema("person") {
+    val name by dynoKey<String>()
+    val age by dynoKey<Int>()
+}
+
+// Create structurally validated entity.
+// All required fields must be present.
+val person = Person.new {
+    name set "Alex"
+    age set 30
+}
+
+// Throws MissingFieldsException
+Json.decodeFromString(Person, """{"age":30}""")
+
+person[Person.name] // OK
+person[OtherSchema.name] // compilation error
+```
+
+For full documentation and usage examples, see [schema/README.md](schema/README.md).
 
 ## Serialization
 
