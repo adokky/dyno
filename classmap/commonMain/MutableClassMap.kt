@@ -44,7 +44,16 @@ class MutableClassMap: ClassMap, MutableDynoMapBase {
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Any> put(value: T): T? =
-        Unsafe.put(DynoClassKey<T>(), value)
+        Unsafe.put(DynoTypeKey<T>(), value)
+
+    /**
+     * Associates the specified [value] with the provided class [key] using the `serialName` of the class.
+     * @return The previous value associated with the [key], or `null` if the [key] was not present.
+     */
+    fun <T: Any> put(key: KClass<in T>, value: T): T? {
+        // onAssign and onDecode default implementation does not care about type variance
+        return Unsafe.put(dynoKey(key.unsafeCast<KClass<T>>()), value)
+    }
 
     /**
      * Associates the specified [value] with the provided class [key] using the `serialName` of the class.
@@ -67,7 +76,7 @@ class MutableClassMap: ClassMap, MutableDynoMapBase {
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Any> remove(): T? =
-        Unsafe.removeAndGet(DynoClassKey<T>())
+        Unsafe.removeAndGet(DynoTypeKey<T>())
 
     /**
      * Removes the entry for the specified class [key] from the map using the `serialName` of the class.
@@ -89,7 +98,7 @@ class MutableClassMap: ClassMap, MutableDynoMapBase {
      * @param defaultValue The function to compute a default value.
      */
     inline fun <reified T: Any> getOrPut(defaultValue: () -> T): T {
-        val key = DynoClassKey<T>()
+        val key = DynoTypeKey<T>()
         Unsafe.getStateless(key)?.let { return it }
         return defaultValue().also { Unsafe.set(key, it) }
     }
@@ -98,7 +107,7 @@ class MutableClassMap: ClassMap, MutableDynoMapBase {
      * Adds the specified [value] to the map using the `serialName` of the type [T] as the key.
      */
     inline operator fun <reified T: Any> plusAssign(value: T) {
-        Unsafe.put(DynoClassKey<T>(), value)
+        Unsafe.put(DynoTypeKey<T>(), value)
     }
 
     /**

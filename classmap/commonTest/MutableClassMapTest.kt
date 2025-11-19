@@ -21,6 +21,20 @@ class MutableClassMapTest: AbstractClassMapTest() {
     }
 
     @Test
+    fun put_single_value_with_klass() {
+        val cm = buildMutableTypedClassMap {
+            assertNull(put(A::class, a))
+            assertNull(put(B::class, b))
+            assertEquals(a, put(A::class, a))
+            assertEquals(b, put(B::class, b))
+        }
+
+        assertEquals(a, cm[A::class])
+        assertEquals(b, cm[B::class])
+        assertNull(cm[Base::class])
+    }
+
+    @Test
     fun untyped_put_single_value() {
         val cm = buildMutableClassMap {
             assertNull(put(a))

@@ -44,7 +44,7 @@ sealed class ClassMap: ClassMapBase<Any> {
      * If an entry with the same `serialName` already exists, it will be replaced.
      */
     inline operator fun <reified T: Any> plus(value: T): ClassMap =
-        plus(DynoClassKey<T>(), value)
+        plus(DynoTypeKey<T>(), value)
 
     @PublishedApi
     internal fun <T: Any> plus(key: DynoKey<T>, value: T): ClassMap =

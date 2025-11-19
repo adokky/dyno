@@ -12,7 +12,7 @@ class ClassMapTest: AbstractClassMapTest() {
 
     @Test
     fun dynoName() {
-        println(DynoClassKey<List<Int>>())
+        println(DynoTypeKey<List<Int>>())
     }
 
     @Test

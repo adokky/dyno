@@ -47,13 +47,22 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Base> put(value: T): T? =
-        Unsafe.put(DynoClassKey<T>(), value)
+        Unsafe.put(DynoTypeKey<T>(), value)
+
+    /**
+     * Associates the specified [value] with the provided class [key] using the `serialName` of the class.
+     * @return The previous value associated with the [key], or `null` if the [key] was not present.
+     */
+    fun <T: Base> put(key: KClass<in T>, value: T): T? {
+        // onAssign and onDecode default implementation does not care about value type
+        return Unsafe.put(dynoKey(key.unsafeCast<KClass<T>>()), value)
+    }
 
     /**
      * Associates the specified [value] with the provided class [key] using the `serialName` of the class.
      */
     operator fun <T: Base> set(key: KClass<in T>, value: T) {
-        // onAssign and onDecode default implementation does not care about type variance
+        // onAssign and onDecode default implementation does not care about value type
         Unsafe.set(dynoKey(key.unsafeCast<KClass<T>>()), value)
     }
 
@@ -62,7 +71,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @return The previous value associated with the type, or `null` if the key was not present.
      */
     inline fun <reified T: Base> remove(): T? =
-        Unsafe.removeAndGet(DynoClassKey<T>())
+        Unsafe.removeAndGet(DynoTypeKey<T>())
 
     /**
      * Removes the entry for the specified class [key] from the map using the `serialName` of the class.
@@ -84,7 +93,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * @param defaultValue The function to compute a default value.
      */
     inline fun <reified T: Base> getOrPut(defaultValue: () -> T): T {
-        val key = DynoClassKey<T>()
+        val key = DynoTypeKey<T>()
         Unsafe.getStateless(key)?.let { return it }
         return defaultValue().also { Unsafe.set(key, it) }
     }
@@ -93,7 +102,7 @@ open class MutableTypedClassMap<Base: Any>: TypedClassMap<Base>, MutableDynoMapB
      * Adds the specified [value] to the map using the `serialName` of the type [T] as the key.
      */
     inline operator fun <reified T: Base> plusAssign(value: T) {
-        Unsafe.put(DynoClassKey<T>(), value)
+        Unsafe.put(DynoTypeKey<T>(), value)
     }
 
     /**
