@@ -2,7 +2,6 @@ package dyno
 
 import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlin.test.assertEquals

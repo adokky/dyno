@@ -11,12 +11,17 @@ import kotlinx.serialization.json.JsonNull
 @InternalDynoApi
 abstract class DynoMapImpl(
     data: MutableMap<Any, Any>?,
-    json: Json?
+    json: Json?,
+    threadSafeRead: Boolean = json != null && data != null
 ): MutableDynoMapBase {
     // see Unsafe.data
     private var data: HashMap<Any, Any>? = data?.toHashMap()
     // see Unsafe.json
     private var json: Json? = json.takeIf { data != null }
+
+    internal val lock: Lock? = if (threadSafeRead) Lock() else null
+
+    val threadSafeRead: Boolean get() = lock != null
 
     /**
      * Cached hash code. Updated on every mutation.
@@ -40,12 +45,13 @@ abstract class DynoMapImpl(
         json = null
     )
 
-    constructor(other: DynoMapImpl): this(
-        data = other.data?.let(::HashMap),
-        json = other.json
+    constructor(other: DynoMapImpl, threadSafeRead: Boolean = true): this(
+        data = other.withLock { other.data?.let(::HashMap) },
+        json = other.json,
+        threadSafeRead = threadSafeRead && other.data != null && other.json != null
     )
 
-    constructor(other: DynoMapBase): this(other as DynoMapImpl)
+    constructor(other: DynoMapBase, threadSafeRead: Boolean = true): this(other as DynoMapImpl, threadSafeRead)
 
     abstract override fun copy(): DynoMapImpl
 
@@ -67,7 +73,10 @@ abstract class DynoMapImpl(
     @Suppress("UnusedReceiverParameter")
     val DynoMapBase.Unsafe.json: Json? get() = this@DynoMapImpl.json
 
-    final override val size: Int get() = data?.size ?: 0
+    final override val size: Int get() {
+        val data = data ?: return 0
+        return withLock { data.size }
+    }
 
     final override fun <T> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? = get(key, store = true)
 
@@ -80,13 +89,50 @@ abstract class DynoMapImpl(
         val data = data ?: return null
         val json = json
 
+        return if (lock == null || json == null || !store) {
+            getUnsafe(key, store, json, data)
+        } else {
+            getThreadSafe(key, lock, json, data)
+        }
+    }
+
+    private fun <T> getUnsafe(
+        key: DynoKey<T>,
+        store: Boolean,
+        json: Json?,
+        data: HashMap<Any, Any>
+    ): T? {
         val v = json?.let { if (store) data.remove(key.name) else data[key.name] }
             ?: return data[key].unsafeCast()
 
         return json.decodeValue(key, v.unsafeCast()).also { decoded ->
             if (store && decoded != null) {
-                getOrInitData()[key] = decoded
+                data[key] = decoded
             }
+        }
+    }
+
+    private fun <T> getThreadSafe(key: DynoKey<T>, lock: Lock, json: Json, data: HashMap<Any, Any>): T? {
+        lock.lock()
+        try {
+            data.remove(key.name)?.let { v ->
+                val decoded = json.decodeValue(key, v.unsafeCast())
+                if (decoded != null) data[key] = decoded
+                return decoded
+            }
+
+            return data[key].unsafeCast()
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    private inline fun <R> withLock(body: () -> R): R {
+        lock?.lock()
+        try {
+            return body()
+        } finally {
+            lock?.unlock()
         }
     }
 
@@ -161,68 +207,90 @@ abstract class DynoMapImpl(
 
     final override fun DynoMapBase.Unsafe.contains(key: DynoKey<*>): Boolean {
         val data = data ?: return false
-        return key.name in data || key in data
+        return withLock { key.name in data || key in data }
     }
 
     override fun contains(key: String): Boolean {
         val data = data ?: return false
-        return key in data || SimpleDynoKey<Unit>(key) in data
+        return withLock { key in data || SimpleDynoKey<Unit>(key) in data }
     }
 
-    private fun <T> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
+    internal fun <T> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
         v === JsonNull -> null
         else -> decodeFromJsonElement(key.serializer, v).also { value ->
             key.onDecode?.apply { key.process(value) }
         }
     }
 
-    private fun getOrInitData(): HashMap<Any, Any> =
+    internal fun getOrInitData(): HashMap<Any, Any> =
         data ?: (HashMap<Any, Any>(2).also { this.data = it })
 
     val keyNames: Sequence<String> get() {
-        return (data ?: return emptySequence())
-            .entries.asSequence()
-            .map { it.key as? String ?: (it.key as DynoKey<*>).name }
+        val data = data ?: return emptySequence()
+
+        val seq = if (lock != null) {
+            lock.lock()
+            try {
+                data.entries.toList().asSequence()
+            } finally {
+                lock.unlock()
+            }
+        } else {
+            data.entries.asSequence()
+        }
+
+        return seq.map { it.key as? String ?: (it.key as DynoKey<*>).name }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DynoMapImpl) return false
-        if (this.size != other.size) return false
-        if (other._hashCode != 0 && _hashCode != 0 && other._hashCode != _hashCode) return false
 
-        // heuristic to avoid linear probes
-        val o1: DynoMapImpl
-        val o2: DynoMapImpl
-        if (this.json != null && other.json == null) {
-            o1 = other
-            o2 = this
-        } else {
-            o1 = this
-            o2 = other
-        }
+        withLock { other.withLock {
+            if (other._hashCode != 0 &&
+                _hashCode != 0 &&
+                other._hashCode != _hashCode)
+                return false
 
-        // size check completely eliminates all null cases
-        val data1 = o1.data ?: return true
-        val data2 = o2.data ?: return true
-
-        for ((k, v) in data1) {
-            if (k is DynoKey<*>) {
-                if (with(o2) { DynoMapBase.Unsafe.get(k) } != v) return false
+            // heuristic to avoid linear probes
+            val o1: DynoMapImpl
+            val o2: DynoMapImpl
+            if (this.json != null && other.json == null) {
+                o1 = other
+                o2 = this
             } else {
-                k as String
-                val otherJsonV = data2[k]
-                if (otherJsonV != null) {
-                    if (otherJsonV != v) return false
+                o1 = this
+                o2 = other
+            }
+
+            val data1 = o1.data
+            val data2 = o2.data
+
+            if (data1 == null) {
+                return data2 == null || data2.isEmpty()
+            } else {
+                if (data2 == null) return data1.isEmpty()
+                if (data1.size != data2.size) return false
+            }
+
+            for ((k, v) in data1) {
+                if (k is DynoKey<*>) {
+                    if (with(o2) { DynoMapBase.Unsafe.get(k) } != v) return false
                 } else {
-                    val (key, otherV) = data2.entries
-                        .find { (it.key as? DynoKey<*>)?.name == k }
-                        ?: return false
-                    val thisV = json!!.decodeValue(key as DynoKey<*>, v as JsonElement)
-                    if (thisV != otherV) return false
+                    k as String
+                    val otherJsonV = data2[k]
+                    if (otherJsonV != null) {
+                        if (otherJsonV != v) return false
+                    } else {
+                        val (key, otherV) = data2.entries
+                            .find { (it.key as? DynoKey<*>)?.name == k }
+                            ?: return false
+                        val thisV = json!!.decodeValue(key as DynoKey<*>, v as JsonElement)
+                        if (thisV != otherV) return false
+                    }
                 }
             }
-        }
+        } }
 
         return true
     }
@@ -232,42 +300,47 @@ abstract class DynoMapImpl(
     private fun updateHashKeyRemoved(key: String) { if (_hashCode != 0) incHashCode(key, -HASH_CODE_MULT) }
 
     override fun hashCode(): Int {
-        if (_hashCode != 0) return _hashCode
-
         val d = data ?: return 0
-        if (d.isEmpty()) return 0
 
-        for ((k, _) in d) {
-            val keyName = k as? String ?: (k as DynoKey<*>).name
-            incHashCode(keyName, HASH_CODE_MULT)
+        withLock {
+            if (_hashCode != 0) return _hashCode
+
+            if (d.isEmpty()) return 0
+
+            for ((k, _) in d) {
+                val keyName = k as? String ?: (k as DynoKey<*>).name
+                incHashCode(keyName, HASH_CODE_MULT)
+            }
+
+            return _hashCode
         }
-
-        return _hashCode
     }
 
     override fun toString(): String {
-        val data = data
+        val data = data ?: return  "{}"
 
-        if (data.isNullOrEmpty()) return "{}"
+        withLock {
+            if (data.isEmpty()) return "{}"
 
-        return buildString {
-            append('{')
-            for ((k, v) in data) {
-                val pid = if (k is DynoKey<*>) k.name else k
-                append(pid.toString())
-                append('=')
-                if (v is String) append('"')
-                append(v)
-                if (v is String) append('"')
-                append(',')
+            return buildString {
+                append('{')
+                for ((k, v) in data) {
+                    val pid = if (k is DynoKey<*>) k.name else k
+                    append(pid.toString())
+                    append('=')
+                    if (v is String) append('"')
+                    append(v)
+                    if (v is String) append('"')
+                    append(',')
+                }
+                setLength(length - 1)
+                append('}')
             }
-            setLength(length - 1)
-            append('}')
         }
     }
 
     internal companion object {
-        private const val HASH_CODE_MULT = 31
+        const val HASH_CODE_MULT = 31
 
         private fun createData(entries: Collection<DynoEntry<*, *>>): HashMap<Any, Any> =
             HashMap<Any, Any>(entries.size.coerceAtLeast(2), 1f).apply {
@@ -282,3 +355,5 @@ abstract class DynoMapImpl(
         private fun MutableMap<Any, Any>.toHashMap() = this as? HashMap ?: HashMap(this)
     }
 }
+
+internal val DynoMapBase.threadSafeRead: Boolean get() = this.unsafeCast<DynoMapImpl>().threadSafeRead

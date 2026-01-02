@@ -11,8 +11,8 @@ internal open class DynamicObjectImpl: DynoMapImpl, MutableDynamicObject {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
     constructor(entries: Collection<DynoEntry<*, *>>): super(entries)
-    constructor(other: DynoMapBase): super(other)
-    constructor(data: MutableMap<Any, Any>?, json: Json?): super(data, json)
+    constructor(other: DynoMapBase, threadSafeRead: Boolean = other.threadSafeRead): super(other, threadSafeRead)
+    constructor(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): super(data, json, threadSafeRead)
 
     override fun copy(): DynamicObjectImpl = DynamicObjectImpl(this)
 

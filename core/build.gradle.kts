@@ -31,6 +31,7 @@ kotlin {
         // In order to use kotlin.internal inference annotations
         // we need to suppress `INVISIBLE_REFERENCE` error
         freeCompilerArgs.add("-Xdont-warn-on-error-suppression")
+        freeCompilerArgs.add("-XXLanguage:-JsAllowLongInExportedDeclarations")
     }
 
     sourceSets.configureEach {

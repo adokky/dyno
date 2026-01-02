@@ -175,5 +175,5 @@ fun <K: DynoKey<*>> MutableDynoMap(capacity: Int): MutableDynoMap<K> =
     DynamicObjectImpl(capacity)
 
 @UnsafeDynoApi
-fun <K: DynoKey<*>> MutableDynoMap(data: MutableMap<Any, Any>?, json: Json?): MutableDynoMap<K> =
-    DynamicObjectImpl(data, json)
+fun <K: DynoKey<*>> MutableDynoMap(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean = true): MutableDynoMap<K> =
+    DynamicObjectImpl(data, json, threadSafeRead)

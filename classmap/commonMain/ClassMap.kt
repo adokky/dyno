@@ -33,8 +33,8 @@ import kotlin.reflect.KType
 sealed class ClassMap: ClassMapBase<Any> {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
-    constructor(other: ClassMapBase<*>): super(other)
-    constructor(data: MutableMap<Any, Any>?, json: Json?): super(data, json)
+    constructor(other: ClassMapBase<*>, threadSafeRead: Boolean): super(other, threadSafeRead)
+    constructor(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): super(data, json, threadSafeRead)
 
     abstract override fun copy(): ClassMap
 

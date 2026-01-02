@@ -123,7 +123,7 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
 
 internal open class DynoMapSerializerBase<T: DynoMapBase>: AbstractDynoSerializer<T>() {
     final override fun createMap(data: MutableMap<Any, Any>?, json: Json?): T =
-        DynamicObjectImpl(data, json).unsafeCast()
+        DynamicObjectImpl(data, json, threadSafeRead = true).unsafeCast()
 }
 
 private val mapSerializer = serializer<HashMap<String, JsonElement>>()

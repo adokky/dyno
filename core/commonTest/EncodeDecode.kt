@@ -55,5 +55,5 @@ abstract class TestEagerSerializer<T : DynoMapBase>: AbstractEagerDynoSerializer
     }
 
     override fun createMap(state: Any?, data: MutableMap<Any, Any>?, json: Json?): T =
-        DynamicObjectImpl(data, json).unsafeCast()
+        DynamicObjectImpl(data, json, threadSafeRead = true).unsafeCast()
 }

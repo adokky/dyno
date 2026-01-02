@@ -78,7 +78,7 @@ sealed interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>>
 fun MutableDynamicObject(capacity: Int): MutableDynamicObject = DynamicObjectImpl(capacity)
 
 @UnsafeDynoApi
-fun MutableDynamicObject(data: MutableMap<Any, Any>?, json: Json?): MutableDynamicObject =
-    DynamicObjectImpl(data, json)
+fun MutableDynamicObject(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): MutableDynamicObject =
+    DynamicObjectImpl(data, json, threadSafeRead)
 
 internal object MutableDynamicObjectSerializer: DynoMapSerializerBase<MutableDynamicObject>()

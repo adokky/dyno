@@ -68,7 +68,7 @@ open class EqualityTest: AbstractDynoTest() {
             dynoGroup(p1.with("s1"), p2.with(123))
             dynoGroup(p1.with("s1"), p2.with(123), pListOfInts.with(listOf()))
             dynoGroup(p1.with("s1"), p2.with(123), pListOfInts.with(listOf(1, 2, 3)))
-            group(dynamicObjectOf(), dynamicObjectOf().encodeDecode(), DynamicObjectImpl(HashMap(), null))
+            group(dynamicObjectOf(), dynamicObjectOf().encodeDecode(), DynamicObjectImpl(HashMap(), null, true))
             requireNonIdentical = true
         }
     }
