@@ -20,7 +20,7 @@ import kotlin.jvm.JvmName
  *
  * Note that [DynoMap.hashCode] takes into account only the keys; the values are completely ignored.
  */
-@Serializable(DynamicObjectSerializer::class)
+@Serializable(DynamicObjectSerializer.Default::class)
 sealed interface DynamicObject: DynoMap<DynoKey<*>> {
     /**
      * Creates a copy of this object.
@@ -56,4 +56,9 @@ sealed interface DynamicObject: DynoMap<DynoKey<*>> {
     operator fun minus(key: DynoKey<*>): DynamicObject
 }
 
-internal object DynamicObjectSerializer: DynoMapSerializerBase<DynamicObject>()
+open class DynamicObjectSerializer: DynoMapSerializerBase<DynamicObject> {
+    constructor(): super()
+    constructor(threadSafeRead: Boolean): super(threadSafeRead = threadSafeRead)
+
+    companion object Default: DynamicObjectSerializer()
+}

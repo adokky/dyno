@@ -19,7 +19,7 @@ import kotlin.internal.Exact
  * }
  * ```
  */
-@Serializable(MutableDynamicObjectSerializer::class)
+@Serializable(MutableDynamicObjectSerializer.Default::class)
 sealed interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>> {
     /**
      * Creates a copy of the object with the same data.
@@ -81,4 +81,9 @@ fun MutableDynamicObject(capacity: Int): MutableDynamicObject = DynamicObjectImp
 fun MutableDynamicObject(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): MutableDynamicObject =
     DynamicObjectImpl(data, json, threadSafeRead)
 
-internal object MutableDynamicObjectSerializer: DynoMapSerializerBase<MutableDynamicObject>()
+open class MutableDynamicObjectSerializer: DynoMapSerializerBase<MutableDynamicObject> {
+    constructor(): super()
+    constructor(threadSafeRead: Boolean): super(threadSafeRead = threadSafeRead)
+
+    companion object Default: MutableDynamicObjectSerializer()
+}

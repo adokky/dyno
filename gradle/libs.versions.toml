@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.3.0"
 kotlinx-serialization = "1.9.0"
+kotlinx-benchmark = "0.4.15"
 quickMpp = "0.22"
 equalsTester = "1.1.0"
 karamelUtils = "0.2.1"
@@ -9,6 +10,7 @@ jmhPlugin = "0.7.3"
 zeroJson = "0.5.0"
 
 [libraries]
+kotlinx-benchmark = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 equalsTester = { module = "io.github.adokky:equals-tester", version.ref = "equalsTester" }
 karamelUtils-core = { module = "io.github.adokky:karamel-utils-core", version.ref = "karamelUtils" }
@@ -23,3 +25,5 @@ jmh = { id = "me.champeau.jmh", version.ref = "jmhPlugin" }
 quick-mpp = { id = "io.github.adokky.quick-mpp", version.ref = "quickMpp" }
 quick-publish = { id = "io.github.adokky.quick-publish", version.ref = "quickMpp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }

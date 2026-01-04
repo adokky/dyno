@@ -23,7 +23,7 @@ import kotlin.jvm.JvmName
  * @see DynoTypeKey
  * @see AbstractEagerDynoSerializer
  */
-@Serializable(DynoMapSerializer::class)
+@Serializable(DynoMapSerializer.Default::class)
 interface DynoMap<in K: DynoKey<*>>: DynoMapBase
 
 
@@ -78,4 +78,9 @@ operator fun <K: DynoKey<*>> DynoMap<K>.minus(key: K): DynoMap<K> =
     DynamicObjectImpl(this).also { it -= key }.unsafeCast()
 
 
-internal object DynoMapSerializer: DynoMapSerializerBase<DynoMap<DynoKey<*>>>()
+open class DynoMapSerializer: DynoMapSerializerBase<DynoMap<DynoKey<*>>> {
+    constructor(): super()
+    constructor(threadSafeRead: Boolean): super(threadSafeRead = threadSafeRead)
+
+    companion object Default: DynoMapSerializer()
+}
