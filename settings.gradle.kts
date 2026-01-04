@@ -8,6 +8,8 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
+include(":benchmarks")
+
 include(":dyno-core")
 project(":dyno-core").projectDir = file("./core")
 
