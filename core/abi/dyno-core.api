@@ -127,6 +127,15 @@ public final class dyno/DynamicObjectFactoriesKt {
 	public static final fun mutableDynamicObjectOf ([Ldyno/DynoEntry;)Ldyno/MutableDynamicObject;
 }
 
+public class dyno/DynamicObjectSerializer : dyno/DynoMapSerializerBase {
+	public static final field Default Ldyno/DynamicObjectSerializer$Default;
+	public fun <init> ()V
+	public fun <init> (Ldyno/DynoReadSafety;)V
+}
+
+public final class dyno/DynamicObjectSerializer$Default : dyno/DynamicObjectSerializer {
+}
+
 public abstract interface annotation class dyno/DynoDslMarker : java/lang/annotation/Annotation {
 }
 
@@ -254,12 +263,14 @@ public final class dyno/DynoMapBaseKt {
 }
 
 public abstract class dyno/DynoMapImpl : dyno/MutableDynoMapBase {
+	public static final field HASH_CODE_MULT I
 	public fun <init> ()V
 	public fun <init> (I)V
-	public fun <init> (Ldyno/DynoMapBase;)V
-	public fun <init> (Ldyno/DynoMapImpl;)V
+	public fun <init> (Ldyno/DynoMapBase;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ldyno/DynoMapBase;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ldyno/DynoMapImpl;Ldyno/DynoReadSafety;)V
 	public fun <init> (Ljava/util/Collection;)V
-	public fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;)V
+	public fun <init> (Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;)V
 	public fun clear ()V
 	public final fun contains (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Z
 	public fun contains (Ljava/lang/String;)Z
@@ -270,6 +281,7 @@ public abstract class dyno/DynoMapImpl : dyno/MutableDynoMapBase {
 	public final fun getJson (Ldyno/DynoMapBase$Unsafe;)Lkotlinx/serialization/json/Json;
 	public final fun getKeyNames ()Lkotlin/sequences/Sequence;
 	public fun getOrFail (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
+	public final fun getReadSafety ()Ldyno/DynoReadSafety;
 	public final fun getSize ()I
 	public final fun getStateless (Ldyno/DynoMapBase$Unsafe;Ldyno/DynoKey;)Ljava/lang/Object;
 	public fun hashCode ()I
@@ -290,6 +302,30 @@ public final class dyno/DynoMapKt {
 	public static final fun getOrFail (Ldyno/DynoMap;Ldyno/DynoKey;)Ljava/lang/Object;
 	public static final fun minus (Ldyno/DynoMap;Ldyno/DynoKey;)Ldyno/DynoMap;
 	public static final fun plus (Ldyno/DynoMap;Ldyno/DynoEntry;)Ldyno/DynoMap;
+}
+
+public class dyno/DynoMapSerializer : dyno/DynoMapSerializerBase {
+	public static final field Default Ldyno/DynoMapSerializer$Default;
+	public fun <init> ()V
+	public fun <init> (Ldyno/DynoReadSafety;)V
+}
+
+public final class dyno/DynoMapSerializer$Default : dyno/DynoMapSerializer {
+}
+
+public abstract class dyno/DynoMapSerializerBase : dyno/AbstractDynoSerializer {
+	public synthetic fun <init> (Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoReadSafety;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected final fun createMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/DynoMapBase;
+}
+
+public final class dyno/DynoReadSafety : java/lang/Enum {
+	public static final field NO_CACHE Ldyno/DynoReadSafety;
+	public static final field SYNCHRONIZED Ldyno/DynoReadSafety;
+	public static final field UNSAFE Ldyno/DynoReadSafety;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldyno/DynoReadSafety;
+	public static fun values ()[Ldyno/DynoReadSafety;
 }
 
 public abstract interface annotation class dyno/ExperimentalDynoApi : java/lang/annotation/Annotation {
@@ -321,7 +357,16 @@ public final class dyno/MutableDynamicObject$DefaultImpls {
 
 public final class dyno/MutableDynamicObjectKt {
 	public static final fun MutableDynamicObject (I)Ldyno/MutableDynamicObject;
-	public static final fun MutableDynamicObject (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/MutableDynamicObject;
+	public static final fun MutableDynamicObject (Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;)Ldyno/MutableDynamicObject;
+}
+
+public class dyno/MutableDynamicObjectSerializer : dyno/DynoMapSerializerBase {
+	public static final field Default Ldyno/MutableDynamicObjectSerializer$Default;
+	public fun <init> ()V
+	public fun <init> (Ldyno/DynoReadSafety;)V
+}
+
+public final class dyno/MutableDynamicObjectSerializer$Default : dyno/MutableDynamicObjectSerializer {
 }
 
 public abstract interface class dyno/MutableDynoMap : dyno/DynoMap, dyno/MutableDynoMapBase {
@@ -350,7 +395,8 @@ public final class dyno/MutableDynoMapBase$DefaultImpls {
 
 public final class dyno/MutableDynoMapKt {
 	public static final fun MutableDynoMap (I)Ldyno/MutableDynoMap;
-	public static final fun MutableDynoMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/MutableDynoMap;
+	public static final fun MutableDynoMap (Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;)Ldyno/MutableDynoMap;
+	public static synthetic fun MutableDynoMap$default (Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;ILjava/lang/Object;)Ldyno/MutableDynoMap;
 	public static final fun minusAssign (Ldyno/MutableDynoMap;Ldyno/DynoKey;)V
 	public static final fun plusAssign (Ldyno/MutableDynoMap;Ldyno/DynoEntry;)V
 	public static final fun put (Ldyno/MutableDynoMap;Ldyno/DynoEntry;)Ljava/lang/Object;
@@ -434,6 +480,11 @@ public final class dyno/SimpleDynoKey : java/lang/Record, dyno/DynoKey, dyno/Dyn
 }
 
 public final class dyno/SimpleDynoKey$Companion {
+}
+
+public final class dyno/Sync_jvmKt {
+	public static final fun sync (Ldyno/DynoMapImpl;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun sync (Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
 public abstract interface annotation class dyno/UnsafeDynoApi : java/lang/annotation/Annotation {

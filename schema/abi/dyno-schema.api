@@ -30,10 +30,10 @@ public final class dyno/DynoMapBuilder {
 }
 
 public class dyno/DynoMapSchema : dyno/AbstractDynoSchema {
-	public fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;)V
-	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;)V
-	public synthetic fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ljava/lang/String;ILdyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	protected fun getSerializer ()Lkotlinx/serialization/KSerializer;
 	public final fun name ()Ljava/lang/String;
 	public final fun version ()I
@@ -56,17 +56,17 @@ public abstract interface class dyno/DynoSchemaRegistry {
 
 public abstract class dyno/Entity : dyno/DynoMapImpl, dyno/DynoMap {
 	public synthetic fun <init> (Ldyno/DynoSchema;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;Ldyno/DynoReadSafety;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Collection;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ldyno/DynoSchema;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun copy ()Ldyno/Entity;
 	public final fun getSchema ()Ldyno/DynoSchema;
 }
 
 public abstract class dyno/EntitySchema : dyno/AbstractDynoSchema {
-	public fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	protected fun createSerializer ()Lkotlinx/serialization/KSerializer;
 	protected final fun getSerializer ()Lkotlinx/serialization/KSerializer;
 	public final fun name ()Ljava/lang/String;
@@ -77,8 +77,10 @@ public abstract class dyno/EntitySchema : dyno/AbstractDynoSchema {
 public final class dyno/MutableEntity : dyno/Entity, dyno/MutableDynoMap {
 	public fun <init> (Ldyno/DynoSchema;)V
 	public fun <init> (Ldyno/DynoSchema;I)V
-	public fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;)V
-	public fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;)V
+	public fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ldyno/DynoMap;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun copy ()Ldyno/DynoMapBase;
 	public synthetic fun copy ()Ldyno/DynoMapImpl;
 	public synthetic fun copy ()Ldyno/Entity;
@@ -163,8 +165,8 @@ public final class dyno/PolymorphicDynoSerializer$Companion {
 }
 
 public class dyno/PolymorphicEntitySerializer : dyno/PolymorphicDynoSerializer {
-	public fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;)V
-	public synthetic fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;)V
+	public synthetic fun <init> (Ljava/lang/String;ILjava/lang/String;Ldyno/UnknownKeysStrategy;Ldyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	protected fun getMap (Ldyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;)Ldyno/Entity;
 }
