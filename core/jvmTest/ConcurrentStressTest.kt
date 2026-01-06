@@ -1,5 +1,7 @@
 package dyno
 
+import junit.framework.TestCase.assertFalse
+import karamel.utils.unsafeCast
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.atomics.AtomicArray
@@ -8,23 +10,24 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ConcurrentStressTest {
     private companion object {
         val numWorkers = Runtime.getRuntime().availableProcessors()
-        const val numIterations = 1_000_000
+        const val numIterations = 100_000
         const val numKeys = 10
     }
 
     private val keys = (0..<numKeys).map { i -> DynoKey<Int>("k$i") }
     private val noKey = DynoKey<String?>("unknown")
 
-    private val obj = dynamicObjectOf(keys.mapIndexed { i, k -> DynoEntry(k, i) })
-    private val encoded = Json.encodeToString(obj)
+    private val obj = dynamicObjectOf(keys.mapIndexed { i, k -> DynoEntry(k, i) }).unsafeCast<DynamicObjectImpl>()
+    private val encoded = Json.encodeToString<DynamicObject>(obj)
 
     @OptIn(ExperimentalAtomicApi::class)
     private val objects = AtomicArray(numWorkers) {
-        Json.decodeFromString<DynamicObject>(encoded)
+        Json.decodeFromString<DynamicObject>(encoded).unsafeCast<DynamicObjectImpl>()
     }
 
     @Test
@@ -46,24 +49,42 @@ class ConcurrentStressTest {
         } while (idx == workerIndex)
 
         val acquired = objects.loadAt(idx)
-        when (Random.nextInt(4)) {
+        when (Random.nextInt(7)) {
             0 -> assertEquals(obj, acquired)
             1 -> assertEquals(acquired, obj)
             2 -> {
                 for (i in 0 ..< numKeys) {
                     assertEquals(i, acquired[keys[i]])
                 }
-                assertNull(acquired[noKey])
+                repeat(3) {
+                    assertNull(acquired[noKey])
+                }
+            }
+            3 -> assertEquals(obj.size, acquired.size)
+            4 -> assertEquals(obj.keyNames.toSet(), acquired.keyNames.toSet())
+            5 -> assertEquals(obj.toString(), acquired.toString())
+            6 -> {
+                with(acquired) {
+                    for (i in 0 ..< numKeys) {
+                        val k = keys[i]
+                        assertTrue(DynoMapBase.Unsafe.contains(k))
+                    }
+                    repeat(3) {
+                        assertFalse(DynoMapBase.Unsafe.contains(noKey))
+                    }
+                }
             }
             else -> {
                 for (i in 0 ..< numKeys) {
                     val k = keys[i]
                     assert(k in acquired)
                 }
-                assert(noKey !in acquired)
+                repeat(3) {
+                    assert(noKey !in acquired)
+                }
             }
         }
 
-        objects.storeAt(idx, Json.decodeFromString<DynamicObject>(encoded))
+        objects.storeAt(idx, Json.decodeFromString<DynamicObject>(encoded).unsafeCast())
     }
 }

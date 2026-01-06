@@ -12,16 +12,12 @@ import kotlinx.serialization.json.JsonNull
 abstract class DynoMapImpl(
     data: MutableMap<Any, Any>?,
     json: Json?,
-    threadSafeRead: Boolean = json != null && data != null
+    val threadSafeRead: Boolean = json != null && data != null
 ): MutableDynoMapBase {
     // see Unsafe.data
     private var data: HashMap<Any, Any>? = data?.toHashMap()
     // see Unsafe.json
     private var json: Json? = json.takeIf { data != null }
-
-    internal val lock: Lock? = if (threadSafeRead) Lock() else null
-
-    val threadSafeRead: Boolean get() = lock != null
 
     /**
      * Cached hash code. Updated on every mutation.
@@ -46,7 +42,7 @@ abstract class DynoMapImpl(
     )
 
     constructor(other: DynoMapImpl, threadSafeRead: Boolean = true): this(
-        data = other.withLock { other.data?.let(::HashMap) },
+        data = other.sync { other.data?.let(::HashMap) },
         json = other.json,
         threadSafeRead = threadSafeRead && other.data != null && other.json != null
     )
@@ -75,7 +71,7 @@ abstract class DynoMapImpl(
 
     final override val size: Int get() {
         val data = data ?: return 0
-        return withLock { data.size }
+        return sync { data.size }
     }
 
     final override fun <T> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? = get(key, store = true)
@@ -89,10 +85,10 @@ abstract class DynoMapImpl(
         val data = data ?: return null
         val json = json
 
-        return if (lock == null || json == null || !store) {
+        return if (!threadSafeRead || json == null || !store) {
             getUnsafe(key, store, json, data)
         } else {
-            getThreadSafe(key, lock, json, data)
+            getThreadSafe(key, json, data)
         }
     }
 
@@ -112,27 +108,14 @@ abstract class DynoMapImpl(
         }
     }
 
-    private fun <T> getThreadSafe(key: DynoKey<T>, lock: Lock, json: Json, data: HashMap<Any, Any>): T? {
-        lock.lock()
-        try {
+    private fun <T> getThreadSafe(key: DynoKey<T>, json: Json, data: HashMap<Any, Any>): T? {
+        return sync {
             data.remove(key.name)?.let { v ->
                 val decoded = json.decodeValue(key, v.unsafeCast())
                 if (decoded != null) data[key] = decoded
                 return decoded
             }
-
-            return data[key].unsafeCast()
-        } finally {
-            lock.unlock()
-        }
-    }
-
-    private inline fun <R> withLock(body: () -> R): R {
-        lock?.lock()
-        try {
-            return body()
-        } finally {
-            lock?.unlock()
+            data[key].unsafeCast()
         }
     }
 
@@ -207,12 +190,12 @@ abstract class DynoMapImpl(
 
     final override fun DynoMapBase.Unsafe.contains(key: DynoKey<*>): Boolean {
         val data = data ?: return false
-        return withLock { key.name in data || key in data }
+        return sync { key.name in data || key in data }
     }
 
     override fun contains(key: String): Boolean {
         val data = data ?: return false
-        return withLock { key in data || SimpleDynoKey<Unit>(key) in data }
+        return sync { key in data || SimpleDynoKey<Unit>(key) in data }
     }
 
     internal fun <T> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
@@ -228,12 +211,9 @@ abstract class DynoMapImpl(
     val keyNames: Sequence<String> get() {
         val data = data ?: return emptySequence()
 
-        val seq = if (lock != null) {
-            lock.lock()
-            try {
+        val seq = if (threadSafeRead) {
+            sync {
                 data.entries.toList().asSequence()
-            } finally {
-                lock.unlock()
             }
         } else {
             data.entries.asSequence()
@@ -246,7 +226,7 @@ abstract class DynoMapImpl(
         if (this === other) return true
         if (other !is DynoMapImpl) return false
 
-        withLock { other.withLock {
+        sync(this, other) {
             if (other._hashCode != 0 &&
                 _hashCode != 0 &&
                 other._hashCode != _hashCode)
@@ -275,7 +255,7 @@ abstract class DynoMapImpl(
 
             for ((k, v) in data1) {
                 if (k is DynoKey<*>) {
-                    if (with(o2) { DynoMapBase.Unsafe.get(k) } != v) return false
+                    if (o2.getUnsafe(k, store = true, o2.json, data2) != v) return false
                 } else {
                     k as String
                     val otherJsonV = data2[k]
@@ -290,7 +270,7 @@ abstract class DynoMapImpl(
                     }
                 }
             }
-        } }
+        }
 
         return true
     }
@@ -302,7 +282,7 @@ abstract class DynoMapImpl(
     override fun hashCode(): Int {
         val d = data ?: return 0
 
-        withLock {
+        sync {
             if (_hashCode != 0) return _hashCode
 
             if (d.isEmpty()) return 0
@@ -319,7 +299,7 @@ abstract class DynoMapImpl(
     override fun toString(): String {
         val data = data ?: return  "{}"
 
-        withLock {
+        sync {
             if (data.isEmpty()) return "{}"
 
             return buildString {
