@@ -34,10 +34,10 @@ import kotlin.reflect.KType
 class MutableClassMap: ClassMap, MutableDynoMapBase {
     @PublishedApi internal constructor(): super()
     internal constructor(capacity: Int): super(capacity)
-    internal constructor(other: ClassMapBase<*>, threadSafeRead: Boolean = other.threadSafeRead):
-            super(other, threadSafeRead)
-    internal constructor(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean = data != null && json != null):
-            super(data, json, threadSafeRead)
+    internal constructor(other: ClassMapBase<*>, readSafety: DynoReadSafety = other.readSafety):
+            super(other, readSafety)
+    internal constructor(data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED):
+            super(data, json, readSafety)
 
     override fun copy(): MutableClassMap = MutableClassMap(this)
 

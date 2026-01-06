@@ -58,7 +58,7 @@ sealed interface DynamicObject: DynoMap<DynoKey<*>> {
 
 open class DynamicObjectSerializer: DynoMapSerializerBase<DynamicObject> {
     constructor(): super()
-    constructor(threadSafeRead: Boolean): super(threadSafeRead = threadSafeRead)
+    constructor(readSafety: DynoReadSafety): super(readSafety = readSafety)
 
     companion object Default: DynamicObjectSerializer()
 }

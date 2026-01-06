@@ -42,10 +42,10 @@ sealed class Entity<out S: DynoSchema>: DynoMapImpl, DynoMap<SchemaProperty<S, *
     constructor(schema: S, entries: Collection<DynoEntry<*, *>>): super(entries) {
         this.schema = schema
     }
-    constructor(schema: S, other: DynoMap<SchemaProperty<S, *>>, threadSafeRead: Boolean): super(other, threadSafeRead) {
+    constructor(schema: S, other: DynoMap<SchemaProperty<S, *>>, readSafety: DynoReadSafety): super(other, readSafety) {
         this.schema = schema
     }
-    constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): super(data, json, threadSafeRead) {
+    constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety): super(data, json, readSafety) {
         this.schema = schema
     }
 

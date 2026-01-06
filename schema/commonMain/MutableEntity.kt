@@ -28,16 +28,16 @@ import kotlinx.serialization.json.Json
 class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<SchemaProperty<S, *>> {
     constructor(schema: S): super(schema)
     constructor(schema: S, capacity: Int): super(schema, capacity)
-    constructor(schema: S, other: DynoMap<SchemaProperty<S, *>>, threadSafeRead: Boolean = other.unsafeCast<DynoMapImpl>().threadSafeRead):
-            super(schema, other, threadSafeRead)
+    constructor(schema: S, other: DynoMap<SchemaProperty<S, *>>, readSafety: DynoReadSafety = other.unsafeCast<DynoMapImpl>().readSafety):
+            super(schema, other, readSafety)
     @UnsafeDynoApi
-    constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean = data != null && json != null):
-            super(schema, data, json, threadSafeRead)
+    constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED):
+            super(schema, data, json, readSafety)
     internal constructor(schema: S, entries: Collection<DynoEntry<*, *>>): super(schema, entries)
 
     override fun copy(): MutableEntity<S> = MutableEntity(schema,
         DynoMapBase.Unsafe.data?.let(::HashMap),
         DynoMapBase.Unsafe.json,
-        threadSafeRead
+        readSafety
     )
 }

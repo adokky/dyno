@@ -22,8 +22,8 @@ class SingleThreadedReadBenchmark {
     private lateinit var decoded: DynamicObject
     private lateinit var decodedUnsafe: DynamicObject
 
-    private val threadSafeSerializer = DynamicObjectSerializer(threadSafeRead = true)
-    private val threadUnsafeSerializer = DynamicObjectSerializer(threadSafeRead = false)
+    private val threadSafeSerializer = DynamicObjectSerializer(DynoReadSafety.SYNCHRONIZED)
+    private val threadUnsafeSerializer = DynamicObjectSerializer(DynoReadSafety.UNSAFE)
 
     @Setup
     fun prepareDynamicObject() {

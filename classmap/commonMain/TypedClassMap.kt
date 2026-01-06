@@ -16,9 +16,9 @@ import kotlin.reflect.KType
 sealed class TypedClassMap<in Base: Any>: ClassMapBase<Any>, DynoMapBase {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
-    constructor(other: TypedClassMap<Base>, threadSafeRead: Boolean = true): super(other, threadSafeRead)
-    constructor(other: ClassMap, threadSafeRead: Boolean): super(other,threadSafeRead)
-    constructor(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): super(data, json, threadSafeRead)
+    constructor(other: TypedClassMap<Base>, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED): super(other, readSafety)
+    constructor(other: ClassMap, readSafety: DynoReadSafety): super(other,readSafety)
+    constructor(data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety): super(data, json, readSafety)
 
     abstract override fun copy(): TypedClassMap<Base>
 

@@ -12,12 +12,28 @@ import kotlinx.serialization.json.JsonNull
 abstract class DynoMapImpl(
     data: MutableMap<Any, Any>?,
     json: Json?,
-    val threadSafeRead: Boolean = json != null && data != null
+    readSafety: DynoReadSafety
 ): MutableDynoMapBase {
     // see Unsafe.data
     private var data: HashMap<Any, Any>? = data?.toHashMap()
     // see Unsafe.json
     private var json: Json? = json.takeIf { data != null }
+
+    private val readMode: Int
+
+    private val actualReadMode: Int get() = readMode shr 8
+    private val proposedReadMode: Int get() = readMode and 0xff
+
+    val readSafety: DynoReadSafety get() = DynoReadSafety.entries[proposedReadMode]
+
+    init {
+        val proposedReadMode = readSafety.ordinal
+        val actualReadMode = when {
+            data == null || json == null -> 0
+            else -> proposedReadMode
+        }
+        readMode = actualReadMode.shl(8).or(proposedReadMode)
+    }
 
     /**
      * Cached hash code. Updated on every mutation.
@@ -32,22 +48,26 @@ abstract class DynoMapImpl(
         _hashCode = 0
     }
 
-    constructor(): this(null, null)
+    constructor(): this(null, null, DynoReadSafety.SYNCHRONIZED)
 
-    constructor(capacity: Int): this(HashMap(capacity), null)
+    constructor(capacity: Int): this(HashMap(capacity), null, DynoReadSafety.SYNCHRONIZED)
 
     constructor(entries: Collection<DynoEntry<*, *>>): this(
         if (entries.isEmpty()) null else createData(entries),
-        json = null
+        json = null,
+        DynoReadSafety.SYNCHRONIZED
     )
 
-    constructor(other: DynoMapImpl, threadSafeRead: Boolean = true): this(
-        data = other.sync { other.data?.let(::HashMap) },
+    constructor(other: DynoMapImpl, readSafety: DynoReadSafety): this(
+        data = other.syncIfEnabled { other.data?.let(::HashMap) },
         json = other.json,
-        threadSafeRead = threadSafeRead && other.data != null && other.json != null
+        readSafety = readSafety
     )
 
-    constructor(other: DynoMapBase, threadSafeRead: Boolean = true): this(other as DynoMapImpl, threadSafeRead)
+    constructor(other: DynoMapBase, readSafety: DynoReadSafety? = null): this(
+        other = other as DynoMapImpl,
+        readSafety = readSafety ?: other.readSafety
+    )
 
     abstract override fun copy(): DynoMapImpl
 
@@ -64,39 +84,42 @@ abstract class DynoMapImpl(
      * and [data] may contain [String] keys with [JsonElement] values.
      * Upon the first attempt to read a value by such a key,
      * the value is decoded and written under the corresponding [DynoKey],
-     * and the old [String] key is removed (exception: [getStateless]).
+     * and the old [String] key is removed (exceptions: [getStateless] and [DynoReadSafety.NO_CACHE]).
      */
     @Suppress("UnusedReceiverParameter")
     val DynoMapBase.Unsafe.json: Json? get() = this@DynoMapImpl.json
 
     final override val size: Int get() {
         val data = data ?: return 0
-        return sync { data.size }
+        return syncIfEnabled { data.size }
     }
 
-    final override fun <T> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? = get(key, store = true)
+    final override fun <T> DynoMapBase.Unsafe.get(key: DynoKey<T>): T? {
+        val data = this@DynoMapImpl.data ?: return null
+        val json = this@DynoMapImpl.json
+
+        return if (actualReadMode == DynoReadSafety.SYNCHRONIZED.ordinal) {
+            getThreadSafe(key, json!!, data)
+        } else {
+            getUnsafe(key, json, data, store = actualReadMode != DynoReadSafety.NO_CACHE.ordinal)
+        }
+    }
 
     /**
      * Unlike [get], does not put deserialized value in [DynoMapImpl.data].
      */
-    final override fun <T> DynoMapBase.Unsafe.getStateless(key: DynoKey<T>): T? = get(key, store = false)
+    final override fun <T> DynoMapBase.Unsafe.getStateless(key: DynoKey<T>): T? {
+        val data = this@DynoMapImpl.data ?: return null
+        val json = this@DynoMapImpl.json
 
-    private fun <T> get(key: DynoKey<T>, store: Boolean): T? {
-        val data = data ?: return null
-        val json = json
-
-        return if (!threadSafeRead || json == null || !store) {
-            getUnsafe(key, store, json, data)
-        } else {
-            getThreadSafe(key, json, data)
-        }
+        return getUnsafe(key, json, data, store = false)
     }
 
     private fun <T> getUnsafe(
         key: DynoKey<T>,
-        store: Boolean,
         json: Json?,
-        data: HashMap<Any, Any>
+        data: HashMap<Any, Any>,
+        store: Boolean
     ): T? {
         val v = json?.let { if (store) data.remove(key.name) else data[key.name] }
             ?: return data[key].unsafeCast()
@@ -109,13 +132,13 @@ abstract class DynoMapImpl(
     }
 
     private fun <T> getThreadSafe(key: DynoKey<T>, json: Json, data: HashMap<Any, Any>): T? {
-        return sync {
+        sync {
             data.remove(key.name)?.let { v ->
                 val decoded = json.decodeValue(key, v.unsafeCast())
                 if (decoded != null) data[key] = decoded
                 return decoded
             }
-            data[key].unsafeCast()
+            return data[key].unsafeCast()
         }
     }
 
@@ -190,12 +213,12 @@ abstract class DynoMapImpl(
 
     final override fun DynoMapBase.Unsafe.contains(key: DynoKey<*>): Boolean {
         val data = data ?: return false
-        return sync { key.name in data || key in data }
+        return syncIfEnabled { key.name in data || key in data }
     }
 
     override fun contains(key: String): Boolean {
         val data = data ?: return false
-        return sync { key in data || SimpleDynoKey<Unit>(key) in data }
+        return syncIfEnabled { key in data || SimpleDynoKey<Unit>(key) in data }
     }
 
     internal fun <T> Json.decodeValue(key: DynoKey<T>, v: JsonElement): T? = when {
@@ -211,63 +234,66 @@ abstract class DynoMapImpl(
     val keyNames: Sequence<String> get() {
         val data = data ?: return emptySequence()
 
-        val seq = if (threadSafeRead) {
-            sync {
-                data.entries.toList().asSequence()
-            }
-        } else {
-            data.entries.asSequence()
+        val entries = when {
+            actualReadMode == 0 -> data.entries
+            else -> sync { data.entries.toList() }
         }
 
-        return seq.map { it.key as? String ?: (it.key as DynoKey<*>).name }
+        return entries.asSequence().map { it.key as? String ?: (it.key as DynoKey<*>).name }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DynoMapImpl) return false
 
-        sync(this, other) {
-            if (other._hashCode != 0 &&
-                _hashCode != 0 &&
-                other._hashCode != _hashCode)
-                return false
+        return when(actualReadMode or other.actualReadMode < DynoReadSafety.SYNCHRONIZED.ordinal) {
+            true -> equalsOther(other)
+            else -> sync(this, other) { equalsOther(other) }
+        }
+    }
 
-            // heuristic to avoid linear probes
-            val o1: DynoMapImpl
-            val o2: DynoMapImpl
-            if (this.json != null && other.json == null) {
-                o1 = other
-                o2 = this
+    private fun equalsOther(other: DynoMapImpl): Boolean {
+        if (other._hashCode != 0 &&
+            _hashCode != 0 &&
+            other._hashCode != _hashCode)
+            return false
+
+        // heuristic to avoid linear probes
+        val o1: DynoMapImpl
+        val o2: DynoMapImpl
+        if (this.json != null && other.json == null) {
+            o1 = other
+            o2 = this
+        } else {
+            o1 = this
+            o2 = other
+        }
+
+        val data1 = o1.data
+        val data2 = o2.data
+
+        if (data1 == null) {
+            return data2 == null || data2.isEmpty()
+        } else {
+            if (data2 == null) return data1.isEmpty()
+            if (data1.size != data2.size) return false
+        }
+
+        for ((k, v) in data1) {
+            if (k is DynoKey<*>) {
+                val store = o2.actualReadMode != DynoReadSafety.NO_CACHE.ordinal
+                if (o2.getUnsafe(k, o2.json, data2, store) != v) return false
             } else {
-                o1 = this
-                o2 = other
-            }
-
-            val data1 = o1.data
-            val data2 = o2.data
-
-            if (data1 == null) {
-                return data2 == null || data2.isEmpty()
-            } else {
-                if (data2 == null) return data1.isEmpty()
-                if (data1.size != data2.size) return false
-            }
-
-            for ((k, v) in data1) {
-                if (k is DynoKey<*>) {
-                    if (o2.getUnsafe(k, store = true, o2.json, data2) != v) return false
+                k as String
+                val otherJsonV = data2[k]
+                if (otherJsonV != null) {
+                    if (otherJsonV != v) return false
                 } else {
-                    k as String
-                    val otherJsonV = data2[k]
-                    if (otherJsonV != null) {
-                        if (otherJsonV != v) return false
-                    } else {
-                        val (key, otherV) = data2.entries
-                            .find { (it.key as? DynoKey<*>)?.name == k }
-                            ?: return false
-                        val thisV = json!!.decodeValue(key as DynoKey<*>, v as JsonElement)
-                        if (thisV != otherV) return false
-                    }
+                    val (key, otherV) = data2.entries
+                        .find { (it.key as? DynoKey<*>)?.name == k }
+                        ?: return false
+                    val thisV = json!!.decodeValue(key as DynoKey<*>, v as JsonElement)
+                    if (thisV != otherV) return false
                 }
             }
         }
@@ -281,42 +307,49 @@ abstract class DynoMapImpl(
 
     override fun hashCode(): Int {
         val d = data ?: return 0
-
-        sync {
-            if (_hashCode != 0) return _hashCode
-
-            if (d.isEmpty()) return 0
-
-            for ((k, _) in d) {
-                val keyName = k as? String ?: (k as DynoKey<*>).name
-                incHashCode(keyName, HASH_CODE_MULT)
-            }
-
-            return _hashCode
-        }
+        return syncIfEnabled { hashCode(d) }
     }
 
     override fun toString(): String {
-        val data = data ?: return  "{}"
+        val data = data ?: return "{}"
+        return syncIfEnabled { toString(data) }
+    }
 
-        sync {
-            if (data.isEmpty()) return "{}"
+    private fun hashCode(data: HashMap<Any, Any>): Int {
+        if (_hashCode != 0) return _hashCode
 
-            return buildString {
-                append('{')
-                for ((k, v) in data) {
-                    val pid = if (k is DynoKey<*>) k.name else k
-                    append(pid.toString())
-                    append('=')
-                    if (v is String) append('"')
-                    append(v)
-                    if (v is String) append('"')
-                    append(',')
-                }
-                setLength(length - 1)
-                append('}')
-            }
+        if (data.isEmpty()) return 0
+
+        for ((k, _) in data) {
+            val keyName = k as? String ?: (k as DynoKey<*>).name
+            incHashCode(keyName, HASH_CODE_MULT)
         }
+
+        return _hashCode
+    }
+
+    private fun toString(data: HashMap<Any, Any>): String {
+        if (data.isEmpty()) return "{}"
+
+        return buildString {
+            append('{')
+            for ((k, v) in data) {
+                val pid = if (k is DynoKey<*>) k.name else k
+                append(pid.toString())
+                append('=')
+                if (v is String) append('"')
+                append(v)
+                if (v is String) append('"')
+                append(',')
+            }
+            setLength(length - 1)
+            append('}')
+        }
+    }
+
+    private inline fun <R> syncIfEnabled(body: () -> R): R {
+        if (actualReadMode == 0) return body()
+        return sync { body() }
     }
 
     internal companion object {
@@ -336,4 +369,4 @@ abstract class DynoMapImpl(
     }
 }
 
-internal val DynoMapBase.threadSafeRead: Boolean get() = this.unsafeCast<DynoMapImpl>().threadSafeRead
+internal val DynoMapBase.readSafety: DynoReadSafety get() = this.unsafeCast<DynoMapImpl>().readSafety

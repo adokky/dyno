@@ -8,14 +8,14 @@ abstract class EntitySchema(
     private val version: Int = 0,
     // accessing this, so must be initialized lazily
     private var serializer: KSerializer<Entity<*>>? = null,
-    private val threadSafeRead: Boolean = true
+    private val readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED
 ): AbstractDynoSchema<Entity<*>>() {
     protected open fun createSerializer(): KSerializer<Entity<*>> {
         return if (this@EntitySchema is Polymorphic) {
-            PolymorphicEntitySerializer(name, threadSafeRead = threadSafeRead)
+            PolymorphicEntitySerializer(name, readSafety = readSafety)
         } else {
             SchemaSerializer(this, PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY) { data, json ->
-                MutableEntity(this@EntitySchema, data, json, threadSafeRead)
+                MutableEntity(this@EntitySchema, data, json, readSafety)
             }
         }
     }

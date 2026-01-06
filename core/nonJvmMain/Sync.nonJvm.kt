@@ -1,12 +1,5 @@
 package dyno
 
-// no-op lock
-internal actual class Lock {
-    actual constructor()
-    actual fun lock() {}
-    actual fun unlock() {}
-}
-
 actual inline fun <R> DynoMapImpl.sync(body: () -> R): R {
     return body()
 }

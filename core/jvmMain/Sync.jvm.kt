@@ -1,7 +1,5 @@
 package dyno
 
-internal actual typealias Lock = java.util.concurrent.locks.ReentrantLock
-
 actual inline fun <R> DynoMapImpl.sync(body: () -> R): R {
     return synchronized(this, body)
 }

@@ -31,8 +31,8 @@ import kotlin.reflect.KType
 sealed class ClassMapBase<in Base: Any>: DynoMapImpl, DynoMapBase {
     constructor(): super()
     constructor(capacity: Int): super(capacity)
-    constructor(other: ClassMapBase<*>, threadSafeRead: Boolean): super(other, threadSafeRead)
-    constructor(data: MutableMap<Any, Any>?, json: Json?, threadSafeRead: Boolean): super(data, json, threadSafeRead)
+    constructor(other: ClassMapBase<*>, readSafety: DynoReadSafety): super(other, readSafety)
+    constructor(data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety): super(data, json, readSafety)
 
     abstract override fun copy(): ClassMapBase<Base>
 

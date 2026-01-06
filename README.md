@@ -46,7 +46,7 @@ val restored = Json.decodeFromString(json)
 ## Module `core`
 
 ```kotlin
-implementation("io.github.adokky:dyno-core:0.8")
+implementation("io.github.adokky:dyno-core:0.9")
 ```
 
 ### `DynoKey<T>`
@@ -97,7 +97,7 @@ obj -= Person.name
 ## Module `classmap`
 
 ```kotlin
-implementation("io.github.adokky:dyno-classmap:0.8")
+implementation("io.github.adokky:dyno-classmap:0.9")
 ```
 
 ### `ClassMap<T>`

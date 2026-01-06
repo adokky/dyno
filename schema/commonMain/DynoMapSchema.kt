@@ -8,19 +8,19 @@ open class DynoMapSchema internal constructor(
     private val version: Int,
     unknownKeysStrategy: UnknownKeysStrategy,
     keys: Collection<DynoKey<*>>,
-    private val threadSafeRead: Boolean
+    private val readSafety: DynoReadSafety
 ): AbstractDynoSchema<DynoMap<DynoKey<*>>>(keys = keys) {
     constructor(
         name: String,
         version: Int = 0,
         unknownKeysStrategy: UnknownKeysStrategy = PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY,
-        threadSafeRead: Boolean = true
+        readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED
     ): this(
         name = name,
         version = version,
         unknownKeysStrategy,
         keys = emptyList(),
-        threadSafeRead = threadSafeRead
+        readSafety = readSafety
     )
 
     constructor(
@@ -30,17 +30,17 @@ open class DynoMapSchema internal constructor(
         unknownKeysStrategy: UnknownKeysStrategy =
             (other as? DynoMapSchema)?.serializer?.unknownKeysStrategy
                 ?: PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY,
-        threadSafeRead: Boolean = true
+        readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED
     ): this(
         name = name,
         version = version,
         unknownKeysStrategy,
         keys = other.keys().unsafeCast(),
-        threadSafeRead = threadSafeRead
+        readSafety = readSafety
     )
 
     private val serializer = SchemaSerializer<DynoMap<DynoKey<*>>>(this, unknownKeysStrategy) { data, json ->
-        MutableDynoMap(data, json, threadSafeRead)
+        MutableDynoMap(data, json, readSafety)
     }
 
     override fun getSerializer(): KSerializer<DynoMap<DynoKey<*>>> = serializer

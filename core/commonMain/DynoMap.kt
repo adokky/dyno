@@ -80,7 +80,7 @@ operator fun <K: DynoKey<*>> DynoMap<K>.minus(key: K): DynoMap<K> =
 
 open class DynoMapSerializer: DynoMapSerializerBase<DynoMap<DynoKey<*>>> {
     constructor(): super()
-    constructor(threadSafeRead: Boolean): super(threadSafeRead = threadSafeRead)
+    constructor(readSafety: DynoReadSafety): super(readSafety = readSafety)
 
     companion object Default: DynoMapSerializer()
 }

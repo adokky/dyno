@@ -2,6 +2,7 @@ package dyno
 
 import junit.framework.TestCase.assertFalse
 import karamel.utils.unsafeCast
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.atomics.AtomicArray
@@ -15,41 +16,53 @@ import kotlin.test.assertTrue
 class ConcurrentStressTest {
     private companion object {
         val numWorkers = Runtime.getRuntime().availableProcessors()
-        const val numIterations = 100_000
+        const val numIterations = 200_000
         const val numKeys = 10
     }
 
     private val keys = (0..<numKeys).map { i -> DynoKey<Int>("k$i") }
     private val noKey = DynoKey<String?>("unknown")
 
+    private val newKeyEntry = DynoKey<Int>("plus") with 123
+
     private val obj = dynamicObjectOf(keys.mapIndexed { i, k -> DynoEntry(k, i) }).unsafeCast<DynamicObjectImpl>()
     private val encoded = Json.encodeToString<DynamicObject>(obj)
 
     @OptIn(ExperimentalAtomicApi::class)
-    private val objects = AtomicArray(numWorkers) {
-        Json.decodeFromString<DynamicObject>(encoded).unsafeCast<DynamicObjectImpl>()
-    }
+    private fun test(serializer: KSerializer<DynamicObject>) {
+        val objects = AtomicArray(numWorkers) {
+            Json.decodeFromString(serializer, encoded).unsafeCast<DynamicObjectImpl>()
+        }
 
-    @Test
-    fun test() {
         (1..numWorkers).map { workerIndex ->
             CompletableFuture.supplyAsync {
                 repeat(numIterations) { iteration ->
-                    testIteration(workerIndex, iteration)
+                    testIteration(objects, serializer, workerIndex = workerIndex, iteration = iteration)
                 }
             }
         }.forEach { it.join() }
     }
 
+    @Test
+    fun testSync() = test(DynamicObjectSerializer(DynoReadSafety.SYNCHRONIZED))
+
+    @Test
+    fun testNoCache() = test(DynamicObjectSerializer(DynoReadSafety.NO_CACHE))
+
     @OptIn(ExperimentalAtomicApi::class)
-    private fun testIteration(workerIndex: Int, iteration: Int) {
+    private fun testIteration(
+        objects: AtomicArray<DynamicObjectImpl>,
+        serializer: KSerializer<DynamicObject>,
+        workerIndex: Int,
+        iteration: Int
+    ) {
         var idx: Int
         do {
             idx = Random.nextInt(numWorkers)
         } while (idx == workerIndex)
 
         val acquired = objects.loadAt(idx)
-        when (Random.nextInt(7)) {
+        when (Random.nextInt(10)) {
             0 -> assertEquals(obj, acquired)
             1 -> assertEquals(acquired, obj)
             2 -> {
@@ -74,6 +87,12 @@ class ConcurrentStressTest {
                     }
                 }
             }
+            7 -> assertEquals(obj + newKeyEntry, acquired + newKeyEntry)
+            8 -> {
+                val keyNum = Random.nextInt(numKeys)
+                val key = DynoKey<Int>("k$keyNum")
+                assertEquals(obj - key, acquired - key)
+            }
             else -> {
                 for (i in 0 ..< numKeys) {
                     val k = keys[i]
@@ -85,6 +104,6 @@ class ConcurrentStressTest {
             }
         }
 
-        objects.storeAt(idx, Json.decodeFromString<DynamicObject>(encoded).unsafeCast())
+        objects.storeAt(idx, Json.decodeFromString(serializer, encoded).unsafeCast())
     }
 }
