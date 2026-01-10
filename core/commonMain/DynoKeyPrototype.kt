@@ -24,7 +24,6 @@ class DynoKeyPrototype<T> @PublishedApi internal constructor(
     ): DynoKeyPrototype<T> =
         DynoKeyPrototype(serializer, type, onAssign = onAssign, onDecode = onDecode)
 
-    @UnsafeDynoApi
     operator fun provideDelegate(thisRef: Any?, property: KProperty<*>): ReadOnlyProperty<Any, DynoKey<T>> =
         SimpleDynoKey(propertyName ?: property.name, serializer, type, onAssign, onDecode)
 }
