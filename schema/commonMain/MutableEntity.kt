@@ -33,11 +33,16 @@ class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<SchemaProperty
     @UnsafeDynoApi
     constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED):
             super(schema, data, json, readSafety)
-    internal constructor(schema: S, entries: Collection<DynoEntry<*, *>>): super(schema, entries)
 
-    override fun copy(): MutableEntity<S> = MutableEntity(schema,
-        DynoMapBase.Unsafe.data?.let(::HashMap),
-        DynoMapBase.Unsafe.json,
-        readSafety
-    )
+    override fun copy(): MutableEntity<S> = toMutableEntity()
 }
+
+/**
+ * Returns a new [MutableEntity] containing all key-value pairs from the original [Entity].
+ */
+fun <S : DynoSchema> Entity<S>.toMutableEntity(): MutableEntity<S> = MutableEntity(
+    schema,
+    DynoMapBase.Unsafe.data?.let(::HashMap),
+    DynoMapBase.Unsafe.json,
+    readSafety
+)

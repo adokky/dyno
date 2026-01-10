@@ -77,6 +77,11 @@ operator fun <K: DynoKey<*>> DynoMap<K>.plus(entry: DynoEntry<K, *>): DynoMap<K>
 operator fun <K: DynoKey<*>> DynoMap<K>.minus(key: K): DynoMap<K> =
     DynamicObjectImpl(this).also { it -= key }.unsafeCast()
 
+/**
+ * Returns a new [MutableDynoMap] containing all key-value pairs from the original map.
+ */
+fun <K: DynoKey<*>> DynoMap<K>.toMutableDynoMap(key: K): MutableDynoMap<K> =
+    DynamicObjectImpl(this)
 
 open class DynoMapSerializer: DynoMapSerializerBase<DynoMap<DynoKey<*>>> {
     constructor(): super()

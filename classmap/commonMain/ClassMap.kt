@@ -36,6 +36,9 @@ sealed class ClassMap: ClassMapBase<Any> {
     constructor(other: ClassMapBase<*>, readSafety: DynoReadSafety): super(other, readSafety)
     constructor(data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety): super(data, json, readSafety)
 
+    /**
+     * Returns a new [ClassMap] containing all key-value pairs from the original map.
+     */
     abstract override fun copy(): ClassMap
 
     /**
@@ -96,8 +99,6 @@ fun ClassMap.asTypedClassMap(): TypedClassMap<Any> = MutableTypedClassMap(Unsafe
 fun ClassMap.toTypedClassMap(): TypedClassMap<Any> = MutableTypedClassMap(this)
 
 /**
- * Creates a new [MutableClassMap] with the same contents as this [ClassMap].
- *
- * This is a copy conversion - modifications to the returned map will not affect the original.
+ * Returns a new [MutableClassMap] containing all key-value pairs from the original map.
  */
 fun ClassMap.toMutableClassMap(): MutableClassMap = MutableClassMap(this)

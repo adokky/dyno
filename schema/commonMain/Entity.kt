@@ -49,5 +49,8 @@ sealed class Entity<out S: DynoSchema>: DynoMapImpl, DynoMap<SchemaProperty<S, *
         this.schema = schema
     }
 
+    /**
+     * Returns a new [Entity] containing all key-value pairs from the original entity.
+     */
     override abstract fun copy(): Entity<S>
 }

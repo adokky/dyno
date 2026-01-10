@@ -47,9 +47,7 @@ import kotlin.reflect.typeOf
  */
 interface MutableDynoMap<in K: DynoKey<*>>: MutableDynoMapBase, DynoMap<K> {
     /**
-     * Creates a shallow copy of this map.
-     *
-     * Modifications to the copy do not affect the original map and vice versa.
+     * Returns a new [MutableDynoMap] containing all key-value pairs from the original map.
      */
     override fun copy(): MutableDynoMap<K>
 }

@@ -8,7 +8,6 @@ Type-safe, serializable, heterogeneous map.
 
 - **Type-Safety**: Work with dynamic objects using strictly typed keys (`DynoKey<T>`).
 - **Automatic JSON Serialization**: Out-of-the-box support for `Json` format of `kotlinx.serialization`.
-- **Schema-less**: No need to predefine schemas; properties can be added or removed dynamically.
 
 
 ## Quick Example

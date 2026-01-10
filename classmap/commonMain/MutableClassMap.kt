@@ -39,6 +39,9 @@ class MutableClassMap: ClassMap, MutableDynoMapBase {
     internal constructor(data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED):
             super(data, json, readSafety)
 
+    /**
+     * Returns a new [MutableClassMap] containing all key-value pairs from the original map.
+     */
     override fun copy(): MutableClassMap = MutableClassMap(this)
 
     /**
