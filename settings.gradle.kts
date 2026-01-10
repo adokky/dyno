@@ -9,6 +9,7 @@ plugins {
 }
 
 include(":benchmarks")
+include(":examples")
 
 include(":dyno-core")
 project(":dyno-core").projectDir = file("./core")

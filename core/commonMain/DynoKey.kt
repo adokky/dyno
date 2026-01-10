@@ -37,7 +37,10 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
     val serializer: KSerializer<T & Any>
     val type: KType
 
-    // todo alternativeNames
+    // todo alternativeNames (jsonNames)
+    //  The main problem is equals().
+    //  We cannot compare 2 String keys,
+    //  because we do not have DynoKey and alternative JSON key names
 
     /** Called when putting key manually. Useful for validation */
     val onAssign: DynoKeyProcessor<T & Any>? get() = null
