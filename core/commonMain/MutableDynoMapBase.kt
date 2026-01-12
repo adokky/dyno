@@ -1,6 +1,6 @@
-package dyno
+package dev.dokky.dyno
 
-import dyno.DynoMapBase.Unsafe
+import dev.dokky.dyno.DynoMapBase.Unsafe
 
 interface MutableDynoMapBase: DynoMapBase {
     /** Removes all entries from the map, leaving it empty. */

@@ -1,8 +1,8 @@
-package dyno
+package dev.dokky.dyno
 
 import dev.adokky.eqtester.EqualsTesterConfigBuilder
 import dev.adokky.eqtester.testEquality
-import dyno.DynoMapBase.Unsafe
+import dev.dokky.dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlin.test.Test
 import kotlin.test.assertEquals

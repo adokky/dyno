@@ -1,10 +1,10 @@
-package dyno.example.zerojson
+package dev.dokky.dyno.example.zerojson
 
 import dev.dokky.zerojson.JsonInline
-import dyno.DynamicObject
-import dyno.dynamicObjectOf
-import dyno.dynoKey
-import dyno.with
+import dev.dokky.dyno.DynamicObject
+import dev.dokky.dyno.dynamicObjectOf
+import dev.dokky.dyno.dynoKey
+import dev.dokky.dyno.with
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

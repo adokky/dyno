@@ -1,6 +1,6 @@
 @file:Suppress("INVISIBLE_REFERENCE")
 
-package dyno
+package dev.dokky.dyno
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

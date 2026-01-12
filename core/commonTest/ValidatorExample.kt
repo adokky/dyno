@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 object Person {
     val age = DynoKey<Int>("age").validate {

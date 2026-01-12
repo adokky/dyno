@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 internal open class SimpleSchemaRegistryImpl(val parent: PolymorphicSchemaRegistryImpl?): MutableSimpleSchemaRegistry {
     private val registry = VersionedRegistry<DynoSchema>()

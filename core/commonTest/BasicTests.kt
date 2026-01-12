@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

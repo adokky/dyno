@@ -1,8 +1,8 @@
-package dyno
+package dev.dokky.dyno
 
 import dev.dokky.pool.AbstractObjectPool
-import dyno.AbstractEagerDynoSerializer.BaseResolveContext
-import dyno.AbstractEagerDynoSerializer.ResolveContext
+import dev.dokky.dyno.AbstractEagerDynoSerializer.BaseResolveContext
+import dev.dokky.dyno.AbstractEagerDynoSerializer.ResolveContext
 import karamel.utils.ThreadLocal
 import karamel.utils.unsafeCast
 import kotlinx.serialization.ExperimentalSerializationApi

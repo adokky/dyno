@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 internal class DynoSchemaWithChecker(internal val original: DynoSchema): DynoSchema by original {
     val checker = EntityConsistencyChecker(original)

@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 sealed interface PolymorhicSchemaRegistry: DynoSchemaRegistry {
     val global: SimpleSchemaRegistry // can also be retrieved as base schema with empty name

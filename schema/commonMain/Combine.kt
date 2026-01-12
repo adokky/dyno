@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 /**
  * Returns a new [DynoSchema] that includes all properties from both the original schema and the [other] schema.

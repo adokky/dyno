@@ -4,8 +4,12 @@ plugins {
     alias(libs.plugins.quick.publish)
 }
 
+repositories {
+    google()
+}
+
 dependencies {
-    commonMainApi(project(":core"))
+    commonMainApi(project(":dyno-core"))
     commonMainApi(libs.zeroJson.core)
     commonMainImplementation(libs.karamelUtils.core)
 }
@@ -27,8 +31,8 @@ kotlin {
 
     sourceSets.configureEach {
         languageSettings {
-            optIn("dyno.InternalDynoApi")
-            optIn("dyno.ExperimentalDynoApi")
+            optIn("dev.dokky.dyno.InternalDynoApi")
+            optIn("dev.dokky.dyno.ExperimentalDynoApi")
         }
     }
 

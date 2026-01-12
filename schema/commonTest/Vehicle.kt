@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 sealed class Vehicle(name: String): EntitySchema(name) {
     val name by dynoKey<String>()

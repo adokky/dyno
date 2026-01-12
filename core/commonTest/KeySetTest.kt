@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import junit.framework.TestCase.assertFalse
 import karamel.utils.unsafeCast

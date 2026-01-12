@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract

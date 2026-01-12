@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 sealed class AbstractDynoTest {
     protected val p1 = DynoKey<String?>("p1")

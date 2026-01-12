@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 // Empty
 

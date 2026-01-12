@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 expect inline fun <R> DynoMapImpl.sync(body: () -> R): R
 

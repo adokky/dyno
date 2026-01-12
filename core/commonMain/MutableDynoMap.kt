@@ -1,8 +1,8 @@
 @file:Suppress("INVISIBLE_REFERENCE")
 
-package dyno
+package dev.dokky.dyno
 
-import dyno.DynoMapBase.Unsafe
+import dev.dokky.dyno.DynoMapBase.Unsafe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import kotlin.internal.Exact

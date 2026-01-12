@@ -26,9 +26,9 @@ kotlin {
 
     sourceSets.configureEach {
         languageSettings {
-            optIn("dyno.InternalDynoApi")
-            optIn("dyno.ExperimentalDynoApi")
-            optIn("dyno.UnsafeDynoApi")
+            optIn("dev.dokky.dyno.InternalDynoApi")
+            optIn("dev.dokky.dyno.ExperimentalDynoApi")
+            optIn("dev.dokky.dyno.UnsafeDynoApi")
         }
     }
 

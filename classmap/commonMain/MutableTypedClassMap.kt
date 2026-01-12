@@ -1,6 +1,6 @@
-package dyno
+package dev.dokky.dyno
 
-import dyno.DynoMapBase.Unsafe
+import dev.dokky.dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 /**
  * Enum representing different levels of read thread-safety for [DynoMap].

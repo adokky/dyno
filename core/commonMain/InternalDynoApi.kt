@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 /**
  * Any API marked with this annotation is effectively internal,

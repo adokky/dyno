@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive

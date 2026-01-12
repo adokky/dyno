@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import karamel.utils.toInt
 import kotlinx.benchmark.*

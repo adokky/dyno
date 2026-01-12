@@ -1,6 +1,6 @@
 @file:Suppress("INVISIBLE_REFERENCE")
 
-package dyno
+package dev.dokky.dyno
 
 import karamel.utils.unsafeCast
 import kotlin.internal.Exact

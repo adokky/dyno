@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 /**
  * Adds [DynoKeyProcessor] that is called when a value is manually assigned to this key.

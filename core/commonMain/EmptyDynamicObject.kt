@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 internal object EmptyDynamicObject: DynamicObjectImpl() {
     override fun <T> set(key: DynoKey<T>, value: T?) = error()

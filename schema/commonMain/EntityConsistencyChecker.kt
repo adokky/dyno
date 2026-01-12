@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import dev.dokky.bitvector.BitVector
 import dev.dokky.bitvector.MutableBitVector

@@ -1,4 +1,4 @@
-package dyno
+package dev.dokky.dyno
 
 import dev.adokky.eqtester.testEquality
 import kotlin.test.Test

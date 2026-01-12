@@ -1,7 +1,7 @@
-package dyno
+package dev.dokky.dyno
 
-import dyno.AbstractEagerDynoSerializer.ResolveContext
-import dyno.AbstractEagerDynoSerializer.ResolveResult
+import dev.dokky.dyno.AbstractEagerDynoSerializer.ResolveContext
+import dev.dokky.dyno.AbstractEagerDynoSerializer.ResolveResult
 
 enum class UnknownKeysStrategy {
     Keep {
