@@ -36,13 +36,14 @@ person.remove(Person.emails)
 
 // Serialization support
 val json = Json.encodeToString(person)
+// {"name":"Alex","age":31}
 val restored = Json.decodeFromString(json)
 ```
 
 ## Module `core`
 
 ```kotlin
-implementation("io.github.adokky:dyno-core:0.10.0")
+implementation("io.github.adokky:dyno-core:0.11.0")
 ```
 
 ### `DynoKey<T>`
@@ -93,7 +94,7 @@ obj -= Person.name
 ## Module `classmap`
 
 ```kotlin
-implementation("io.github.adokky:dyno-classmap:0.10.0")
+implementation("io.github.adokky:dyno-classmap:0.11.0")
 ```
 
 ### `ClassMap<T>`

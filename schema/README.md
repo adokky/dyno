@@ -7,7 +7,7 @@ Schemas provide several advantages over plain `DynamicObject`:
 - **Type Safety**: Using `Entity<Schema>` instead of `DynamicObject` provides compile-time type safety
 
 ```kotlin
-implementation("io.github.adokky:dyno-schema:0.10.0")
+implementation("io.github.adokky:dyno-schema:0.11.0")
 ```
 
 ### Schema Definition for `DynoMap`
@@ -22,7 +22,7 @@ object Person: SimpleDynoSchema("person") {
 Schema object implements `KSerializer` for corresponding `DynoMap`. Declare type alias to reuse inside serializable classes:
 
 ```kotlin
-private typealias PersonEntity = @Serializable(Person::class) DynoMap<SchemaProperty<Person, *>>
+typealias PersonEntity = @Serializable(Person::class) DynoMap<SchemaProperty<Person, *>>
 
 @Serializable
 data class SomeData(val person: PersonEntity)
@@ -95,14 +95,14 @@ val json = Json {
 Define polymorphic serializable entity:
 
 ```kotlin
-private typealias VehicleEntity = @Serializable(Vehicle.Companion::class) Entity<Vehicle>
+typealias VehicleEntity = @Serializable(Vehicle.Companion::class) Entity<Vehicle>
 ```
 
 Deserialize:
 
 ```kotlin
 @Serializable
-private data class VehicleHolder(val vehicle: VehicleEntity)
+data class VehicleHolder(val vehicle: VehicleEntity)
 
 val holder = json.decodeFromString<VehicleHolder>(
     """{"vehicle":{"type":"car","name":"Toyota","wheels":4}}"""

@@ -121,7 +121,9 @@ abstract class AbstractDynoSerializer<T: DynoMapBase>: KSerializer<T> {
     }
 }
 
-sealed class DynoMapSerializerBase<T: DynoMapBase>(private val readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED): AbstractDynoSerializer<T>() {
+sealed class DynoMapSerializerBase<T: DynoMapBase>(
+    private val readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED
+): AbstractDynoSerializer<T>() {
     final override fun createMap(data: MutableMap<Any, Any>?, json: Json?): T =
         DynamicObjectImpl(data, json, readSafety = readSafety).unsafeCast()
 }

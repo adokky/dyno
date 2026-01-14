@@ -8,7 +8,7 @@ import dev.dokky.dyno.with
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-object DynoKeys {
+object ExtraKeys {
 	val tags by dynoKey<List<String>>()
 }
 
@@ -28,13 +28,13 @@ fun main() {
 		}"""
 	)
 
-    check(employee.extra[DynoKeys.tags] == listOf("a", "b", "c"))
+    check(employee.extra[ExtraKeys.tags] == listOf("a", "b", "c"))
 
 	val encoded = Json.encodeToString(
 		Employee(
 			name = "Bob",
 			age = 14,
-			extra = dynamicObjectOf(DynoKeys.tags with listOf("x", "y", "z"))
+			extra = dynamicObjectOf(ExtraKeys.tags with listOf("x", "y", "z"))
 		)
 	)
 

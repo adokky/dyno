@@ -1,10 +1,10 @@
 package dev.dokky.dyno
 
-actual inline fun <R> DynoMapImpl.sync(body: () -> R): R {
+actual internal inline fun <R> DynoMapImpl.sync(body: () -> R): R {
     return synchronized(this, body)
 }
 
-actual inline fun <R> sync(lock1: Any, lock2: Any, body: () -> R): R {
+actual internal inline fun <R> sync(lock1: Any, lock2: Any, body: () -> R): R {
     val first: Any
     val second: Any
 
@@ -22,4 +22,3 @@ actual inline fun <R> sync(lock1: Any, lock2: Any, body: () -> R): R {
         synchronized(second, body)
     }
 }
-
