@@ -8,8 +8,6 @@ internal abstract class SchemaSerializer<M: DynoMap<*>>(
 ): AbstractEagerDynoSerializer<M>() {
     private val schema: DynoSchema = schema.withChecker()
 
-    private fun Int.isPropertyPresent(index: Int): Boolean = (this and (1 shl index)) != 0
-
     override fun resolve(context: ResolveContext): ResolveResult {
         val resolved = schema.getKey(context.json.serializersModule, context.keyString)
         if (resolved != null) {

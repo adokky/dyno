@@ -36,7 +36,7 @@ internal class EntityConsistencyChecker(val schema: DynoSchema) {
 
     private fun getPropertyIndex(key: DynoKey<*>): Int =
         when (key) {
-            is SchemaProperty<*, *> -> key.index
+            is EntityProperty<*, *> -> with(key) { DynoKeySpec.Internal.index }
             else -> nameToIndex!!.getValue(key.name)
         }
 

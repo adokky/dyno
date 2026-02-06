@@ -2,10 +2,6 @@ package dev.dokky.dyno
 
 import kotlin.jvm.JvmName
 
-@DslMarker
-@Retention(AnnotationRetention.BINARY)
-annotation class DynoDslMarker
-
 @DynoDslMarker
 fun interface DynoKeyProcessor<in T: Any> {
     fun DynoKey<*>.process(value: T)

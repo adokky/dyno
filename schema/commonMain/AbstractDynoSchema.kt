@@ -8,10 +8,11 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import kotlin.reflect.typeOf
 
+@DynoDslMarker
 sealed class AbstractDynoSchema<M: DynoMap<*>>(
     keys: Collection<DynoKey<*>> = emptyList(),
 ): DynoSchema, KSerializer<M> {
-    private val keys = HashMap<String, SchemaProperty<*, *>>()
+    private val keys = HashMap<String, EntityProperty<*, *>>()
 
     @PublishedApi
     internal val checker by lazy { EntityConsistencyChecker(this) }
@@ -45,10 +46,14 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
     }
 
     internal fun tryRegister(key: DynoKey<*>): Boolean {
-        val key = if (key is SchemaProperty<*, *> && key.index == keys.size) key else {
+        val key = if (key is EntityProperty<*, *> &&
+            with(key) { DynoKeySpec.Internal.index } == keys.size)
+        {
+            key
+        } else {
             @Suppress("UNCHECKED_CAST")
             key as DynoKey<Any>
-            SchemaProperty<DynoSchema, Any>(
+            SimpleProperty<DynoSchema, Any>(
                 name = key.name,
                 serializer = key.serializer,
                 type = key.type,
@@ -64,9 +69,8 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
 
     override fun keys(): Collection<DynoKey<*>> = keys.values
 
-
     /**
-     * Creates a [SchemaPropertySpec] for type [T] with an optional [name].
+     * Creates a [SimplePropertySpec] for type [T] with an optional [name].
      *
      * If [name] is not provided, it will be inferred from the property name
      * when used with `by` delegate syntax.
@@ -88,13 +92,13 @@ sealed class AbstractDynoSchema<M: DynoMap<*>>(
     inline fun <reified T> dynoKey(
         name: String? = null,
         serializer: KSerializer<T & Any> = kotlinx.serialization.serializer<T>().unsafeCast()
-    ): SchemaPropertySpec<T> =
-        SchemaPropertySpec(serializer = serializer, type = typeOf<T>(), name = name)
+    ): SimplePropertySpec<T> =
+        SimplePropertySpec(serializer = serializer, type = typeOf<T>(), name = name)
 
-    inline fun <S2: AbstractDynoSchema<M>, reified M: DynoMap<SchemaProperty<S2, *>>>
-            dynoKey(schema: S2): SchemaPropertySpec<M> =
-        SchemaPropertySpec(serializer = schema.unsafeCast(), typeOf<M>())
+    inline fun <S2: AbstractDynoSchema<M>, reified M: DynoMap<EntityProperty<S2, *>>>
+            dynoKey(schema: S2): SimplePropertySpec<M> =
+        SimplePropertySpec(serializer = schema.unsafeCast(), typeOf<M>())
 
-    inline fun <reified S2: EntitySchema> dynoKey(schema: S2): SchemaPropertySpec<Entity<S2>> =
-        SchemaPropertySpec(serializer = schema.unsafeCast(), typeOf<Entity<S2>>())
+    inline fun <reified S2: EntitySchema> dynoKey(schema: S2): SimplePropertySpec<Entity<S2>> =
+        SimplePropertySpec(serializer = schema.unsafeCast(), typeOf<Entity<S2>>())
 }

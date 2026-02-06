@@ -2,20 +2,35 @@ package dev.dokky.dyno
 
 import karamel.utils.unsafeCast
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlin.concurrent.Volatile
 
 abstract class EntitySchema(
     private val name: String,
     private val version: Int = 0,
     // accessing this, so must be initialized lazily
-    private var serializer: KSerializer<Entity<*>>? = null,
+    @Volatile private var serializer: KSerializer<Entity<*>>? = null,
     private val readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED
 ): AbstractDynoSchema<Entity<*>>() {
-    protected open fun createSerializer(): KSerializer<Entity<*>> {
+    @UnsafeDynoApi
+    protected open fun newEntity(
+        schema: DynoSchema,
+        data: MutableMap<Any, Any>?,
+        json: Json?,
+        readSafety: DynoReadSafety
+    ): MutableEntity<*> {
+        return MutableEntity(schema, data, json, readSafety)
+    }
+
+    private fun createSerializer(): KSerializer<Entity<*>> {
         return if (this@EntitySchema is Polymorphic) {
-            PolymorphicEntitySerializer(name, readSafety = readSafety)
+            object : PolymorphicEntitySerializer<Entity<*>>(name, readSafety = readSafety) {
+                override fun getMap(schema: DynoSchema, data: MutableMap<Any, Any>?, json: Json?): Entity<*> =
+                    newEntity(schema, data, json, readSafety)
+            }
         } else {
             SchemaSerializer(this, PolymorphicDynoSerializer.DEFAULT_UNKNOWN_KEY_STRATEGY) { data, json ->
-                MutableEntity(this@EntitySchema, data, json, readSafety)
+                newEntity(this@EntitySchema, data, json, readSafety)
             }
         }
     }

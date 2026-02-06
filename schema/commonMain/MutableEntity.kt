@@ -1,5 +1,6 @@
 package dev.dokky.dyno
 
+import dev.dokky.dyno.DynoMapBase.Unsafe
 import karamel.utils.unsafeCast
 import kotlinx.serialization.json.Json
 
@@ -25,16 +26,25 @@ import kotlinx.serialization.json.Json
  * @see Entity
  * @see MutableDynoMap
  */
-class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<SchemaProperty<S, *>> {
+class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<EntityProperty<S, *>> {
     constructor(schema: S): super(schema)
     constructor(schema: S, capacity: Int): super(schema, capacity)
-    constructor(schema: S, other: DynoMap<SchemaProperty<S, *>>, readSafety: DynoReadSafety = other.unsafeCast<DynoMapImpl>().readSafety):
+    constructor(schema: S, other: DynoMap<EntityProperty<S, *>>, readSafety: DynoReadSafety = other.unsafeCast<DynoMapImpl>().readSafety):
             super(schema, other, readSafety)
     @UnsafeDynoApi
     constructor(schema: S, data: MutableMap<Any, Any>?, json: Json?, readSafety: DynoReadSafety = DynoReadSafety.SYNCHRONIZED):
             super(schema, data, json, readSafety)
 
     override fun copy(): MutableEntity<S> = toMutableEntity()
+
+    /**
+     * Sets the [value] for the given [key] in the entity.
+     *
+     * If [value] is `null`, the entry associated with [key] is removed from the entity.
+     */
+    operator fun <K: EntityProperty<S, T>, T> set(key: K, value: T?) {
+        if (value == null) Unsafe.remove(key) else Unsafe.set(key, value)
+    }
 }
 
 /**
@@ -42,7 +52,7 @@ class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<SchemaProperty
  */
 fun <S : DynoSchema> Entity<S>.toMutableEntity(): MutableEntity<S> = MutableEntity(
     schema,
-    DynoMapBase.Unsafe.data?.let(::HashMap),
-    DynoMapBase.Unsafe.json,
+    Unsafe.data?.let(::HashMap),
+    Unsafe.json,
     readSafety
 )

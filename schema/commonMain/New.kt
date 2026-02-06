@@ -1,4 +1,4 @@
-@file:Suppress("INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_REFERENCE") // required for kotlin.internal.Exact
 
 package dev.dokky.dyno
 
@@ -21,8 +21,7 @@ import kotlin.internal.Exact
  *
  * @throws IllegalStateException if any required property is missing after the builder block execution.
  *
- * @see AbstractDynoSchema
- * @see SchemaProperty.set
+ * @see DynoMapSchema
  */
 inline fun <S: AbstractDynoSchema<out DynoMap<K>>, K: DynoKey<*>> S.new(
     capacity: Int = keyCount(),
@@ -53,7 +52,6 @@ inline fun <S: AbstractDynoSchema<out DynoMap<K>>, K: DynoKey<*>> S.new(
  * @throws IllegalStateException if any required property is missing after the builder block execution.
  *
  * @see EntitySchema
- * @see SchemaProperty.set
  */
 inline fun <S: EntitySchema> S.new(
     capacity: Int = keyCount(),
@@ -110,14 +108,14 @@ class DynoMapBuilder<S: AbstractDynoSchema<*>> @PublishedApi internal constructo
  * ```
  * Person.new {
  *     name set "Alex"  // Sets the 'name' key to "Alex"
- *     age set null    // Removes the 'age' key if it was previously set
+ *     age set null     // Removes the 'age' key if it was previously set
  * }
  * ```
  *
  * @see DynoMapBuilder
- * @see SchemaProperty
+ * @see SimpleProperty
  */
 context(builder: DynoMapBuilder<S>)
-infix fun <S: AbstractDynoSchema<*>, K: SchemaProperty<S, in T>, @Exact T> K.set(value: T?) {
+infix fun <S: AbstractDynoSchema<*>, K: EntityProperty<S, in T>, @Exact T> K.set(value: T?) {
     builder.set(this.unsafeCast(), value)
 }

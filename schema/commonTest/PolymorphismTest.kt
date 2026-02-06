@@ -16,7 +16,7 @@ import kotlin.test.assertNull
 
 class PolymorphismTest {
     @Suppress("UnusedReceiverParameter")
-    private val Car.extension get() = SchemaProperty<Car, Int>("ext", Int.serializer(), typeOf<Int>(), 0)
+    private val Car.extension get() = SimpleProperty<Car, Int>("ext", Int.serializer(), typeOf<Int>(), 0)
 
     private typealias VehicleEntity = @Serializable(Vehicle.Companion::class) Entity<Vehicle>
 

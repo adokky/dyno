@@ -39,7 +39,7 @@ interface DynoKey<T>: AbstractEagerDynoSerializer.ResolveResult {
 
     // todo alternativeNames (jsonNames)
     //  The main problem is equals().
-    //  We cannot compare 2 String keys,
+    //  We cannot compare 2 entries with String keys,
     //  because we do not have DynoKey and alternative JSON key names
 
     /** Called when putting key manually. Useful for validation */

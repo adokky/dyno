@@ -7,7 +7,6 @@ import kotlinx.serialization.modules.SerializersModule
  *
  * Used by [PolymorphicDynoSerializer] to resolve keys during deserialization.
  */
-@DynoDslMarker
 interface DynoSchema {
     // DynoSchema should not have any properties or property-like declarations,
     // as those could conflict with user-defined ones.
