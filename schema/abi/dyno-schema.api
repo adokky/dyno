@@ -61,15 +61,41 @@ public abstract class dev/dokky/dyno/Entity : dev/dokky/dyno/DynoMapImpl, dev/do
 	public synthetic fun <init> (Ldev/dokky/dyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldev/dokky/dyno/DynoReadSafety;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ldev/dokky/dyno/DynoSchema;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun copy ()Ldev/dokky/dyno/Entity;
+	public final fun get (Ldev/dokky/dyno/EntityProperty;)Ljava/lang/Object;
+	public final fun getNullable (Ldev/dokky/dyno/EntityProperty;)Ljava/lang/Object;
 	public final fun getSchema ()Ldev/dokky/dyno/DynoSchema;
+}
+
+public abstract interface class dev/dokky/dyno/EntityProperty : dev/dokky/dyno/DynoKey, dev/dokky/dyno/DynoKeySpec, java/lang/Comparable, kotlin/properties/ReadOnlyProperty {
+	public abstract fun getIndex (Ldev/dokky/dyno/DynoKeySpec$Internal;)I
+}
+
+public final class dev/dokky/dyno/EntityProperty$DefaultImpls {
+	public static fun getOnAssign (Ldev/dokky/dyno/EntityProperty;)Ldev/dokky/dyno/DynoKeyProcessor;
+	public static fun getOnDecode (Ldev/dokky/dyno/EntityProperty;)Ldev/dokky/dyno/DynoKeyProcessor;
+}
+
+public abstract class dev/dokky/dyno/EntityPropertySpec : dev/dokky/dyno/DynoKeySpec {
+	protected fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;)V
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)V
+	protected abstract fun createProperty (Ljava/lang/String;I)Ldev/dokky/dyno/EntityProperty;
+	protected final fun getName ()Ljava/lang/String;
+	protected final fun getOnAssign ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public final fun getOnAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	protected final fun getOnDecode ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public final fun getOnDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	protected final fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	protected final fun getType ()Lkotlin/reflect/KType;
+	public final fun provideDelegate (Ldev/dokky/dyno/DynoSchema;Lkotlin/reflect/KProperty;)Lkotlin/properties/ReadOnlyProperty;
 }
 
 public abstract class dev/dokky/dyno/EntitySchema : dev/dokky/dyno/AbstractDynoSchema {
 	public fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;Ldev/dokky/dyno/DynoReadSafety;)V
 	public synthetic fun <init> (Ljava/lang/String;ILkotlinx/serialization/KSerializer;Ldev/dokky/dyno/DynoReadSafety;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	protected fun createSerializer ()Lkotlinx/serialization/KSerializer;
 	protected final fun getSerializer ()Lkotlinx/serialization/KSerializer;
 	public final fun name ()Ljava/lang/String;
+	protected fun newEntity (Ldev/dokky/dyno/DynoSchema;Ljava/util/Map;Lkotlinx/serialization/json/Json;Ldev/dokky/dyno/DynoReadSafety;)Ldev/dokky/dyno/MutableEntity;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 	public final fun version ()I
 }
@@ -87,6 +113,7 @@ public final class dev/dokky/dyno/MutableEntity : dev/dokky/dyno/Entity, dev/dok
 	public synthetic fun copy ()Ldev/dokky/dyno/MutableDynoMap;
 	public synthetic fun copy ()Ldev/dokky/dyno/MutableDynoMapBase;
 	public fun copy ()Ldev/dokky/dyno/MutableEntity;
+	public final fun set (Ldev/dokky/dyno/EntityProperty;Ljava/lang/Object;)V
 }
 
 public final class dev/dokky/dyno/MutableEntityKt {
@@ -111,15 +138,17 @@ public final class dev/dokky/dyno/NewKt {
 	public static final fun new (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;)Ldev/dokky/dyno/Entity;
 	public static synthetic fun new$default (Ldev/dokky/dyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/dokky/dyno/DynoMap;
 	public static synthetic fun new$default (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/dokky/dyno/Entity;
-	public static final fun set (Ldev/dokky/dyno/DynoMapBuilder;Ldev/dokky/dyno/SchemaProperty;Ljava/lang/Object;)V
+	public static final fun set (Ldev/dokky/dyno/DynoMapBuilder;Ldev/dokky/dyno/EntityProperty;Ljava/lang/Object;)V
 }
 
 public final class dev/dokky/dyno/NewUnsafeKt {
+	public static final fun newMutableUnsafe (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;)Ldev/dokky/dyno/MutableEntity;
+	public static synthetic fun newMutableUnsafe$default (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/dokky/dyno/MutableEntity;
 	public static final fun newUnsafe (Ldev/dokky/dyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;)Ldev/dokky/dyno/DynoMap;
 	public static final fun newUnsafe (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;)Ldev/dokky/dyno/Entity;
 	public static synthetic fun newUnsafe$default (Ldev/dokky/dyno/AbstractDynoSchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/dokky/dyno/DynoMap;
 	public static synthetic fun newUnsafe$default (Ldev/dokky/dyno/EntitySchema;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/dokky/dyno/Entity;
-	public static final fun set (Ldev/dokky/dyno/MutableEntity;Ldev/dokky/dyno/SchemaProperty;Ljava/lang/Object;)V
+	public static final fun set (Ldev/dokky/dyno/MutableEntity;Ldev/dokky/dyno/EntityProperty;Ljava/lang/Object;)V
 }
 
 public abstract interface class dev/dokky/dyno/PolymorhicSchemaRegistry : dev/dokky/dyno/DynoSchemaRegistry {
@@ -178,47 +207,6 @@ public class dev/dokky/dyno/PolymorphicEntitySerializer : dev/dokky/dyno/Polymor
 public final class dev/dokky/dyno/PolymorphicSchemaRegistryBuilder : dev/dokky/dyno/AbstractSchemaRegistryBuilder {
 }
 
-public final class dev/dokky/dyno/SchemaProperty : java/lang/Record, dev/dokky/dyno/DynoKey, dev/dokky/dyno/DynoKeySpec, java/lang/Comparable, kotlin/properties/ReadOnlyProperty {
-	public fun compareTo (Ldev/dokky/dyno/DynoKey;)I
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lkotlinx/serialization/KSerializer;
-	public final fun component3 ()Lkotlin/reflect/KType;
-	public final fun component5 ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public final fun component6 ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public synthetic fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/DynoKeySpec;
-	public fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/SchemaProperty;
-	public fun equals (Ljava/lang/Object;)Z
-	public synthetic fun getName ()Ljava/lang/String;
-	public synthetic fun getOnAssign ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public synthetic fun getOnAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public synthetic fun getOnDecode ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public synthetic fun getOnDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public synthetic fun getSerializer ()Lkotlinx/serialization/KSerializer;
-	public synthetic fun getType ()Lkotlin/reflect/KType;
-	public fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ldev/dokky/dyno/SchemaProperty;
-	public synthetic fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
-	public fun hashCode ()I
-	public fun name ()Ljava/lang/String;
-	public fun onAssign ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public fun onAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public fun onDecode ()Ldev/dokky/dyno/DynoKeyProcessor;
-	public fun onDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public fun serializer ()Lkotlinx/serialization/KSerializer;
-	public fun toString ()Ljava/lang/String;
-	public fun type ()Lkotlin/reflect/KType;
-}
-
-public final class dev/dokky/dyno/SchemaPropertySpec : dev/dokky/dyno/DynoKeySpec {
-	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)V
-	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/DynoKeySpec;
-	public fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/SchemaPropertySpec;
-	public fun getOnAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public fun getOnDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
-	public final fun provideDelegate (Ldev/dokky/dyno/DynoSchema;Lkotlin/reflect/KProperty;)Lkotlin/properties/ReadOnlyProperty;
-}
-
 public final class dev/dokky/dyno/SchemaRegistryBuilder : dev/dokky/dyno/AbstractSchemaRegistryBuilder {
 	public fun <init> ()V
 	public synthetic fun getTopRegistry$dyno_schema ()Ldev/dokky/dyno/MutableSimpleSchemaRegistry;
@@ -248,6 +236,47 @@ public final class dev/dokky/dyno/Selector {
 	public final fun orElse (Lkotlin/jvm/functions/Function2;)V
 	public final fun setSelected (Z)V
 	public final fun set_result (Ljava/lang/Object;)V
+}
+
+public final class dev/dokky/dyno/SimpleProperty : java/lang/Record, dev/dokky/dyno/EntityProperty {
+	public fun compareTo (Ldev/dokky/dyno/DynoKey;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/KSerializer;
+	public final fun component3 ()Lkotlin/reflect/KType;
+	public final fun component5 ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public final fun component6 ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public synthetic fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/DynoKeySpec;
+	public fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/SimpleProperty;
+	public fun equals (Ljava/lang/Object;)Z
+	public synthetic fun getIndex (Ldev/dokky/dyno/DynoKeySpec$Internal;)I
+	public synthetic fun getName ()Ljava/lang/String;
+	public synthetic fun getOnAssign ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public synthetic fun getOnAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public synthetic fun getOnDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	public synthetic fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public synthetic fun getType ()Lkotlin/reflect/KType;
+	public fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ldev/dokky/dyno/SimpleProperty;
+	public synthetic fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun index (Ldev/dokky/dyno/DynoKeySpec$Internal;)I
+	public fun name ()Ljava/lang/String;
+	public fun onAssign ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public fun onAssign (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	public fun onDecode ()Ldev/dokky/dyno/DynoKeyProcessor;
+	public fun onDecode (Ldev/dokky/dyno/DynoKeySpec$Internal;)Ldev/dokky/dyno/DynoKeyProcessor;
+	public fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+	public fun type ()Lkotlin/reflect/KType;
+}
+
+public final class dev/dokky/dyno/SimplePropertySpec : dev/dokky/dyno/EntityPropertySpec {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)V
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;Lkotlin/reflect/KType;Ljava/lang/String;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/DynoKeySpec;
+	public fun copy (Ldev/dokky/dyno/DynoKeySpec$Internal;Ldev/dokky/dyno/DynoKeyProcessor;Ldev/dokky/dyno/DynoKeyProcessor;)Ldev/dokky/dyno/SimplePropertySpec;
+	public synthetic fun createProperty (Ljava/lang/String;I)Ldev/dokky/dyno/EntityProperty;
 }
 
 public abstract interface class dev/dokky/dyno/SimpleSchemaRegistry : dev/dokky/dyno/DynoSchemaRegistry {
