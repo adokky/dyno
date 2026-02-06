@@ -6,8 +6,8 @@
 
 Type-safe, serializable, heterogeneous map.
 
-- **Type-Safety**: Work with dynamic objects using strictly typed keys (`DynoKey<T>`).
-- **Automatic JSON Serialization**: Out-of-the-box support for `Json` format of `kotlinx.serialization`.
+- Type-safety: work with dynamic objects using strictly typed keys (`DynoKey<T>`).
+- Automatic JSON serialization: out-of-the-box support for `Json` format of `kotlinx.serialization`.
 
 
 ## Quick Example
@@ -26,18 +26,23 @@ val person = mutableDynamicObjectOf(
     Person.emails with listOf("alex@example.com")
 )
 
-// Access values in a type-safe manner
-val name: String = person[Person.name]
-val age: Int = person[Person.age]
-val emails: List<String>? = person[Person.emails]
-
-person[Person.age] = 31
-person.remove(Person.emails)
+// Type-safe accessors
+val name   = person[Person.name]    // String
+val age    = person[Person.age]     // Int
+val emails = person[Person.emails]  // List<String>?
 
 // Serialization support
 val json = Json.encodeToString(person)
-// {"name":"Alex","age":31}
-val restored = Json.decodeFromString(json)
+val restored = Json.decodeFromString<DynamicObject>(json)
+```
+
+Serialized form:
+```json
+{
+  "name": "Alex",
+  "age": 31,
+  "emails": ["alex@example.com"]
+}
 ```
 
 ## Module `core`
@@ -180,10 +185,10 @@ map.put("string")
 
 The `dyno-schema` module provides a powerful way to define and work with structured, validated dynamic objects using schemas. It brings compile-time safety and structural validation to `DynamicObject`.
 
-- **Structural Validation**: Ensures required fields are present.
-- **Eager Deserialization**: Fields ar`e validated and deserialized immediately, catching errors early.
-- **Polymorphic Support**: Define and work with polymorphic schemas for flexible data structures.
-- **Type-Safe Entities**: Ensures that only keys compatible with the defined schema can be used, preventing runtime errors from mismatched types.
+- Structural validation: Ensures required fields are present.
+- Eager deserialization: Fields ar`e validated and deserialized immediately, catching errors early.
+- Polymorphic support: Define and work with polymorphic schemas for flexible data structures.
+- Type-safe entities: Ensures that only keys compatible with the defined schema can be used, preventing runtime errors from mismatched types.
 
 ```kotlin
 object Person : SimpleDynoSchema("person") {
@@ -251,9 +256,9 @@ Json.encodeToString(MutableTypedClassMapSerializer, mutableTypedClassMap)
 
 Achieved with `AbstractEagerDynoSerializer` — a powerful base class for implementing eager deserialization strategies.
 
-- **Direct Deserialization**. Unlike lazy serialization, which stores intermediate `JsonElement` representations, eager serialization decodes values directly into their final types, offering better memory efficiency.
-- **Mixed Strategies**: Supports mixing eager and lazy (`JsonElement`) deserialization strategies within the same object by returning `ResolveResult.Keep`.
-- **Polymorphic Handling**: Delay deserialization of keys that depend on other fields using `ResolveResult.Delay`, enabling polymorphic or conditional deserialization.
+- Direct deserialization. unlike lazy serialization, which stores intermediate `JsonElement` representations, eager serialization decodes values directly into their final types, offering better memory efficiency.
+- Mixed strategies: supports mixing eager and lazy (`JsonElement`) deserialization strategies within the same object by returning `ResolveResult.Keep`.
+- Polymorphic handling: delay deserialization of keys that depend on other fields using `ResolveResult.Delay`, enabling polymorphic or conditional deserialization.
 
 Usage [example](docs/eager-deserialization.md).
 
@@ -264,7 +269,7 @@ All processors are chained in the order of assignment.
 
 * `onAssign` is called when a value is manually assigned to the key (e.g., `obj[key] = value` or `dynamicObjectOf(key with value)`).
 * `onDecode` is called when a value is deserialized. 
-Usefulll when validation is only needed for deserialized objects received from network.
+Useful when validation is only needed for deserialized objects received from network.
 * `validate` assigns the same validation logic to both `onAssign` and `onDecode`.
 
 ### Example

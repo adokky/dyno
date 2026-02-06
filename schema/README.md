@@ -2,9 +2,9 @@
 
 Schemas provide several advantages over plain `DynamicObject`:
 
-- **Structural Validation**: Automatic validation of required fields and types during deserialization
-- **Eager Deserialization**: All fields are validated and deserialized immediately, catching errors early
-- **Type Safety**: Using `Entity<Schema>` instead of `DynamicObject` provides compile-time type safety
+- Structural Validation: Automatic validation of required fields and types during deserialization
+- Eager Deserialization: All fields are validated and deserialized immediately, catching errors early
+- Type Safety: Using `Entity<Schema>` instead of `DynamicObject` provides compile-time type safety
 
 ```kotlin
 implementation("io.github.adokky:dyno-schema:0.11.0")
