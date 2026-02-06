@@ -20,7 +20,7 @@ object Person {
     val emails by dynoKey<List<String>?>()
 }
 
-val person = mutableDynamicObjectOf(
+val person = dynamicObjectOf(
     Person.name with "Alex",
     Person.age with 42,
     Person.emails with listOf("alex@example.com")
