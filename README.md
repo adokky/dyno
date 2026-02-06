@@ -48,7 +48,7 @@ Serialized form:
 ## Module `core`
 
 ```kotlin
-implementation("io.github.adokky:dyno-core:0.11.0")
+implementation("io.github.adokky:dyno-core:0.12.0")
 ```
 
 ### `DynoKey<T>`
@@ -99,7 +99,7 @@ obj -= Person.name
 ## Module `classmap`
 
 ```kotlin
-implementation("io.github.adokky:dyno-classmap:0.11.0")
+implementation("io.github.adokky:dyno-classmap:0.12.0")
 ```
 
 ### `ClassMap<T>`

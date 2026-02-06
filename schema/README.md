@@ -7,7 +7,7 @@ Schemas provide several advantages over plain `DynamicObject`:
 - Type Safety: Using `Entity<Schema>` instead of `DynamicObject` provides compile-time type safety
 
 ```kotlin
-implementation("io.github.adokky:dyno-schema:0.11.0")
+implementation("io.github.adokky:dyno-schema:0.12.0")
 ```
 
 ### Schema Definition for `DynoMap`
