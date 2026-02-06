@@ -24,23 +24,12 @@ mavenPublishing {
 kotlin {
     compilerOptions {
         allWarningsAsErrors = false
-        // In order to use kotlin.internal inference annotations
-        // we need to suppress `INVISIBLE_REFERENCE` error
-        freeCompilerArgs.add("-Xdont-warn-on-error-suppression")
     }
 
     sourceSets.configureEach {
         languageSettings {
             optIn("dev.dokky.dyno.InternalDynoApi")
             optIn("dev.dokky.dyno.ExperimentalDynoApi")
-        }
-    }
-
-    js().browser {
-        testTask {
-            useKarma {
-                useFirefox()
-            }
         }
     }
 }
