@@ -1,40 +1,35 @@
 package dev.dokky.dyno
 
 import kotlinx.serialization.KSerializer
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
-abstract class EntityPropertySpec<T> @PublishedApi internal constructor(
+abstract class EntityPropertySpec<T, SBase: DynoSchema>(
     protected val serializer: KSerializer<T & Any>,
     protected val type: KType,
     protected val name: String?,
     protected val onAssign: DynoKeyProcessor<T & Any>?,
     protected val onDecode: DynoKeyProcessor<T & Any>?
 ): DynoKeySpec<T & Any> {
-    protected constructor(
-        serializer: KSerializer<T & Any>,
-        type: KType,
-        name: String? = null,
-    ): this(serializer, type, name, onAssign = null, onDecode = null)
-
     final override val DynoKeySpec.Internal.onAssign: DynoKeyProcessor<T & Any>?
         get() = this@EntityPropertySpec.onAssign
     final override val DynoKeySpec.Internal.onDecode: DynoKeyProcessor<T & Any>?
         get() = this@EntityPropertySpec.onDecode
 
-    protected abstract fun <S: DynoSchema> createProperty(name: String, index: Int): EntityProperty<S, T>
+    protected inline fun <S: DynoSchema, R: EntityProperty<S, T>> S.createProperty(
+        property: KProperty<*>,
+        createProperty: (name: String, index: Int) -> R
+    ): R {
+        return createProperty(name ?: property.name, keyCount())
+            .also { prop -> register(prop) }
+    }
 
-    @UnsafeDynoApi
-    operator fun <S: DynoSchema> provideDelegate(
+    protected fun DynoSchema.register(prop: DynoKey<*>) {
+        if (this is AbstractDynoSchema<*>) register(prop)
+    }
+
+    abstract operator fun <S: SBase> provideDelegate(
         thisRef: S,
         property: KProperty<*>
-    ): ReadOnlyProperty<Any, EntityProperty<S, T>> {
-        return createProperty<S>(
-            name = name ?: property.name,
-            index = thisRef.keyCount()
-        ).also {
-            if (thisRef is AbstractDynoSchema<*>) thisRef.register(it)
-        }
-    }
+    ): EntityProperty<S, T>
 }

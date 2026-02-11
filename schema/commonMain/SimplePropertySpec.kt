@@ -1,6 +1,7 @@
 package dev.dokky.dyno
 
 import kotlinx.serialization.KSerializer
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
 class SimplePropertySpec<T> @PublishedApi internal constructor(
@@ -9,7 +10,7 @@ class SimplePropertySpec<T> @PublishedApi internal constructor(
     name: String? = null,
     onAssign: DynoKeyProcessor<T & Any>? = null,
     onDecode: DynoKeyProcessor<T & Any>? = null
-): EntityPropertySpec<T>(
+): EntityPropertySpec<T, DynoSchema>(
     serializer, type,
     name = name,
     onAssign = onAssign,
@@ -21,14 +22,15 @@ class SimplePropertySpec<T> @PublishedApi internal constructor(
     ): SimplePropertySpec<T> =
         SimplePropertySpec(serializer, type, name = name, onAssign = onAssign, onDecode = onDecode)
 
-    override fun <S: DynoSchema> createProperty(name: String, index: Int): SimpleProperty<S, T> {
-        return SimpleProperty(
-            name = name,
-            serializer = serializer,
-            type = type,
-            index = index,
-            onAssign = onAssign,
-            onDecode = onDecode
-        )
-    }
+    override fun <S : DynoSchema> provideDelegate(thisRef: S, property: KProperty<*>): SimpleProperty<S, T> =
+        thisRef.createProperty(property) { name, index ->
+            SimpleProperty(
+                name = name,
+                serializer = serializer,
+                type = type,
+                index = index,
+                onAssign = onAssign,
+                onDecode = onDecode
+            )
+        }
 }
