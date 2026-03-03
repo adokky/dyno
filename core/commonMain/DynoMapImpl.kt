@@ -273,7 +273,7 @@ abstract class DynoMapImpl(
         val data2 = o2.data
 
         if (data1 == null) {
-            return data2 == null || data2.isEmpty()
+            return data2.isNullOrEmpty()
         } else {
             if (data2 == null) return data1.isEmpty()
             if (data1.size != data2.size) return false
