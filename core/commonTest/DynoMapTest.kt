@@ -6,8 +6,8 @@ import kotlin.test.*
 class DynoMapTest: AbstractMutableDynoTest() {
     @Test
     fun required_key() {
-        val moi = DynamicObjectImpl()
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = DynamicObjectImpl()
+        val m = mdo as MutableDynoMap<DynoKey<*>>
 
         assertFailsWith<NoSuchDynoKeyException> { m[r1] }
         m[r1] = "123"
@@ -17,18 +17,18 @@ class DynoMapTest: AbstractMutableDynoTest() {
 
     @Test
     fun basic_mutation() {
-        val moi = DynamicObjectImpl()
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = DynamicObjectImpl()
+        val m = mdo as MutableDynoMap<DynoKey<*>>
         assertNull(m[p1])
         assertNull(m[p2])
         assertNull(m[p3])
-        mutationCheck(moi)
+        mutationCheck(mdo)
     }
 
     @Test
     fun put_all() {
-        val moi = DynamicObjectImpl()
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = DynamicObjectImpl()
+        val m = mdo as MutableDynoMap<DynoKey<*>>
 
         m.putAll(
             listOf(
@@ -43,12 +43,12 @@ class DynoMapTest: AbstractMutableDynoTest() {
 
     @Test
     fun clear_object() {
-        val moi = mutableDynamicObjectOf(
+        val mdo = mutableDynamicObjectOf(
             p1.with("xyz"),
             p2.with(123),
             p3.with(listOf(true))
         )
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val m = mdo as MutableDynoMap<DynoKey<*>>
 
         assertNotEquals(0, m.hashCode())
         m.clear()
@@ -62,8 +62,8 @@ class DynoMapTest: AbstractMutableDynoTest() {
 
     @Test
     fun put_entry() {
-        val moi = mutableDynamicObjectOf(p1 with "old")
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = mutableDynamicObjectOf(p1 with "old")
+        val m = mdo as MutableDynoMap<DynoKey<*>>
         assertEquals("old", m.put(p1 with "new"))
         assertNull(m.put(p2 with 123))
         assertEquals("new", m[p1])
@@ -72,14 +72,30 @@ class DynoMapTest: AbstractMutableDynoTest() {
 
     @Test
     fun set_entry() {
-        val moi = mutableDynamicObjectOf(p1 with "old")
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = mutableDynamicObjectOf(p1 with "old")
+        val m = mdo as MutableDynoMap<DynoKey<*>>
         m.set(p1 with "new")
         m.set(p2 with 123)
         assertEquals("new", m[p1])
         assertEquals(123, m[p2])
     }
 
+    @Test
+    fun get_or_put() {
+        val mdo = mutableDynamicObjectOf(p1 with "old") as MutableDynoMap<DynoKey<*>>
+        var lambdaExecuted = 0
+
+        assertEquals("old", mdo.getOrPut(p1) { lambdaExecuted++; "new1" })
+        assertEquals(0, lambdaExecuted)
+        assertEquals("old", mdo.getOrPut(p1) { lambdaExecuted++; "new2" })
+        assertEquals(0, lambdaExecuted)
+
+        assertEquals("new1", mdo.getOrPut(r1) { lambdaExecuted++; "new1" })
+        assertEquals(1, lambdaExecuted)
+        assertEquals("new1", mdo.getOrPut(r1) { lambdaExecuted++; "new2" })
+        assertEquals(1, lambdaExecuted)
+    }
+    
     @Test
     fun decode_undefined() {
         val jsonString = """{ "${p1.name}": null }"""
@@ -95,14 +111,14 @@ class DynoMapTest: AbstractMutableDynoTest() {
 
     @Test
     fun complex_mutation() {
-        val moi = DynamicObjectImpl()
-        val m = moi as MutableDynoMap<DynoKey<*>>
+        val mdo = DynamicObjectImpl()
+        val m = mdo as MutableDynoMap<DynoKey<*>>
 
-        val initialKeySet = moi.keyNames.toSet()
+        val initialKeySet = mdo.keyNames.toSet()
         val keySet = initialKeySet.toMutableSet()
 
         fun checkKeys() {
-            assertEquals(keySet, moi.keyNames.toSet())
+            assertEquals(keySet, mdo.keyNames.toSet())
         }
         fun checkKeyRemoved(key: DynoKey<*>) { keySet -= key.name; checkKeys() }
         fun checkKeyAdded(  key: DynoKey<*>) { keySet += key.name; checkKeys() }

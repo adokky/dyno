@@ -130,6 +130,15 @@ fun <K: DynoKey<*>> MutableDynoMap<K>.putAll(entries: Iterable<DynoEntry<K, *>>)
 }
 
 /**
+ * Returns the value for the given [key] if the value is present and not `null`.
+ * Otherwise, calls the [defaultValue] function,
+ * puts its result into the map under the given key and returns the call result.
+ */
+inline fun <K: DynoKey<T>, T> MutableDynoMap<K>.getOrPut(key: K, defaultValue: () -> @Exact T & Any): T {
+    return get(key) ?: defaultValue().also { put(key, it) }
+}
+
+/**
  * Sets the [value] for the current context key in the map.
  *
  * This infix function allows DSL-style assignments when used inside [MutableDynoMap] context.
