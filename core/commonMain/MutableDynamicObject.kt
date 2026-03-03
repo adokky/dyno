@@ -74,6 +74,8 @@ sealed interface MutableDynamicObject: DynamicObject, MutableDynoMap<DynoKey<*>>
     operator fun minusAssign(key: DynoKey<*>)
 }
 
+fun MutableDynamicObject(): MutableDynamicObject = DynamicObjectImpl()
+
 fun MutableDynamicObject(capacity: Int): MutableDynamicObject = DynamicObjectImpl(capacity)
 
 @UnsafeDynoApi
