@@ -33,17 +33,11 @@ class NoSuchDynoKeyException(
     constructor(key: DynoKey<*>, schema: String? = null): this(key.name, schema)
 }
 
-private fun buildMessage(key: String, schema: String?): String = buildString(64) {
-    append("unknown property '")
-    append(key)
-    append('\'')
-
-    if (schema != null) {
-        append(" of schema '")
-        append(schema)
-        append('\'')
+private fun buildMessage(key: String, schema: String?): String =
+    when (schema) {
+        null -> "Key '$key' is missing in the map"
+        else -> "Property '$key' is not defined in schema '$schema'"
     }
-}
 
 /**
  * Thrown during [DynamicObject] decoding when using eager deserialization strategy ([AbstractEagerDynoSerializer]).
