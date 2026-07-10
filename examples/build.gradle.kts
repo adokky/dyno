@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.quick.mpp)
-    `maven-publish`
 }
 
 repositories {
