@@ -12,7 +12,7 @@ import kotlin.reflect.typeOf
 sealed class AbstractDynoSchema<M: DynoMap<*>>(
     keys: Collection<DynoKey<*>> = emptyList(),
 ): DynoSchema, KSerializer<M> {
-    private val keys = HashMap<String, EntityProperty<*, *>>()
+    private val keys = LinkedHashMap<String, EntityProperty<*, *>>()
 
     @PublishedApi
     internal val checker by lazy { EntityConsistencyChecker(this) }
