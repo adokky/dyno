@@ -32,6 +32,9 @@ interface DynoMap<in K: DynoKey<*>>: DynoMapBase
 operator fun <K: DynoKey<T>, T> DynoMap<K>.get(key: K): T? =
     Unsafe.get(key)
 
+/** Gets the value associated with the specified [key] or `null` if not found */
+fun <K: DynoKey<T>, T> DynoMap<K>.getOrNull(key: K): T? = get(key)
+
 /**
  * Gets the value associated with the specified [key] or throws [NoSuchDynoKeyException] if not found.
  * @throws NoSuchDynoKeyException if the [key] is not present.
