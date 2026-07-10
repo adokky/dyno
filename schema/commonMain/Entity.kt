@@ -7,8 +7,7 @@ import kotlin.jvm.JvmName
 /**
  * Represents a type-safe wrapper over [DynoMap] that is bound to a specific [DynoSchema].
  *
- * An [Entity] ensures that all operations on the underlying map conform to the schema's structure,
- * providing compile-time safety and automatic validation during deserialization.
+ * An [Entity] ensures that all operations on the underlying map conform to the schema's structure.
  *
  * Entities are immutable by default. For mutable operations, use [MutableEntity].
  *
