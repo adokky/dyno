@@ -26,7 +26,7 @@ import kotlinx.serialization.json.Json
  * @see Entity
  * @see MutableDynoMap
  */
-class MutableEntity<out S: DynoSchema>: Entity<S>, MutableDynoMap<EntityProperty<S, *>> {
+class MutableEntity<S: DynoSchema>: Entity<S>, MutableDynoMap<EntityProperty<S, *>> {
     constructor(schema: S): super(schema)
     constructor(schema: S, capacity: Int): super(schema, capacity)
     constructor(schema: S, other: DynoMap<EntityProperty<S, *>>, readSafety: DynoReadSafety = other.unsafeCast<DynoMapImpl>().readSafety):
